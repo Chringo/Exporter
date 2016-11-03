@@ -1,10 +1,13 @@
 #include "maya_includes.h"
 #include "HeaderStructs.h"
 #include <vector>
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 
 MCallbackIdArray myCallbackArray;
+fstream outFile("knulla.BBF", std::fstream::out | std::fstream::binary);
 
 void Createmesh(MObject & mNode)
 {
@@ -72,12 +75,37 @@ void Createmesh(MObject & mNode)
 	vertices->shrink_to_fit();
 	newIndex->shrink_to_fit();
 
+	/*creating the mesh header and setting the length of the vertices and indices*/
+	MeshHeader mHead;
+	mHead.indexLength = newIndex->size();
+	mHead.vertices = vertices->size();
+
+	/*Getting the transformation matrix*/
+	MFnDependencyNode depNode = mMesh.parent(0);
+	MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
+	mHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
+
+	/*writing the information to the binary file*/
+	//outFile.write((char*)&mHead, sizeof(MeshHeader));
+	//outFile.write((char*)vertices->data(), sizeof(Vertex)*vertices->size());
+	//outFile.write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());
+
+	/*deleting allocated variables*/
+	//delete vertices;
+	//delete newIndex;
 }
 
 EXPORT MStatus initializePlugin(MObject obj)
 {
 	// most functions will use this variable to indicate for errors
 	MStatus res = MS::kSuccess;
+
+	//ofstream outFile("test", std::ofstream::binary);
+	if (!outFile.is_open())
+	{
+		MGlobal::displayError("ERROR: the binary file is not open");
+		
+	}
 
 	MFnPlugin myPlugin(obj, "Maya plugin", "1.0", "Any", &res);
 	if (MFAIL(res)) {
@@ -86,6 +114,10 @@ EXPORT MStatus initializePlugin(MObject obj)
 
 	MGlobal::displayInfo("Maya plugin loaded!");
 	
+	/*writing a temporary mainheader for one mesh*/
+	MainHeader tempHead{ 1 };
+	outFile.write((char*)&tempHead, sizeof(MainHeader));
+
 	MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
 	for (; !meshIt.isDone(); meshIt.next())
 	{
@@ -109,8 +141,11 @@ EXPORT MStatus uninitializePlugin(MObject obj)
 	// our plugin
 	MFnPlugin plugin(obj);
 
+	outFile.close();
 	// if any resources have been allocated, release and free here before
 	// returning...
+	MMessage::removeCallbacks(myCallbackArray);
+
 
 	MGlobal::displayInfo("Maya plugin unloaded!");
 

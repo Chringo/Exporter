@@ -1,2 +1,5 @@
 ﻿  Source.cpp
+c:\users\cool_david_92\documents\github\exporter\exportbbf\exportbbf\source.cpp(80): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+c:\users\cool_david_92\documents\github\exporter\exportbbf\exportbbf\source.cpp(81): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+     Creating library C:\Users\Cool_David_92\Documents\GitHub\Exporter\ExportBBF\x64\Debug\ExportBBF.lib and object C:\Users\Cool_David_92\Documents\GitHub\Exporter\ExportBBF\x64\Debug\ExportBBF.exp
   ExportBBF.vcxproj -> C:\Users\Cool_David_92\Documents\GitHub\Exporter\ExportBBF\x64\Debug\ExportBBF.mll

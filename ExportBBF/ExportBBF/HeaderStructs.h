@@ -30,7 +30,7 @@ struct MeshHeader
 {
 	unsigned int vertices;
 	unsigned int indexLength;
-	float transformationMatrix[16];
+	MMatrix transMatrix;
 };
 struct Vertex
 {

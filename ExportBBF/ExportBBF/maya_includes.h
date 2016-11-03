@@ -28,6 +28,9 @@
 #include <maya/MFnPointLight.h>
 #include <maya/MSelectionList.h>
 #include <maya/MItDependencyNodes.h>
+#include <maya/MFnAnimCurve.h>
+#include "maya/MFnSkinCluster.h"
+#include "maya/MFnIkJoint.h"
 
 // Wrappers
 #include <maya/MGlobal.h>

@@ -2,6 +2,11 @@
 
 using namespace std;
 
+void fLoadSkinDeformer(MObject obj)
+{
+
+}
+
 EXPORT MStatus initializePlugin(MObject obj)
 {
 	// most functions will use this variable to indicate for errors
@@ -11,6 +16,22 @@ EXPORT MStatus initializePlugin(MObject obj)
 	if (MFAIL(res)) {
 		CHECK_MSTATUS(res);
 	}
+
+    MItDependencyNodes dependIt(MFn::kDependencyNode, &res);
+
+    if (res == MStatus::kSuccess)
+    {
+        while (!dependIt.isDone())
+        {
+            if (dependIt.item().hasFn(MFn::kSkin))
+            {
+                fLoadSkinDeformer(dependIt.item());
+            }
+
+            dependIt.next();
+        }
+        
+    }
 
 	MGlobal::displayInfo("Maya plugin loaded!");
 	// if res == kSuccess then the plugin has been loaded,

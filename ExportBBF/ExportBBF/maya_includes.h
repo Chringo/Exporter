@@ -11,6 +11,7 @@
 #include <maya/MFloatPointArray.h>
 #include <maya/MPointArray.h>
 #include <maya/MIntArray.h>
+#include <maya/MUintArray.h>
 #include <maya/MPoint.h>
 #include <maya/MMatrix.h>
 #include <maya/MEulerRotation.h>
@@ -31,6 +32,7 @@
 #include <maya/MFnAnimCurve.h>
 #include "maya/MFnSkinCluster.h"
 #include "maya/MFnIkJoint.h"
+#include "maya/MItGeometry.h"
 
 // Wrappers
 #include <maya/MGlobal.h>
@@ -44,6 +46,7 @@
 #include <maya/MPolyMessage.h>
 #include <maya/MNodeMessage.h>
 #include <maya/MDagPath.h>
+#include <maya/MDagPathArray.h>
 #include <maya/MDagMessage.h>
 #include <maya/MUiMessage.h>
 #include <maya/MModelMessage.h>
@@ -56,3 +59,4 @@
 #pragma comment(lib,"Foundation.lib")
 #pragma comment(lib,"OpenMaya.lib")
 #pragma comment(lib,"OpenMayaUI.lib")
+#pragma comment(lib, "OpenMayaAnim.lib")

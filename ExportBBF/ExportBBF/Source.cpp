@@ -86,13 +86,13 @@ void Createmesh(MObject & mNode)
 	mHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
 
 	/*writing the information to the binary file*/
-	//outFile.write((char*)&mHead, sizeof(MeshHeader));
-	//outFile.write((char*)vertices->data(), sizeof(Vertex)*vertices->size());
-	//outFile.write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());
+	outFile.write((char*)&mHead, sizeof(MeshHeader));
+	outFile.write((char*)vertices->data(), sizeof(Vertex)*vertices->size());
+	outFile.write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());
 
 	/*deleting allocated variables*/
-	//delete vertices;
-	//delete newIndex;
+	vertices->clear();
+	newIndex->clear();
 }
 
 EXPORT MStatus initializePlugin(MObject obj)

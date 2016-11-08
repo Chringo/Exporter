@@ -23,5 +23,8 @@
     <ClInclude Include="maya_includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HeaderStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

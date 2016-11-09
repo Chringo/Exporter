@@ -5,16 +5,17 @@ using namespace std;
 
 struct hBlendData
 {
-	float weights[4];
-	unsigned int influence[4];
+    std::vector<float> weights;
+    std::vector<unsigned int> jointInfluence;
 };
 
-std::vector<hBlendData> blendList;
+static std::vector<hBlendData> blendList;
 
 void fLoadSkinDeformer(MObject obj)
 {
 	MStatus res;
 	hBlendData blendData;
+    float weightSum = 0;
 
 	MFnSkinCluster skinFn(obj, &res);
 	if (res == MStatus::kSuccess)
@@ -23,80 +24,79 @@ void fLoadSkinDeformer(MObject obj)
 
 		MGlobal::displayInfo("I'M A SKIN CLUSTER! Name: " + skinFn.name());
 
+        /*Find the number of geometries connecting to the skinCluster, in this case it's always 1 mesh connected.*/
 		unsigned int numGeoms = skinFn.numOutputConnections(&res);
-
 		for (unsigned int geomIndex = 0; geomIndex < numGeoms; geomIndex++)
 		{
+            /*Obtain the index for the connected mesh.*/
 			unsigned int index = skinFn.indexForOutputConnection(geomIndex, &res);
 
+            /*Obtain influence count, which is the joints controlling the binded skin mesh.*/
 			MDagPathArray jointPathArray;
 			skinFn.influenceObjects(jointPathArray, &res);
 			unsigned int jointArrayLength = jointPathArray.length();
 
-			for (unsigned jointIndex = 0; jointIndex < jointArrayLength; jointIndex++)
-				MGlobal::displayInfo(jointPathArray[jointIndex].partialPathName().asChar());
-
+            /*Find the path to the connected mesh, and iterate it's control vertices. */
 			MDagPath skinPath;
 			if (skinFn.getPathAtIndex(index, skinPath))
 			{
+                /*Iterator for the path to the binded skin mesh, iterates all control vertices.*/
 				MItGeometry geometryIter(skinPath, &res);
-				while (!geometryIter.isDone())
-				{
-					MObject component = geometryIter.component(&res);
 
-					/*Populate the influence index array, which we use to get the weights of each vertex.*/
-					MIntArray inflIndexArray;
-					MIntArray allIndexArray;
-				
-					for (unsigned jointIndex = 0; jointIndex < jointArrayLength; jointIndex++)
-					{
-						allIndexArray.append(skinFn.indexForInfluenceObject(jointPathArray[jointIndex]));
-					}
+                /*Total count of all control points in Mesh, need to be readjusted for indices.*/
+                int controlVerticesCount = geometryIter.count(&res);
 
-					//if (pathArray.length() > 0)
-					//{
-					//	for (unsigned int j = 0; j < pathArray.length(); j++)
-					//	{
-					//		unsigned int index = skinFn.indexForInfluenceObject(pathArray[j], &res);
+                /*Resize the blend data list to be the size of control vertices count.*/
+                blendList.resize(controlVerticesCount);
 
-					//		for (unsigned int k = 0; allIndexArray.length(); k++)
-					//		{
-					//			if ((int)index == allIndexArray[k])
-					//			{
-					//				inflIndexArray.append(k);
-					//			}
-					//		}
-					//	}
-					//}
+                while (!geometryIter.isDone())
+                {
+                    MGlobal::displayInfo(MString("CV index: ") + geometryIter.index());
+                    /*Obtain each control vertex componoment object.*/
+                    MObject component = geometryIter.component(&res);
 
-					//else
-					//{
-					//	for (unsigned inflIndex = 0; inflIndex < allIndexArray.length(); inflIndex++)
-					//	{
-					//		inflIndexArray.append(inflIndex);
-					//	}
-					//}
+                    int cvIndex = geometryIter.index();
 
-					///*Obtain the weights for the affected vertex.*/
-					//MDoubleArray weights;
+                    MIntArray inflIndexArray;
 
-					//if (skinFn.getWeights(skinPath, component, inflIndexArray, weights))
-					//{
-					//	MGlobal::displayInfo(MString("Weights: \n") +
-					//		MString(" x: ") + weights[0] + 
-					//		MString(" y: ") + weights[1] +
-					//		MString(" z: ") + weights[2] +
-					//		MString(" w: ") + weights[3]);
+                    /*Append each joint's dagpath index to the array.*/
+                    for (unsigned jointIndex = 0; jointIndex < jointArrayLength; jointIndex++)
+                    {
+                        inflIndexArray.append(skinFn.indexForInfluenceObject(jointPathArray[jointIndex]));
 
-					//	blendData.weights[0] = float(weights[0]);
-					//	blendData.weights[1] = float(weights[1]);
-					//	blendData.weights[2] = float(weights[2]);
-					//	blendData.weights[3] = float(weights[3]);
+                        //MGlobal::displayInfo(MString("Influence object index: ") + inflIndexArray[jointIndex]);
+                    }
 
-					//	blendList.push_back(blendData);
-					//}
+                    MDoubleArray weights;
+                    unsigned int inflCount;
+                    skinFn.getWeights(skinPath, component, inflIndexArray, weights);
 
-					geometryIter.next();
+                    int weightsLength = weights.length();
+
+                    for (int i = 0; i < weightsLength; i++)
+                    {
+                        if (weights[i] == 0)
+                        {
+                            //MGlobal::displayInfo(jointPathArray[i].partialPathName().asChar());
+                            //MGlobal::displayInfo("ZERO WEIGHT!");
+                        }
+
+                        else
+                        {
+                            MGlobal::displayInfo(jointPathArray[i].partialPathName().asChar());
+                            MGlobal::displayInfo(MString() + weights[i]);
+
+                            blendList[cvIndex].weights.push_back(weights[i]);
+                            blendList[cvIndex].jointInfluence.push_back(inflIndexArray[i]);
+
+                            weightSum += weights[i];
+                        }
+                    }
+
+                    MGlobal::displayInfo(MString("Weight sum: ") + weightSum + "\n");
+                    weightSum = 0;
+
+                    geometryIter.next();
 				}
 			}
 		}

@@ -1,11 +1,11 @@
-#pragma once
+#ifndef MAYA_INCLUDES_H
+#define MAYA_INCLUDES_H
 
-// some definitions for the DLL to play nice with Maya
+//some definitions for the DLL to play nice with Maya
 #define NT_PLUGIN
 #define REQUIRE_IOSTREAM
 #define EXPORT __declspec(dllexport)
 
-#include <maya/MFnPlugin.h>
 #include <maya/MFnMesh.h>
 #include <maya/MFnTransform.h>
 #include <maya/MFloatPointArray.h>
@@ -56,7 +56,12 @@
 
 // Libraries to link from Maya
 // This can be also done in the properties setting for the project.
-#pragma comment(lib,"Foundation.lib")
-#pragma comment(lib,"OpenMaya.lib")
-#pragma comment(lib,"OpenMayaUI.lib")
-#pragma comment(lib, "OpenMayaAnim.lib")
+//#pragma comment(lib,"Foundation.lib")
+//#pragma comment(lib,"OpenMaya.lib")
+//#pragma comment(lib,"OpenMayaUI.lib")
+//#pragma comment(lib, "OpenMayaAnim.lib")
+
+#endif
+
+
+

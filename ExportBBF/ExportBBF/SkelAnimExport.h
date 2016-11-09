@@ -20,8 +20,10 @@ public:
     std::vector<hSkinData> skinList;
 
     void IterateSkinClusters();
+    void IterateJoints();
 
     void LoadSkinData(MObject skinNode);
+    void LoadJointData(MObject jointNode);
 
 private:
 

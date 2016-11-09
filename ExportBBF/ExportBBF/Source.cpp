@@ -1,8 +1,12 @@
 #include "maya_includes.h"
 #include "SkelAnimExport.h"
+#include "HeaderStructs.h"
 #include <maya/MFnPlugin.h>
 #include <vector>
 #include <iostream>
+#include <fstream>
+
+using namespace std;
 
 MCallbackIdArray myCallbackArray;
 fstream outFile("knulla.BBF", std::fstream::out | std::fstream::binary);
@@ -139,7 +143,10 @@ EXPORT MStatus initializePlugin(MObject obj)
 	MGlobal::displayInfo("Maya plugin loaded!");
 
     /*Iterate all skin clusters in scene.*/
-    cSkelAnim.IterateSkinClusters();
+    //cSkelAnim.IterateSkinClusters();
+
+    /*Iterate all joints in scene.*/
+    cSkelAnim.IterateJoints();
 	
 	/*writing a temporary mainheader for one mesh*/
 	MainHeader tempHead{ 1 };

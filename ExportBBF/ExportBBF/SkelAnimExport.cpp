@@ -24,6 +24,22 @@ void SkelAnimExport::IterateSkinClusters()
     }
 }
 
+void SkelAnimExport::IterateJoints()
+{
+    MStatus res;
+
+    MItDependencyNodes jointIter(MFn::kJoint, &res);
+    if (res == MStatus::kSuccess)
+    {
+        while (!jointIter.isDone())
+        {
+            LoadJointData(jointIter.item());
+
+            jointIter.next();
+        }
+    }
+}
+
 void SkelAnimExport::LoadSkinData(MObject skinNode)
 {
     MStatus res;
@@ -117,6 +133,39 @@ void SkelAnimExport::LoadSkinData(MObject skinNode)
 
                     geometryIter.next();
                 }
+            }
+        }
+    }
+}
+
+void SkelAnimExport::LoadJointData(MObject jointNode)
+{
+    MStatus res;
+
+    MFnIkJoint jointFn(jointNode, &res);
+    if (res == MStatus::kSuccess)
+    {
+        // MGlobal::displayInfo()MGlobal::displayInfo(jointFn.name());
+
+        MPlug bindPosePlug = jointFn.findPlug("bindPose", &res);
+        if (res == MStatus::kSuccess)
+        {
+            MGlobal::displayInfo(bindPosePlug.name());
+            MObject bpNode;
+            bindPosePlug.getValue(bpNode);
+            MFnMatrixData bindPoseFn(bpNode, &res);
+
+            MMatrix bindPose = bindPoseFn.matrix(&res);
+            if (res == MStatus::kSuccess)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    for (int j = 0; j < 4; j++)
+                    {
+                        MGlobal::displayInfo(MString() + bindPose[i][j]);
+                    }
+                }
+               
             }
         }
     }

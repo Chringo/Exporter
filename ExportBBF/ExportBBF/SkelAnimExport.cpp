@@ -28,14 +28,14 @@ void SkelAnimExport::IterateJoints()
 {
     MStatus res;
 
-    MItDependencyNodes jointIter(MFn::kJoint, &res);
+    MItDag dependIter(MItDag::kDepthFirst, MFn::kJoint, &res);
     if (res == MStatus::kSuccess)
     {
-        while (!jointIter.isDone())
+        while (!dependIter.isDone())
         {
-            LoadJointData(jointIter.item());
+            LoadJointData(dependIter.item());
 
-            jointIter.next();
+            dependIter.next();
         }
     }
 }
@@ -142,31 +142,49 @@ void SkelAnimExport::LoadJointData(MObject jointNode)
 {
     MStatus res;
 
+    hJointData jointData;
+
     MFnIkJoint jointFn(jointNode, &res);
     if (res == MStatus::kSuccess)
     {
-        // MGlobal::displayInfo()MGlobal::displayInfo(jointFn.name());
-
         MPlug bindPosePlug = jointFn.findPlug("bindPose", &res);
         if (res == MStatus::kSuccess)
         {
-            MGlobal::displayInfo(bindPosePlug.name());
-            MObject bpNode;
-            bindPosePlug.getValue(bpNode);
-            MFnMatrixData bindPoseFn(bpNode, &res);
+           MGlobal::displayInfo("Current joint: " + jointFn.name());
 
-            MMatrix bindPose = bindPoseFn.matrix(&res);
-            if (res == MStatus::kSuccess)
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    for (int j = 0; j < 4; j++)
-                    {
-                        MGlobal::displayInfo(MString() + bindPose[i][j]);
-                    }
-                }
-               
-            }
+           MObject bpNode;
+           bindPosePlug.getValue(bpNode);
+    
+           /*Bind pose matrix when the mesh is binded.*/
+           MFnMatrixData bindPoseFn(bpNode, &res);
+    
+           MMatrix bindPose = bindPoseFn.matrix(&res);
+           if (res == MStatus::kSuccess)
+           {
+               MMatrix tmpInverseBindPose;
+               tmpInverseBindPose = bindPose.inverse();
+
+               float inverseBindPose[16];
+               ConvertMMatrixToFloatArray(tmpInverseBindPose, inverseBindPose);
+               memcpy(jointData.inverseBindPose, &inverseBindPose, sizeof(float) * 16);
+
+               jointList.push_back(jointData);
+           }
+        }
+    }
+}
+
+void SkelAnimExport::ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16])
+{
+    int matrixCounter = 0;
+
+    for (int row = 0; row < 4; row++)
+    {
+        for (int column = 0; column < 4; column++)
+        {
+            outputMatrix[matrixCounter] = inputMatrix[row][column];
+
+            matrixCounter++;
         }
     }
 }

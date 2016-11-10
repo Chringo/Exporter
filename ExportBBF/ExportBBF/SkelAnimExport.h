@@ -10,6 +10,12 @@ struct hSkinData
     unsigned int boneInfluences[4];
 };
 
+struct hJointData
+{
+    float inverseBindPose[16];
+    int parentIndex;
+};
+
 class SkelAnimExport
 {
 public:
@@ -18,6 +24,9 @@ public:
     ~SkelAnimExport();
 
     std::vector<hSkinData> skinList;
+    std::vector<hJointData> jointList;
+
+    std::vector<MMatrix> invBindPoseList;
 
     void IterateSkinClusters();
     void IterateJoints();
@@ -27,6 +36,7 @@ public:
 
 private:
 
+    void ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16]);
 };
 
 #endif 

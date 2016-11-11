@@ -1,5 +1,6 @@
 #pragma once
 #pragma region utilStructs
+#include "maya_includes.h"
 struct Vector2
 {
 	float u, v;

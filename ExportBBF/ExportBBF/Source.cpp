@@ -9,7 +9,7 @@ using namespace std;
 MCallbackIdArray myCallbackArray;
 fstream outFile("knulla.BBF", std::fstream::out | std::fstream::binary);
 
-void Createmesh(MObject & mNode)
+void Createmesh(MObject & mNode, SkelAnimExport & cSkelAnim)
 {
 	/*extracting the nodes from the MObject*/
 	MFnMesh mMesh(MFnTransform(mNode).child(0), NULL);
@@ -49,40 +49,86 @@ void Createmesh(MObject & mNode)
 		info += indexList[i];
 		MGlobal::displayInfo(info);
 	}*/
+	MStatus res;
+	MFnDependencyNode skinDepNode = mMesh.object();
+	MPlug skinCluster = skinDepNode.findPlug("inMesh", &res);
+	MPlugArray skinClusterConnection;
+	skinCluster.connectedTo(skinClusterConnection, true, false, &res);
 
-	//Recalculating the vertices using only the unique vertices based on individual normals
-	//unsigned int index = 0;
-	for (unsigned int i = 0; i < indexList.length(); ++i)
+	MFnSkinCluster skinClusterObject(skinClusterConnection[0].node(), &res);
+	
+	if (res)
 	{
-		tempVertex.position.x = postitions[indexList[i] * 3];
-		tempVertex.position.y = postitions[indexList[i] * 3 + 1];
-		tempVertex.position.z = postitions[indexList[i] * 3 + 2];
-		
-		tempVertex.normal.x = normalsPos[normalIdList[offsetIdList[i]] * 3];
-		tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 1];
-		tempVertex.normal.z = normalsPos[normalIdList[offsetIdList[i]] * 3 + 2];
 
-		tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
-		tempVertex.UV.v = v[uvIds[offsetIdList[i]]];
 
-		bool exists = false;
 
-		for (int j = 0; j < vertices->size(); ++j)
+		//Recalculating the vertices using only the unique vertices based on individual normals
+		for (unsigned int i = 0; i < indexList.length(); ++i)
 		{
-			if (memcmp(&tempVertex, &vertices->at(j), sizeof(Vertex)) == 0)
+			tempVertex.position.x = postitions[indexList[i] * 3];
+			tempVertex.position.y = postitions[indexList[i] * 3 + 1];
+			tempVertex.position.z = postitions[indexList[i] * 3 + 2];
+
+			tempVertex.normal.x = normalsPos[normalIdList[offsetIdList[i]] * 3];
+			tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 1];
+			tempVertex.normal.z = normalsPos[normalIdList[offsetIdList[i]] * 3 + 2];
+
+			tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
+			tempVertex.UV.v = v[uvIds[offsetIdList[i]]];
+
+			bool exists = false;
+
+			for (int j = 0; j < vertices->size(); ++j)
 			{
-				exists = true;
-				newIndex->push_back(j);
-				break;
+				if (memcmp(&tempVertex, &vertices->at(j), sizeof(Vertex)) == 0)
+				{
+					exists = true;
+					newIndex->push_back(j);
+					break;
+				}
+			}
+			if (!exists)
+			{
+				newIndex->push_back((unsigned int)vertices->size());
+				vertices->push_back(tempVertex);
 			}
 		}
-		if (!exists)
+	}
+	else
+	{
+		for (unsigned int i = 0; i < indexList.length(); ++i)
 		{
-			newIndex->push_back((unsigned int)vertices->size());
-			vertices->push_back(tempVertex);
+			tempVertex.position.x = postitions[indexList[i] * 3];
+			tempVertex.position.y = postitions[indexList[i] * 3 + 1];
+			tempVertex.position.z = postitions[indexList[i] * 3 + 2];
+
+			tempVertex.normal.x = normalsPos[normalIdList[offsetIdList[i]] * 3];
+			tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 1];
+			tempVertex.normal.z = normalsPos[normalIdList[offsetIdList[i]] * 3 + 2];
+
+			tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
+			tempVertex.UV.v = v[uvIds[offsetIdList[i]]];
+
+			bool exists = false;
+
+			for (int j = 0; j < vertices->size(); ++j)
+			{
+				if (memcmp(&tempVertex, &vertices->at(j), sizeof(Vertex)) == 0)
+				{
+					exists = true;
+					newIndex->push_back(j);
+					break;
+				}
+			}
+			if (!exists)
+			{
+				newIndex->push_back((unsigned int)vertices->size());
+				vertices->push_back(tempVertex);
+			}
 		}
 	}
-	
+
+	/*remaking the index to fit a righthanded system. Maya is lefthanded.*/
 	for (int i = 1; i < newIndex->size(); i+=3)
 	{
 		unsigned int temp = newIndex->at(i);
@@ -95,8 +141,8 @@ void Createmesh(MObject & mNode)
 
 	/*creating the mesh header and setting the length of the vertices and indices*/
 	MeshHeader hHead;
-	hHead.indexLength = newIndex->size();
-	hHead.vertices = vertices->size();
+	hHead.indexLength = (unsigned int)newIndex->size();
+	hHead.vertices = (unsigned int)vertices->size();
 
 	/*Getting the transformation matrix*/
 	MFnDependencyNode depNode = mMesh.parent(0);
@@ -104,9 +150,9 @@ void Createmesh(MObject & mNode)
 	hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
 
 	/*writing the information to the binary file*/
-	outFile.write((char*)&hHead, sizeof(MeshHeader));
+	/*outFile.write((char*)&hHead, sizeof(MeshHeader));
 	outFile.write((char*)vertices->data(), sizeof(Vertex)*vertices->size());
-	outFile.write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());
+	outFile.write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());*/
 
 	/*deleting allocated variables*/
 	vertices->clear();
@@ -156,7 +202,7 @@ EXPORT MStatus initializePlugin(MObject obj)
 		MFnTransform trans = meshIt.currentItem();
 		if (trans.child(0).hasFn(MFn::kMesh))
 		{
-			Createmesh(meshIt.currentItem());
+			Createmesh(meshIt.currentItem(), cSkelAnim);
 		}
 	}
 

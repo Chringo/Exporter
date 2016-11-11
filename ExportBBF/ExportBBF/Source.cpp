@@ -96,17 +96,17 @@ void Createmesh(MObject & mNode)
 	newIndex->shrink_to_fit();
 
 	/*creating the mesh header and setting the length of the vertices and indices*/
-	MeshHeader mHead;
-	mHead.indexLength = newIndex->size();
-	mHead.vertices = vertices->size();
+	MeshHeader hHead;
+	hHead.indexLength = newIndex->size();
+	hHead.vertices = vertices->size();
 
 	/*Getting the transformation matrix*/
 	MFnDependencyNode depNode = mMesh.parent(0);
 	MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
-	mHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
+	hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
 
 	/*writing the information to the binary file*/
-	outFile.write((char*)&mHead, sizeof(MeshHeader));
+	outFile.write((char*)&hHead, sizeof(MeshHeader));
 	outFile.write((char*)vertices->data(), sizeof(Vertex)*vertices->size());
 	outFile.write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());
 
@@ -146,7 +146,7 @@ EXPORT MStatus initializePlugin(MObject obj)
     //cSkelAnim.IterateSkinClusters();
 
     /*Iterate all joints in scene.*/
-    cSkelAnim.IterateJoints();
+    //cSkelAnim.IterateJoints();
 	
 	/*writing a temporary mainheader for one mesh*/
 	MainHeader tempHead{ 1 };

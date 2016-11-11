@@ -37,6 +37,11 @@
 #include <maya/MItDependencyGraph.h>
 #include "maya/MItGeometry.h"
 
+
+#include <vector>
+#include <iostream>
+#include <fstream>
+
 // Wrappers
 #include <maya/MGlobal.h>
 #include <maya/MCallbackIdArray.h>

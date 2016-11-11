@@ -2,9 +2,7 @@
 #include "SkelAnimExport.h"
 #include "HeaderStructs.h"
 #include <maya/MFnPlugin.h>
-#include <vector>
-#include <iostream>
-#include <fstream>
+
 
 using namespace std;
 

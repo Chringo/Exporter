@@ -10,3 +10,7 @@ MeshExport::MeshExport()
 MeshExport::~MeshExport()
 {
 }
+
+void MeshExport::exportMesh(MObject & mNode)
+{
+}

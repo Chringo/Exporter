@@ -12,7 +12,7 @@ struct hSkinData
 
 struct hJointData
 {
-    float inverseBindPose[16];
+    float bindPose[16];
     int parentIndex;
     int jointIndex;
 };
@@ -36,7 +36,7 @@ public:
     void LoadJointData(MObject jointNode, int parentIndex, int currentIndex);
 
 private:
-
+    /*Function that converts a MMatrix to a float[16] array.*/
     void ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16]);
 };
 

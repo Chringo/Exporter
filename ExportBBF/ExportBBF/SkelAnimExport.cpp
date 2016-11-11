@@ -143,28 +143,30 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
     MFnIkJoint jointFn(jointNode, &res);
     if (res == MStatus::kSuccess)
     {
+        /*Obtain the plug for every joint's bindpose matrix.*/
         MPlug bindPosePlug = jointFn.findPlug("bindPose", &res);
         if (res == MStatus::kSuccess)
         {
            MString jointName = jointFn.name();
            MGlobal::displayInfo("Current joint: " + jointName);
 
+           /*Get the matrix as a MObject.*/
            MObject bpNode;
            bindPosePlug.getValue(bpNode);
 
-           /*Bind pose matrix when the mesh is binded.*/
+           /*Retrieve the matrix data from the bindpose MObject.*/
            MFnMatrixData bindPoseFn(bpNode, &res);
-    
+           
+           /*The actual bindpose matrix is obtained here from every joint.*/
            MMatrix bindPose = bindPoseFn.matrix(&res);
            if (res == MStatus::kSuccess)
            {
-               MMatrix tmpInverseBindPose;
-               tmpInverseBindPose = bindPose.inverse();
-
                float inverseBindPose[16];
-               ConvertMMatrixToFloatArray(tmpInverseBindPose, inverseBindPose);
-               memcpy(jointData.inverseBindPose, &inverseBindPose, sizeof(float) * 16);
+               /*Convert MMatrix bindpose to a float[16] array.*/
+               ConvertMMatrixToFloatArray(bindPose, inverseBindPose);
+               memcpy(jointData.bindPose, &inverseBindPose, sizeof(float) * 16);
 
+               /*Assign both current joint ID and it's parent ID.*/
                jointData.parentIndex = parentIndex;
                jointData.jointIndex = currentIndex;
 
@@ -175,31 +177,16 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
         }
     }
 
+    /*This is where the recursive happens. Basically for a "CHEST" joint, both the l_arm and r_arm,
+    will know that both are parents to "CHEST" joint.*/
     if (jointFn.childCount() > 0)
     {
         for (int childIndex = 0; childIndex < jointFn.childCount(); childIndex++)
         {
+            /*If there is a child in the skeleton hierarchy, decrement the currentIndex, which is now parentIndex.*/
             LoadJointData(jointFn.child(childIndex), currentIndex - 1, jointList.size());
         }
     }
-
-    //else
-    //{
-    //    jointIter.next();
-
-    //    if (!jointIter.isDone())
-    //    {
-    //        LoadJointData(jointIter.item(), jointIter, parentIndex, currentIndex);
-    //    }
-
-    //    else
-    //    {
-    //        return;
-    //    }
-    //}
-
-    //jointIter.next();
-    //LoadJointData(jointIter.item(), jointIter, parentIndex, currentIndex);
 }
 
 void SkelAnimExport::ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16])

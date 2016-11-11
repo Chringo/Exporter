@@ -21,6 +21,17 @@ struct Vector4
 {
 	float x, y, z, w;
 };
+struct SkinData
+{
+	float weights[4];
+	unsigned int boneInfluences[4];
+};
+
+struct JointData
+{
+	float inverseBindPose[16];
+	int parentIndex;
+};
 #pragma endregion
 #pragma region header structs
 struct MainHeader
@@ -32,6 +43,7 @@ struct MeshHeader
 	unsigned int vertices;
 	unsigned int indexLength;
 	MMatrix transMatrix;
+	bool hasSkeleton;
 };
 struct Vertex
 {
@@ -39,5 +51,14 @@ struct Vertex
 	Vector3 normal;
 	//Vector3 tangent;
 	Vector2 UV;
+};
+struct SkelVertex
+{
+	Vector3 position;
+	Vector3 normal;
+	//Vector3 tangent;
+	Vector2 UV;
+	float weights[4];
+	int influence[4];
 };
 #pragma endregion

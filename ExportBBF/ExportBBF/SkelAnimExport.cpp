@@ -142,7 +142,7 @@ void SkelAnimExport::LoadJointData(MObject jointNode)
 {
     MStatus res;
 
-    hJointData jointData;
+    JointData jointData;
 
     MFnIkJoint jointFn(jointNode, &res);
     if (res == MStatus::kSuccess)

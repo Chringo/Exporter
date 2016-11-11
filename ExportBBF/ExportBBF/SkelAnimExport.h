@@ -2,19 +2,10 @@
 #define SKELANIMEXPORT_H
  
 #include "maya_includes.h"
+#include "HeaderStructs.h"
 #include <vector>
 
-struct hSkinData
-{
-    float weights[4];
-    unsigned int boneInfluences[4];
-};
 
-struct hJointData
-{
-    float inverseBindPose[16];
-    int parentIndex;
-};
 
 class SkelAnimExport
 {
@@ -23,8 +14,8 @@ public:
     SkelAnimExport();
     ~SkelAnimExport();
 
-    std::vector<hSkinData> skinList;
-    std::vector<hJointData> jointList;
+    std::vector<SkinData> skinList;
+    std::vector<JointData> jointList;
 
     std::vector<MMatrix> invBindPoseList;
 

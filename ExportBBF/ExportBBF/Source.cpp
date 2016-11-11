@@ -40,27 +40,27 @@ void Createmesh(MObject & mNode, SkelAnimExport & cSkelAnim)
 	mMesh.getUVs(u, v);
 
 	/*extracting all the information from maya and putting them in a array of vertices*/
-	vector<Vertex> * vertices = new vector<Vertex>[indexList.length()];
+	vector<Vertex> * vertices = nullptr;
+	vector<SkelVertex> *sVertices = nullptr;
 	vector<unsigned int> * newIndex = new vector<unsigned int>[indexList.length()];
-	Vertex tempVertex;
-	/*for (unsigned int i = 0; i < indexList.length(); ++i)
-	{
-		MString info;
-		info += indexList[i];
-		MGlobal::displayInfo(info);
-	}*/
+
+	/*checking if the mesh has a skeleton*/
 	MStatus res;
 	MFnDependencyNode skinDepNode = mMesh.object();
 	MPlug skinCluster = skinDepNode.findPlug("inMesh", &res);
 	MPlugArray skinClusterConnection;
 	skinCluster.connectedTo(skinClusterConnection, true, false, &res);
-
 	MFnSkinCluster skinClusterObject(skinClusterConnection[0].node(), &res);
+
+	MeshHeader hHead;
 	
 	if (res)
 	{
+		sVertices = new vector<SkelVertex>[indexList.length()];
+		SkelVertex tempVertex;
+		hHead.hasSkeleton = true;
 
-
+		vector<SkinData> * skinList = &cSkelAnim.skinList;
 
 		//Recalculating the vertices using only the unique vertices based on individual normals
 		for (unsigned int i = 0; i < indexList.length(); ++i)
@@ -76,11 +76,27 @@ void Createmesh(MObject & mNode, SkelAnimExport & cSkelAnim)
 			tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
 			tempVertex.UV.v = v[uvIds[offsetIdList[i]]];
 
+			/*for loop that controls the weight. If the weight is to low,
+			the influence will be set to -1. Which means that the weight will
+			not be calculated in the engine.*/
+			for (int k = 0; k < 4; ++k)
+			{
+				tempVertex.weights[k] = skinList->at(indexList[i]).weights[k];
+				if (tempVertex.weights[k] < FLT_EPSILON)
+				{
+					tempVertex.influence[k] = -1;
+				}
+				else
+				{
+					tempVertex.influence[k] = skinList->at(indexList[i]).boneInfluences[k];
+				}
+			}
+
 			bool exists = false;
 
-			for (int j = 0; j < vertices->size(); ++j)
+			for (int j = 0; j < sVertices->size(); ++j)
 			{
-				if (memcmp(&tempVertex, &vertices->at(j), sizeof(Vertex)) == 0)
+				if (memcmp(&tempVertex, &sVertices->at(j), sizeof(Vertex)) == 0)
 				{
 					exists = true;
 					newIndex->push_back(j);
@@ -89,13 +105,18 @@ void Createmesh(MObject & mNode, SkelAnimExport & cSkelAnim)
 			}
 			if (!exists)
 			{
-				newIndex->push_back((unsigned int)vertices->size());
-				vertices->push_back(tempVertex);
+				newIndex->push_back((unsigned int)sVertices->size());
+				sVertices->push_back(tempVertex);
 			}
 		}
 	}
 	else
 	{
+		vertices = new vector<Vertex>[indexList.length()];
+		Vertex tempVertex;
+		hHead.hasSkeleton = false;
+
+		//Recalculating the vertices using only the unique vertices based on individual normals
 		for (unsigned int i = 0; i < indexList.length(); ++i)
 		{
 			tempVertex.position.x = postitions[indexList[i] * 3];
@@ -136,13 +157,19 @@ void Createmesh(MObject & mNode, SkelAnimExport & cSkelAnim)
 		newIndex->at(i + 1) = temp;
 	}
 
-	vertices->shrink_to_fit();
+	if(hHead.hasSkeleton)
+		sVertices->shrink_to_fit();
+	else
+		vertices->shrink_to_fit();
 	newIndex->shrink_to_fit();
 
 	/*creating the mesh header and setting the length of the vertices and indices*/
-	MeshHeader hHead;
+	
 	hHead.indexLength = (unsigned int)newIndex->size();
-	hHead.vertices = (unsigned int)vertices->size();
+	if (hHead.hasSkeleton)
+		hHead.vertices = (unsigned int)sVertices->size();
+	else
+		hHead.vertices = (unsigned int)vertices->size();
 
 	/*Getting the transformation matrix*/
 	MFnDependencyNode depNode = mMesh.parent(0);
@@ -155,7 +182,10 @@ void Createmesh(MObject & mNode, SkelAnimExport & cSkelAnim)
 	outFile.write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());*/
 
 	/*deleting allocated variables*/
-	vertices->clear();
+	if (hHead.hasSkeleton)
+		sVertices->clear();
+	else
+		vertices->clear();
 	newIndex->clear();
 }
 void skeletonHandler(MObject & mNode)
@@ -187,10 +217,10 @@ EXPORT MStatus initializePlugin(MObject obj)
 	MGlobal::displayInfo("Maya plugin loaded!");
 
     /*Iterate all skin clusters in scene.*/
-    //cSkelAnim.IterateSkinClusters();
+    cSkelAnim.IterateSkinClusters();
 
     /*Iterate all joints in scene.*/
-    //cSkelAnim.IterateJoints();
+    cSkelAnim.IterateJoints();
 	
 	/*writing a temporary mainheader for one mesh*/
 	MainHeader tempHead{ 1 };

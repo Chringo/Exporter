@@ -29,14 +29,10 @@ void SkelAnimExport::IterateJoints()
     MStatus res;
 
     MItDag dependIter(MItDag::kDepthFirst, MFn::kJoint, &res);
+
     if (res == MStatus::kSuccess)
     {
-        while (!dependIter.isDone())
-        {
-            LoadJointData(dependIter.item());
-
-            dependIter.next();
-        }
+        LoadJointData(dependIter.item(), -1, 0);
     }
 }
 
@@ -138,8 +134,8 @@ void SkelAnimExport::LoadSkinData(MObject skinNode)
     }
 }
 
-void SkelAnimExport::LoadJointData(MObject jointNode)
-{
+void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int currentIndex)
+ {
     MStatus res;
 
     hJointData jointData;
@@ -150,11 +146,12 @@ void SkelAnimExport::LoadJointData(MObject jointNode)
         MPlug bindPosePlug = jointFn.findPlug("bindPose", &res);
         if (res == MStatus::kSuccess)
         {
-           MGlobal::displayInfo("Current joint: " + jointFn.name());
+           MString jointName = jointFn.name();
+           MGlobal::displayInfo("Current joint: " + jointName);
 
            MObject bpNode;
            bindPosePlug.getValue(bpNode);
-    
+
            /*Bind pose matrix when the mesh is binded.*/
            MFnMatrixData bindPoseFn(bpNode, &res);
     
@@ -168,10 +165,41 @@ void SkelAnimExport::LoadJointData(MObject jointNode)
                ConvertMMatrixToFloatArray(tmpInverseBindPose, inverseBindPose);
                memcpy(jointData.inverseBindPose, &inverseBindPose, sizeof(float) * 16);
 
+               jointData.parentIndex = parentIndex;
+               jointData.jointIndex = currentIndex;
+
+               currentIndex++;
+
                jointList.push_back(jointData);
            }
         }
     }
+
+    if (jointFn.childCount() > 0)
+    {
+        for (int childIndex = 0; childIndex < jointFn.childCount(); childIndex++)
+        {
+            LoadJointData(jointFn.child(childIndex), currentIndex - 1, jointList.size());
+        }
+    }
+
+    //else
+    //{
+    //    jointIter.next();
+
+    //    if (!jointIter.isDone())
+    //    {
+    //        LoadJointData(jointIter.item(), jointIter, parentIndex, currentIndex);
+    //    }
+
+    //    else
+    //    {
+    //        return;
+    //    }
+    //}
+
+    //jointIter.next();
+    //LoadJointData(jointIter.item(), jointIter, parentIndex, currentIndex);
 }
 
 void SkelAnimExport::ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16])

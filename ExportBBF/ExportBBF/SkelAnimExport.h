@@ -14,6 +14,7 @@ struct hJointData
 {
     float inverseBindPose[16];
     int parentIndex;
+    int jointIndex;
 };
 
 class SkelAnimExport
@@ -32,7 +33,7 @@ public:
     void IterateJoints();
 
     void LoadSkinData(MObject skinNode);
-    void LoadJointData(MObject jointNode);
+    void LoadJointData(MObject jointNode, int parentIndex, int currentIndex);
 
 private:
 

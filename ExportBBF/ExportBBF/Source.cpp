@@ -1,8 +1,10 @@
 #include "maya_includes.h"
+#include "SkelAnimExport.h"
 #include "HeaderStructs.h"
+#include <maya/MFnPlugin.h>
 #include <vector>
-#include <fstream>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -121,6 +123,8 @@ void skeletonHandler(MObject & mNode)
 
 EXPORT MStatus initializePlugin(MObject obj)
 {
+    SkelAnimExport cSkelAnim;
+
 	// most functions will use this variable to indicate for errors
 	MStatus res = MS::kSuccess;
 
@@ -137,6 +141,12 @@ EXPORT MStatus initializePlugin(MObject obj)
 	}
 
 	MGlobal::displayInfo("Maya plugin loaded!");
+
+    /*Iterate all skin clusters in scene.*/
+    //cSkelAnim.IterateSkinClusters();
+
+    /*Iterate all joints in scene.*/
+    cSkelAnim.IterateJoints();
 	
 	/*writing a temporary mainheader for one mesh*/
 	MainHeader tempHead{ 1 };
@@ -154,7 +164,6 @@ EXPORT MStatus initializePlugin(MObject obj)
 
 	return res;
 }
-
 
 EXPORT MStatus uninitializePlugin(MObject obj)
 {

@@ -127,8 +127,12 @@ void Createmesh(MObject & mNode, SkelAnimExport & cSkelAnim)
 			tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 1];
 			tempVertex.normal.z = normalsPos[normalIdList[offsetIdList[i]] * 3 + 2];
 
+			tempVertex.tangent.x = tangents[normalIdList[offsetIdList[i]]].x;
+			tempVertex.tangent.x = tangents[normalIdList[offsetIdList[i]]].y;
+			tempVertex.tangent.x = tangents[normalIdList[offsetIdList[i]]].z;
+
 			tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
-			tempVertex.UV.v = v[uvIds[offsetIdList[i]]];
+			tempVertex.UV.v = 1.0 - v[uvIds[offsetIdList[i]]];
 
 			bool exists = false;
 
@@ -150,12 +154,12 @@ void Createmesh(MObject & mNode, SkelAnimExport & cSkelAnim)
 	}
 
 	/*remaking the index to fit a righthanded system. Maya is lefthanded.*/
-	for (int i = 1; i < newIndex->size(); i+=3)
+	/*for (int i = 1; i < newIndex->size(); i+=3)
 	{
 		unsigned int temp = newIndex->at(i);
 		newIndex->at(i) = newIndex->at(i + 1);
 		newIndex->at(i + 1) = temp;
-	}
+	}*/
 
 	if(hHead.hasSkeleton)
 		sVertices->shrink_to_fit();
@@ -177,9 +181,9 @@ void Createmesh(MObject & mNode, SkelAnimExport & cSkelAnim)
 	hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
 
 	/*writing the information to the binary file*/
-	/*outFile.write((char*)&hHead, sizeof(MeshHeader));
+	outFile.write((char*)&hHead, sizeof(MeshHeader));
 	outFile.write((char*)vertices->data(), sizeof(Vertex)*vertices->size());
-	outFile.write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());*/
+	outFile.write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());
 
 	/*deleting allocated variables*/
 	if (hHead.hasSkeleton)

@@ -7,15 +7,23 @@ using namespace std;
 class MeshExport
 {
 private:
-	vector<Vertex> * vertices;
-	vector<unsigned int> * newIndex;
+	vector<Vertex> * vertices = nullptr;
+	vector<unsigned int> * newIndex = nullptr;
+	vector<SkinData> * skinList = nullptr;
 
 	fstream * outFile;
 public:
 	MeshExport();
 	MeshExport(fstream * outFile);
+	MeshExport(fstream * outFile, vector<SkinData> * skinList);
 	~MeshExport();
 	void exportMesh(MObject & mNode);
+private:
+	/*export a mesh with a skeleton*/
+	void exportDynamic(MFnMesh & mMesh, MFnTransform & mTran);
+
+	/*ecport a mesh without any skeleton*/
+	void exportStatic(MFnMesh & mMesh, MFnTransform & mTran);
 };
 #endif 
 

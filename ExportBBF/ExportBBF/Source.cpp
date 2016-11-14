@@ -1,6 +1,7 @@
 #include "maya_includes.h"
 #include "SkelAnimExport.h"
 #include "HeaderStructs.h"
+#include "MeshExport.h"
 #include <maya/MFnPlugin.h>
 
 
@@ -192,12 +193,6 @@ void Createmesh(MObject & mNode, SkelAnimExport & cSkelAnim)
 		vertices->clear();
 	newIndex->clear();
 }
-void skeletonHandler(MObject & mNode)
-{
-	MFnSkinCluster mSkel = mNode;
-	MGlobal::displayInfo(mSkel.name());
-	
-}
 
 EXPORT MStatus initializePlugin(MObject obj)
 {
@@ -236,7 +231,9 @@ EXPORT MStatus initializePlugin(MObject obj)
 		MFnTransform trans = meshIt.currentItem();
 		if (trans.child(0).hasFn(MFn::kMesh))
 		{
-			Createmesh(meshIt.currentItem(), cSkelAnim);
+			//Createmesh(meshIt.currentItem(), cSkelAnim);
+			MeshExport newMesh(&outFile, &cSkelAnim.skinList);
+			newMesh.exportMesh(meshIt.currentItem());
 		}
 	}
 

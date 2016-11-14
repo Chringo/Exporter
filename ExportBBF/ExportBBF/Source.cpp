@@ -8,7 +8,7 @@
 using namespace std;
 
 MCallbackIdArray myCallbackArray;
-fstream outFile("knulla.BBF", std::fstream::out | std::fstream::binary);
+fstream outFile("//DESKTOP-BOKNO6D/server/knulla.BBF", std::fstream::out | std::fstream::binary);
 
 void Createmesh(MObject & mNode, SkelAnimExport & cSkelAnim)
 {

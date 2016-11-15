@@ -34,6 +34,8 @@
 #include "maya/MFnIkJoint.h"
 #include <maya/MFnMatrixData.h>
 #include <maya/MFnSkinCluster.h>
+#include <maya/MFnAnimCurve.h>
+#include <maya/MItKeyframe.h>
 #include <maya/MItDependencyGraph.h>
 #include "maya/MItGeometry.h"
 

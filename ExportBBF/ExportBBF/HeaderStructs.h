@@ -32,6 +32,11 @@ struct MeshHeader
 	unsigned int indexLength;
 	MMatrix transMatrix;
 };
+struct MaterialHeader
+{
+	//Type of material
+	//Texture
+};
 struct Vertex
 {
 	Vector3 position;

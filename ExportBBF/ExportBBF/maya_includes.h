@@ -31,6 +31,8 @@
 #include <maya/MFnMatrixData.h>
 #include <maya/MFnSkinCluster.h>
 #include <maya/MItDependencyGraph.h>
+#include <maya/MFnSet.h>
+
 
 // Wrappers
 #include <maya/MGlobal.h>

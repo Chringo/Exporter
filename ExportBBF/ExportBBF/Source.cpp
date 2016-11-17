@@ -8,6 +8,7 @@ using namespace std;
 
 MCallbackIdArray myCallbackArray;
 fstream outFile("knulla.BBF", std::fstream::out | std::fstream::binary);
+void makematerial(MObject& srcNode);
 
 void Createmesh(MObject & mNode)
 {
@@ -119,6 +120,78 @@ void skeletonHandler(MObject & mNode)
 	
 }
 
+void extractingMaterials()
+{
+	MStatus stat;
+	MItDag dagIter(MItDag::kBreadthFirst, MFn::kInvalid, &stat);
+	for (; !dagIter.isDone(); dagIter.next())
+	{
+		MDagPath dagPath;
+
+		stat = dagIter.getPath(dagPath);
+
+		if (stat)
+		{
+			MFnDagNode dagNode(dagPath, &stat);
+
+			if (dagNode.isIntermediateObject()) continue;
+			if (!dagPath.hasFn(MFn::kMesh))continue;
+			if (dagPath.hasFn(MFn::kTransform))continue;
+
+			MFnMesh fnMesh(dagPath);
+
+			unsigned instanceNumber = dagPath.instanceNumber();
+			MObjectArray sets;
+			MObjectArray comps;
+
+			fnMesh.getConnectedSetsAndMembers(instanceNumber, sets, comps, true);
+
+			for (unsigned int i = 0; i < sets.length(); i++)
+			{
+				MObject set = sets[i];
+				MObject comp = comps[i];
+
+				MFnSet fnset(set);
+
+				MFnDependencyNode dnSet(set);
+				MObject ssattr = dnSet.attribute(MString("surfaceShader"));
+
+				MPlug ssPlug(set, ssattr);
+
+				MPlugArray srcPlugArray;
+				ssPlug.connectedTo(srcPlugArray, true, false);
+
+				if (srcPlugArray.length() == 0)continue;
+				MObject srcNode = srcPlugArray[0].node();
+
+				makematerial(srcNode);
+
+				//if (material_is_not_supported(matIdx))continue;
+
+				MItMeshPolygon piter(dagPath, comp);
+
+				for (; !piter.isDone(); piter.next())
+				{
+					MIntArray vertexIdx;
+					piter.getVertices(vertexIdx);
+					
+				}
+
+				
+			}
+		}
+		
+	}
+}
+void makematerial(MObject& srcNode)
+{
+	if (srcNode.hasFn(MFn::kPhong))
+	{
+		MFnPhongShader phong(srcNode);
+
+		cerr << "found phong shader:\n" << phong.name().asChar() << "\n";
+	}
+}
 EXPORT MStatus initializePlugin(MObject obj)
 {
 	// most functions will use this variable to indicate for errors

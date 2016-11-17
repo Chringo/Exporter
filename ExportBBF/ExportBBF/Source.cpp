@@ -8,7 +8,8 @@
 using namespace std;
 
 MCallbackIdArray myCallbackArray;
-fstream outFile("//DESKTOP-BOKNO6D/server/knulla.BBF", std::fstream::out | std::fstream::binary);
+//fstream outFile("//DESKTOP-BOKNO6D/server/knulla.BBF", std::fstream::out | std::fstream::binary);
+fstream outFile("knulla.BBF", std::fstream::out | std::fstream::binary);
 
 void Createmesh(MObject & mNode, SkelAnimExport & cSkelAnim)
 {
@@ -47,15 +48,16 @@ void Createmesh(MObject & mNode, SkelAnimExport & cSkelAnim)
 
 	/*checking if the mesh has a skeleton*/
 	MStatus res;
+	bool sug = false;
 	MFnDependencyNode skinDepNode = mMesh.object();
 	MPlug skinCluster = skinDepNode.findPlug("inMesh", &res);
 	MPlugArray skinClusterConnection;
 	skinCluster.connectedTo(skinClusterConnection, true, false, &res);
-	MFnSkinCluster skinClusterObject(skinClusterConnection[0].node(), &res);
+	//MFnSkinCluster skinClusterObject(skinClusterConnection[0].node(), &res);
 
 	MeshHeader hHead;
 	
-	if (res)
+	if (sug)
 	{
 		sVertices = new vector<SkelVertex>[indexList.length()];
 		SkelVertex tempVertex;

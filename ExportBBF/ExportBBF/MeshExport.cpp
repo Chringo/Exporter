@@ -223,7 +223,6 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 	newIndex->shrink_to_fit();
 
 	/*creating the mesh header and setting the length of the vertices and indices*/
-
 	hHead.indexLength = (unsigned int)newIndex->size();
 	hHead.vertices = (unsigned int)vertices->size();
 
@@ -234,8 +233,8 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 
 	/*writing the information to the binary file*/
 	outFile->write((char*)&hHead, sizeof(MeshHeader));
-	outFile->write((char*)vertices->data(), sizeof(Vertex)*vertices->size());
-	outFile->write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());
+	outFile->write((char*)vertices->data(), sizeof(Vertex)*hHead.vertices);
+	outFile->write((char*)newIndex->data(), sizeof(unsigned int)*hHead.indexLength);
 
 	/*deleting allocated variables*/
 	vertices->clear();

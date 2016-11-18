@@ -6,6 +6,7 @@
 #define REQUIRE_IOSTREAM
 #define EXPORT __declspec(dllexport)
 
+#include <maya/MQtUtil.h>
 #include <maya/MFnMesh.h>
 #include <maya/MFnTransform.h>
 #include <maya/MFloatPointArray.h>

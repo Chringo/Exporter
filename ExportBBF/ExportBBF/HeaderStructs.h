@@ -42,7 +42,7 @@ struct MeshHeader
 {
 	unsigned int vertices;
 	unsigned int indexLength;
-	MMatrix transMatrix;
+	//MMatrix transMatrix;
 	bool hasSkeleton;
 };
 struct Vertex
@@ -56,7 +56,7 @@ struct SkelVertex
 {
 	Vector3 position;
 	Vector3 normal;
-	//Vector3 tangent;
+	Vector3 tangent;
 	Vector2 UV;
 	float weights[4];
 	int influence[4];

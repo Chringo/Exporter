@@ -96,6 +96,10 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 		tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 1];
 		tempVertex.normal.z = normalsPos[normalIdList[offsetIdList[i]] * 3 + 2];
 
+		tempVertex.tangent.x = tangents[normalIdList[offsetIdList[i]]].x;
+		tempVertex.tangent.y = tangents[normalIdList[offsetIdList[i]]].y;
+		tempVertex.tangent.z = tangents[normalIdList[offsetIdList[i]]].z;
+
 		tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
 		tempVertex.UV.v = v[uvIds[offsetIdList[i]]];
 
@@ -141,9 +145,9 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 	hHead.vertices = (unsigned int)sVertices->size();
 
 	/*Getting the transformation matrix*/
-	MFnDependencyNode depNode = mMesh.parent(0);
-	MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
-	hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
+	//MFnDependencyNode depNode = mMesh.parent(0);
+	//MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
+	//hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
 
 	/*writing the information to the binary file*/
 	outFile->write((char*)&hHead, sizeof(MeshHeader));
@@ -227,9 +231,9 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 	hHead.vertices = (unsigned int)vertices->size();
 
 	/*Getting the transformation matrix*/
-	MFnDependencyNode depNode = mMesh.parent(0);
-	MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
-	hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
+	//MFnDependencyNode depNode = mMesh.parent(0);
+	//MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
+	//hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
 
 	/*writing the information to the binary file*/
 	outFile->write((char*)&hHead, sizeof(MeshHeader));

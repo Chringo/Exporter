@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include <QtWidgets\qpushbutton.h>
+#include <QtWidgets\qcheckbox.h>
 #include "maya_includes.h"
 #include "SkelAnimExport.h"
 #include "HeaderStructs.h"
@@ -24,13 +25,11 @@ EXPORT MStatus initializePlugin(MObject obj)
 	MGlobal::executeCommand("string $dialog = `loadUI - uiFile ""mainwindow.ui""`");
 	MGlobal::executeCommand("showWindow $dialog");
 	QWidget * control = MQtUtil::findControl("exportButton");
-	//QCheckBox* cb = (QCheckBox*)control;
-	QPushButton* cb = (QPushButton*)control;
-
+	QCheckBox* cb = (QCheckBox*)control;
+	//QPushButton* cb = (QPushButton*)control;
 	
-
-	cb->connect(cb, SIGNAL(cb->released()), cb, SLOT(exportClicked()));
-	//cb->isChecked();
+	//cb->connect(cb, SIGNAL(cb->released()), cb, SLOT(exportClicked()));
+	cb->isChecked();
 	//MString checkName;
 	//checkName = cb->objectName().toStdString().c_str();
 	//checkName += hej.c_str();

@@ -1,3 +1,5 @@
+#include <Windows.h>
+#include <QtWidgets\qpushbutton.h>
 #include "maya_includes.h"
 #include "SkelAnimExport.h"
 #include "HeaderStructs.h"
@@ -11,14 +13,36 @@ MCallbackIdArray myCallbackArray;
 //fstream outFile("//DESKTOP-BOKNO6D/server/knulla.BBF", std::fstream::out | std::fstream::binary);
 fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
 
+void exportClicked()
+{
+	MGlobal::displayInfo("juj");
+}
+
 EXPORT MStatus initializePlugin(MObject obj)
 {
     SkelAnimExport cSkelAnim;
-	//QWidget * layoutWidget = MQtUtil::findWindow("mainwindow");
-	/*MGlobal::executeCommand("string $dialog = `loadUI - uiFile ""mainwindow.ui""`");
+	MGlobal::executeCommand("string $dialog = `loadUI - uiFile ""mainwindow.ui""`");
 	MGlobal::executeCommand("showWindow $dialog");
-	MString hejsan = MGlobal::executeCommandStringResult("checkBox -q -val skelBox");
-	MGlobal::displayInfo(hejsan);*/
+	QWidget * control = MQtUtil::findControl("exportButton");
+	//QCheckBox* cb = (QCheckBox*)control;
+	QPushButton* cb = (QPushButton*)control;
+
+	
+
+	cb->connect(cb, SIGNAL(cb->released()), cb, SLOT(exportClicked()));
+	//cb->isChecked();
+	//MString checkName;
+	//checkName = cb->objectName().toStdString().c_str();
+	//checkName += hej.c_str();
+	//if (cb->isChecked())
+		MGlobal::displayInfo("is clicked");
+	//else
+		MGlobal::displayInfo("is not clicked");
+	//MString hejsan = MGlobal::executeCommandStringResult("int $status = `checkBox -q -v skelBox`");
+	MGlobal::executeCommand("int $status = `checkBox -q -v skelBox`");
+	MString hejsan = MGlobal::executeCommandStringResult("$status");
+
+	//MGlobal::displayInfo(hejsan);
 
 	// most functions will use this variable to indicate for errors
 	MStatus res = MS::kSuccess;

@@ -64,46 +64,12 @@ fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
 //{
 //	MGlobal::displayInfo("hejsan");
 //}
-class leif : public QObject
-{
-	//Q_OBJECT
-
-	public slots:
-	void allan();
-
-};
-class SignalWrapper : public QObject
-{
-	//Q_OBJECT
-public:
-	SignalWrapper(QPushButton * sender, QWidget * parent = 0);
-			
-
-		public slots:
-	void test();
-
-};
-void SignalWrapper::test()
-{
-	MGlobal::displayInfo("hejsan");
-}
-SignalWrapper::SignalWrapper(QPushButton * sender, QWidget * parent)
-	: QObject(parent)
-{
-	QObject::connect(sender, SIGNAL(clicked()), this, SLOT(test()));
-}
-const char* gemig()
-{
-	MGlobal::displayInfo("kuk");
-	const char *hej = nullptr;
-	return hej;
-}
 void exportClicked()
 {
 	MGlobal::displayInfo("kuk");
 }
 
-QPushButton* cb;
+QPushButton* cb = nullptr;
 
 EXPORT MStatus initializePlugin(MObject obj)
 {
@@ -192,8 +158,12 @@ EXPORT MStatus uninitializePlugin(MObject obj)
 	// our plugin
 	MFnPlugin plugin(obj);
 
-	//QObject::disconnect(cb, [] {exportClicked(); });
+	MGlobal::executeCommand("deleteUI -window $dialog");
+	//need to force close the ui
 
+	//QObject::disconnect(cb, exportClicked());
+	
+	//delete cb;
 
 	outFile.close();
 	// if any resources have been allocated, release and free here before

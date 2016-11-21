@@ -28,11 +28,155 @@ void SkelAnimExport::IterateJoints()
 {
     MStatus res;
 
-    MItDag dependIter(MItDag::kDepthFirst, MFn::kJoint, &res);
+    MItDag jointIter(MItDag::kDepthFirst, MFn::kJoint, &res);
 
     if (res == MStatus::kSuccess)
     {
-        LoadJointData(dependIter.item(), -1, 0);
+        LoadJointData(jointIter.item(), -1, 0);
+    }
+}
+
+void SkelAnimExport::IterateAnimations()
+{
+    MStatus res;
+
+    MFnIkJoint jointFn;
+
+    /*Iterates all animation layers and setting their weight value to 0.
+    Later we want this because processing every layer requires all others
+    to be set to 0, otherwise probably we can't get the keyframe values.*/
+    MPlugArray layerWeights;
+
+    MItDependencyNodes layerWeightIter(MFn::kAnimLayer, &res);
+    if (res == MStatus::kSuccess)
+    {
+        while (!layerWeightIter.isDone())
+        {
+            MFnDependencyNode animLayerFn(layerWeightIter.item(), &res);
+
+            MPlug weightLayerPlug = animLayerFn.findPlug("weight", &res);
+            MPlug soloPlug = animLayerFn.findPlug("solo", &res);
+            MPlug mutePlug = animLayerFn.findPlug("parentMute", &res);
+
+            weightLayerPlug.setDouble(0);
+            soloPlug.setBool(0);
+            mutePlug.setBool(0);
+
+            layerWeights.append(weightLayerPlug);
+
+            layerWeightIter.next();
+        }
+    }
+
+    int plugWeightCounter = 0;
+
+    MItDependencyNodes animLayerIter(MFn::kAnimLayer, &res);
+    if (res == MStatus::kSuccess)
+    {
+        while (!animLayerIter.isDone())
+        {
+            int jointCounter = 0;
+
+            MFnDependencyNode animLayerFn(animLayerIter.item(), &res);
+            if (animLayerFn.name() == "BaseAnimation")
+            {
+                animLayerIter.next();
+                layerWeights[plugWeightCounter].setDouble(1);
+                plugWeightCounter++;
+                continue;
+            }
+
+            MString animLayerName = animLayerFn.name();
+            
+            layerWeights[plugWeightCounter].setDouble(1);
+
+            MPlug blendNodePlug = animLayerFn.findPlug("blendNodes", &res);
+            if (res == MStatus::kSuccess)
+            {
+                MItDependencyGraph blendIter(animLayerIter.item(), MFn::kBlendNodeAdditiveRotation,
+                    MItDependencyGraph::Direction::kDownstream, MItDependencyGraph::Traversal::kBreadthFirst,
+                    MItDependencyGraph::Level::kNodeLevel, &res);
+
+                blendIter.enablePruningOnFilter();
+
+                while (!blendIter.isDone())
+                {
+                   hAnimationStateData animStateData;
+
+                   MString blendName = MFnDependencyNode(blendIter.currentItem(), &res).name();
+
+                   MPlug outputPlug = MFnDependencyNode(blendIter.currentItem()).findPlug("rotateOrder", &res);
+                   if (res == MStatus::kSuccess)
+                   {
+                       MString plugName = outputPlug.name();
+                       MPlugArray outputConnection;
+                       outputPlug.connectedTo(outputConnection, true, false, &res);
+                       if (outputConnection.length())
+                       {
+                           MString connectionName = outputConnection[0].name();
+                           jointFn.setObject(outputConnection[0].node());
+
+                           MString jointName = jointFn.name(&res);
+                       }
+                   }
+
+                   MPlugArray animatedPlugs;
+                   MAnimUtil::findAnimatedPlugs(blendIter.currentItem(), animatedPlugs, false, &res);
+
+                   if (animatedPlugs.length())
+                   {
+                       MObjectArray objArray;
+
+                       MAnimUtil::isAnimated(animatedPlugs[0]);
+                       
+                       MAnimUtil::findAnimation(animatedPlugs[0], objArray, &res);
+       
+                       if (objArray.length())
+                       {
+                           MFnAnimCurve animCurveFn(objArray[0], &res);
+
+                           MString curveName = animCurveFn.name();
+
+                           MGlobal::displayInfo(animCurveFn.name());
+                   
+                           int numKeys = animCurveFn.numKeyframes(&res);
+                           for (int keyIndex = 0; keyIndex < numKeys; keyIndex++)
+                           {
+                               hKeyData keyData;
+
+                               MTime keyTime = animCurveFn.time(keyIndex);
+                               keyData.timeValue = keyTime.as(MTime::kSeconds);
+
+                               MAnimControl::setCurrentTime(keyTime);
+
+                               double quaternion[4];
+                               jointFn.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kTransform);
+                               std::copy(quaternion, quaternion + 4, keyData.quaternion);
+
+                               MVector transVec = jointFn.getTranslation(MSpace::kTransform, &res);
+                               double translation[3];
+                               transVec.get(translation);
+                               std::copy(translation, translation + 3, keyData.translation);
+
+                               double scale[3];
+                               jointFn.getScale(scale);
+                               std::copy(scale, scale + 3, keyData.scale);
+
+                               //animStateData.keyFrames.push_back(keyData);
+                           }
+
+                           //jointList[jointCounter].animationStates.push_back(animStateData);
+                           jointCounter++;
+                       }
+                   }
+                   
+                   blendIter.next();
+                }
+            }
+
+            plugWeightCounter++;
+            animLayerIter.next();
+        }
     }
 }
 

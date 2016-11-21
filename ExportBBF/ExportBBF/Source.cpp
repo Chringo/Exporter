@@ -147,6 +147,9 @@ EXPORT MStatus initializePlugin(MObject obj)
 
     /*Iterate all joints in scene.*/
     cSkelAnim.IterateJoints();
+
+    /*Iterate all animations of the skeleton.*/
+    cSkelAnim.IterateAnimations();
 	
 	/*writing a temporary mainheader for one mesh*/
 	MainHeader tempHead{ 1 };

@@ -14,7 +14,7 @@ fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
 EXPORT MStatus initializePlugin(MObject obj)
 {
     SkelAnimExport cSkelAnim;
-	QWidget * layoutWidget = MQtUtil::findWindow("mainwindow");
+	//QWidget * layoutWidget = MQtUtil::findWindow("mainwindow");
 	/*MGlobal::executeCommand("string $dialog = `loadUI - uiFile ""mainwindow.ui""`");
 	MGlobal::executeCommand("showWindow $dialog");
 	MString hejsan = MGlobal::executeCommandStringResult("checkBox -q -val skelBox");

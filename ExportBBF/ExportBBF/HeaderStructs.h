@@ -36,6 +36,7 @@ struct MaterialHeader
 {
 	float roughness;
 	float metallness;
+	float emissive;
 	std::string textureMap;
 	std::string normalMap;
 	std::string metallicMap;
@@ -49,6 +50,14 @@ struct MaterialHeader
 	//Maps,color,normal,metal,roughness,AO..
 	//Type of material
 	//Texture
+};
+struct LightHeader
+{
+	float color;
+	float intensity;
+	float coneAngle;
+	float penAngle;
+	float dropOff;
 };
 struct Vertex
 {

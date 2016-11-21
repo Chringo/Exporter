@@ -35,7 +35,10 @@
 #include <maya/MFnLayeredShader.h>
 #include <maya/MShaderManager.h>
 
-
+#include <vector>
+#include <fstream>
+#include <iostream>
+#include <string.h>
 // Wrappers
 #include <maya/MGlobal.h>
 #include <maya/MCallbackIdArray.h>

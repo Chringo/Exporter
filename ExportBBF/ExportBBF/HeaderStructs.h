@@ -34,6 +34,19 @@ struct MeshHeader
 };
 struct MaterialHeader
 {
+	float roughness;
+	float metallness;
+	std::string textureMap;
+	std::string normalMap;
+	std::string metallicMap;
+	std::string roughnessMap;
+	std::string aoMap;
+	
+	//StingrayPBS
+	//Values 
+	//Roughnesss
+	//Metallness
+	//Maps,color,normal,metal,roughness,AO..
 	//Type of material
 	//Texture
 };

@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <string.h>
 
 using namespace std;
 
@@ -166,57 +167,49 @@ void extractingMaterials()
 
 				MObject srcNode = srcplugarray[0].node();
 
-				findShader(srcNode);
+				// Values for metal and roughness.
 
-				//Vilka material ska vi supporta ? 
+				MaterialHeader mHeader;
 
-				//cerr << "kuk" << endl;
-				MItMeshPolygon piter(dagPath, comp);
+				
 
 				MPlug metalness = MFnDependencyNode(srcNode).findPlug("metallic", &stat);
 				float value;
 				metalness.getValue(value);
+				mHeader.metallness = value;
 				cerr << "Metallic Value: " << value << endl;
 
 
 				MPlug roughness = MFnDependencyNode(srcNode).findPlug("roughness", &stat);
 				float roughValue;
 				roughness.getValue(roughValue);
+				mHeader.roughness = roughValue;
 				cerr << "RoughNess Value: " << roughValue << endl;
-			
-				//MItDependencyGraph dgvalueIt(metalness, MFn::kAttribute, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
-
-			//	if (dgvalueIt.isDone())
-			//	{
-			//		continue;
-			//	}
-			//	MObject attrNode = dgvalueIt.thisNode();
-				//cerr << "set: " << fnSet.name();
-		//		cerr << "NodeName: " << MFnDependencyNode(attrNode).name() << endl;
-				//cerr << "Attrbute: " << fnSet.attribute;
 
 
 #pragma region texture
-
+				
 				//Texture
-				MPlug TEX_Color = MFnDependencyNode(srcNode).findPlug("TEX_color_map", &stat);
-				MItDependencyGraph dgIter(TEX_Color, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
-				dgIter.disablePruningOnFilter();
+				MPlug texture = MFnDependencyNode(srcNode).findPlug("TEX_color_map", &stat);
+				MItDependencyGraph dgItt(texture, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
+				dgItt.disablePruningOnFilter();
 
-				if (dgIter.isDone())
+				if (dgItt.isDone())
 				{
 					continue;
 				}
-				MObject ssNode = dgIter.thisNode();
-				MPlug fileNamePlug = MFnDependencyNode(srcNode).findPlug("color", &stat);
-				MString texname;
+				MObject textureNode = dgItt.thisNode();
+				MPlug filenamePlugn = MFnDependencyNode(textureNode).findPlug("fileTextureName");
+				MString texName;
 
-				fileNamePlug.getValue(texname);
+				filenamePlugn.getValue(texName);
 				cerr << "texture MAP!!" << endl;
 				cerr << "Set: " << fnSet.name() << endl;
-				cerr << "Texture Node Name: " << MFnDependencyNode(ssNode).name() << endl;
-				cerr << "Texture File Name: " << texname.asChar() << endl;
-
+				cerr << "Texture Node Name: " << MFnDependencyNode(textureNode).name() << endl;
+				const char *bajs = texName.asChar();
+				//strcpy(mHeader.colorMap, bajs);
+				mHeader.textureMap = texName.asChar();
+				cerr << "Texture File Name: " << texName.asChar() << endl;
 				//Normal
 				MPlug texNormal = MFnDependencyNode(srcNode).findPlug("TEX_normal_map", &stat);
 				MItDependencyGraph dgItn(texNormal, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
@@ -227,13 +220,14 @@ void extractingMaterials()
 					continue;
 				}
 				MObject normalNode = dgItn.thisNode();
-				MPlug filenamePlugn = MFnDependencyNode(normalNode).findPlug("fileTextureName");
+				MPlug filenameTexPlugn = MFnDependencyNode(normalNode).findPlug("fileTextureName");
 				MString textureName;
 				
-				filenamePlugn.getValue(textureName);
+				filenameTexPlugn.getValue(textureName);
 				cerr << "normal MAP!!" << endl;
 				cerr << "Set: " << fnSet.name() << endl;
 				cerr << "Texture Node Name: " << MFnDependencyNode(normalNode).name() << endl;
+				mHeader.normalMap = textureName.asChar();
 				cerr << "Texture File Name: " << textureName.asChar() << endl;
 
 				//Metallic
@@ -253,6 +247,7 @@ void extractingMaterials()
 				cerr << "MetalMap!!" << endl;
 				cerr << "Set: " << fnSet.name() << endl;
 				cerr << "Texture Node Name: " << MFnDependencyNode(metallNode).name() << endl;
+				mHeader.metallicMap = textureNamem.asChar();
 				cerr << "Texture File Name: " << textureNamem.asChar() << endl;
 				//Roughness
 				MPlug texRogugh = MFnDependencyNode(srcNode).findPlug("TEX_roughness_map", &stat);
@@ -271,25 +266,8 @@ void extractingMaterials()
 				cerr << "Roughness MAP!!" << endl;
 				cerr << "Set: " << fnSet.name() << endl;
 				cerr << "Texture Node Name: " << MFnDependencyNode(roughNode).name() << endl;
+				mHeader.roughnessMap = textureNamer.asChar();
 				cerr << "Texture File Name: " << textureNamer.asChar() << endl;
-				//Emissive
-				MPlug texEmissve = MFnDependencyNode(srcNode).findPlug("TEX_emissive_map", &stat);
-				MItDependencyGraph dgIte(texEmissve, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
-				dgIte.disablePruningOnFilter();
-
-				if (dgIte.isDone())
-				{
-					continue;
-				}
-				MObject emissiveNode = dgIte.thisNode();
-				MPlug filenamePluge = MFnDependencyNode(emissiveNode).findPlug("fileTextureName");
-				MString textureNamee;
-
-				filenamePluge.getValue(textureNamee);
-				cerr << "emissive MAP!!" << endl;
-				cerr << "Set: " << fnSet.name() << endl;
-				cerr << "Texture Node Name: " << MFnDependencyNode(emissiveNode).name() << endl;
-				cerr << "Texture File Name: " << textureNamee.asChar() << endl;
 				//AO
 				MPlug texAo = MFnDependencyNode(srcNode).findPlug("TEX_ao_map", &stat);
 				MItDependencyGraph dgIta(texAo, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
@@ -307,13 +285,11 @@ void extractingMaterials()
 				cerr << "AO MAP!!" << endl;
 				cerr << "Set: " << fnSet.name() << endl;
 				cerr << "Texture Node Name: " << MFnDependencyNode(aoNode).name() << endl;
+				mHeader.aoMap = textureNamea.asChar();
 				cerr << "Texture File Name: " << textureNamea.asChar() << endl;
+
+				outFile.write((char*)&mHeader, sizeof(MaterialHeader));
 #pragma endregion
-				for (; !piter.isDone(); piter.next())
-				{
-					MIntArray vertexidx;
-					piter.getVertices(vertexidx);
-				}
 			}
 		}
 	}

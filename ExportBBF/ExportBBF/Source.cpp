@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <QtWidgets\qpushbutton.h>
 #include <QtWidgets\qcheckbox.h>
+#include <QtWidgets\qmainwindow.h>
 #include "maya_includes.h"
 #include "SkelAnimExport.h"
 #include "HeaderStructs.h"
@@ -14,10 +15,52 @@ MCallbackIdArray myCallbackArray;
 //fstream outFile("//DESKTOP-BOKNO6D/server/knulla.BBF", std::fstream::out | std::fstream::binary);
 fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
 
-void exportClicked()
+//void exportClicked()
+//{
+//	MGlobal::displayInfo("juj");
+//}
+
+/*class to recieve signals from the qt ui*/
+//class SignalWrapper : public QObject
+//{
+//	Q_OBJECT
+//public:
+//	SignalWrapper(QWidget * parent = 0);
+//		
+//
+//		public slots:
+//	void test() { MGlobal::displayInfo("hejsan"); }
+//
+//
+//};
+//SignalWrapper::SignalWrapper(QWidget * parent)
+//{
+//	QObject::connect(parent, SIGNAL(released()), this, SLOT(test()));
+//}
+class SignalWrapper : public QMainWindow
 {
-	MGlobal::displayInfo("juj");
-}
+	Q_OBJECT
+public:
+	explicit SignalWrapper(QWidget *parent = 0);
+	SignalWrapper::SignalWrapper(QWidget *parent)
+		: QMainWindow(parent)
+	{
+		// Create the button, make "this" the parent
+		m_button = new QPushButton("My Button", this);
+		// set size and location of the button
+		m_button->setGeometry(QRect(QPoint(100, 100),
+			QSize(200, 50)));
+
+		// Connect button signal to appropriate slot
+		connect(m_button, SIGNAL(released()), this, SLOT(handleButton()));
+	}
+	private slots:
+	void handleButton();
+private:
+	QPushButton *m_button;
+};
+
+
 
 EXPORT MStatus initializePlugin(MObject obj)
 {
@@ -25,21 +68,29 @@ EXPORT MStatus initializePlugin(MObject obj)
 	MGlobal::executeCommand("string $dialog = `loadUI - uiFile ""mainwindow.ui""`");
 	MGlobal::executeCommand("showWindow $dialog");
 	QWidget * control = MQtUtil::findControl("exportButton");
-	QCheckBox* cb = (QCheckBox*)control;
-	//QPushButton* cb = (QPushButton*)control;
+	//QCheckBox* cb = (QCheckBox*)control;
+	QPushButton* cb = (QPushButton*)control;
 	
-	//cb->connect(cb, SIGNAL(cb->released()), cb, SLOT(exportClicked()));
-	cb->isChecked();
+
+	QWidget * ex = cb->topLevelWidget();
+	QString helll = ex->whatsThis();
+	
+	SignalWrapper tw;
+
+	//QObject::connect(cb, SIGNAL(released()), tw.parent(), SLOT(test()));
+	//cb->connect(cb, SIGNAL(cb->released()), cb->topLevelWidget(), SLOT(exportClicked()));
+	//cb->clicked.connect(SLOT(exportClicked()));
+	//cb->isChecked();
 	//MString checkName;
 	//checkName = cb->objectName().toStdString().c_str();
 	//checkName += hej.c_str();
-	//if (cb->isChecked())
+	/*if (cb->isChecked())
 		MGlobal::displayInfo("is clicked");
-	//else
-		MGlobal::displayInfo("is not clicked");
+	else
+		MGlobal::displayInfo("is not clicked");*/
 	//MString hejsan = MGlobal::executeCommandStringResult("int $status = `checkBox -q -v skelBox`");
-	MGlobal::executeCommand("int $status = `checkBox -q -v skelBox`");
-	MString hejsan = MGlobal::executeCommandStringResult("$status");
+	//MGlobal::executeCommand("int $status = `checkBox -q -v skelBox`");
+	//MString hejsan = MGlobal::executeCommandStringResult("$status");
 
 	//MGlobal::displayInfo(hejsan);
 

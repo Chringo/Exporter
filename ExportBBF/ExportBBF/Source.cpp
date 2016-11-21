@@ -8,7 +8,7 @@ using namespace std;
 
 MCallbackIdArray myCallbackArray;
 fstream outFile("knulla.BBF", std::fstream::out | std::fstream::binary);
-void makematerial(MObject& srcNode);
+void findShader(MObject& srcNode);
 
 void Createmesh(MObject & mNode)
 {
@@ -124,17 +124,17 @@ void extractingMaterials()
 {
 	MStatus stat;
 	MItDag dagIter(MItDag::kBreadthFirst, MFn::kInvalid, &stat);
+
 	for (; !dagIter.isDone(); dagIter.next())
 	{
 		MDagPath dagPath;
-
 		stat = dagIter.getPath(dagPath);
 
 		if (stat)
 		{
 			MFnDagNode dagNode(dagPath, &stat);
 
-			if (dagNode.isIntermediateObject()) continue;
+			if (dagNode.isIntermediateObject())continue;
 			if (!dagPath.hasFn(MFn::kMesh))continue;
 			if (dagPath.hasFn(MFn::kTransform))continue;
 
@@ -146,51 +146,193 @@ void extractingMaterials()
 
 			fnMesh.getConnectedSetsAndMembers(instanceNumber, sets, comps, true);
 
-			for (unsigned int i = 0; i < sets.length(); i++)
+			for (unsigned i = 0; i < sets.length(); i++)
 			{
 				MObject set = sets[i];
 				MObject comp = comps[i];
-
-				MFnSet fnset(set);
+				
+				MFnSet fnSet(set);
 
 				MFnDependencyNode dnSet(set);
 				MObject ssattr = dnSet.attribute(MString("surfaceShader"));
 
-				MPlug ssPlug(set, ssattr);
+				MPlug sPlug(set, ssattr);
 
-				MPlugArray srcPlugArray;
-				ssPlug.connectedTo(srcPlugArray, true, false);
+				MPlugArray srcplugarray;
 
-				if (srcPlugArray.length() == 0)continue;
-				MObject srcNode = srcPlugArray[0].node();
+				sPlug.connectedTo(srcplugarray, true, false);
 
-				makematerial(srcNode);
+				if (srcplugarray.length() == 0) continue;
 
-				//if (material_is_not_supported(matIdx))continue;
+				MObject srcNode = srcplugarray[0].node();
 
+				findShader(srcNode);
+
+				//Vilka material ska vi supporta ? 
+
+				//cerr << "kuk" << endl;
 				MItMeshPolygon piter(dagPath, comp);
 
+				MPlug metalness = MFnDependencyNode(srcNode).findPlug("metallic", &stat);
+				float value;
+				metalness.getValue(value);
+				cerr << "Metallic Value: " << value << endl;
+
+
+				MPlug roughness = MFnDependencyNode(srcNode).findPlug("roughness", &stat);
+				float roughValue;
+				roughness.getValue(roughValue);
+				cerr << "RoughNess Value: " << roughValue << endl;
+			
+				//MItDependencyGraph dgvalueIt(metalness, MFn::kAttribute, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
+
+			//	if (dgvalueIt.isDone())
+			//	{
+			//		continue;
+			//	}
+			//	MObject attrNode = dgvalueIt.thisNode();
+				//cerr << "set: " << fnSet.name();
+		//		cerr << "NodeName: " << MFnDependencyNode(attrNode).name() << endl;
+				//cerr << "Attrbute: " << fnSet.attribute;
+
+
+#pragma region texture
+
+				//Texture
+				MPlug TEX_Color = MFnDependencyNode(srcNode).findPlug("TEX_color_map", &stat);
+				MItDependencyGraph dgIter(TEX_Color, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
+				dgIter.disablePruningOnFilter();
+
+				if (dgIter.isDone())
+				{
+					continue;
+				}
+				MObject ssNode = dgIter.thisNode();
+				MPlug fileNamePlug = MFnDependencyNode(srcNode).findPlug("color", &stat);
+				MString texname;
+
+				fileNamePlug.getValue(texname);
+				cerr << "texture MAP!!" << endl;
+				cerr << "Set: " << fnSet.name() << endl;
+				cerr << "Texture Node Name: " << MFnDependencyNode(ssNode).name() << endl;
+				cerr << "Texture File Name: " << texname.asChar() << endl;
+
+				//Normal
+				MPlug texNormal = MFnDependencyNode(srcNode).findPlug("TEX_normal_map", &stat);
+				MItDependencyGraph dgItn(texNormal, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
+				dgItn.disablePruningOnFilter();
+
+				if (dgItn.isDone())
+				{
+					continue;
+				}
+				MObject normalNode = dgItn.thisNode();
+				MPlug filenamePlugn = MFnDependencyNode(normalNode).findPlug("fileTextureName");
+				MString textureName;
+				
+				filenamePlugn.getValue(textureName);
+				cerr << "normal MAP!!" << endl;
+				cerr << "Set: " << fnSet.name() << endl;
+				cerr << "Texture Node Name: " << MFnDependencyNode(normalNode).name() << endl;
+				cerr << "Texture File Name: " << textureName.asChar() << endl;
+
+				//Metallic
+				MPlug texmetall = MFnDependencyNode(srcNode).findPlug("TEX_metallic_map", &stat);
+				MItDependencyGraph dgIt(texmetall, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
+				dgIt.disablePruningOnFilter();
+
+				if (dgIt.isDone())
+				{
+					continue;
+				}
+				MObject metallNode = dgIt.thisNode();
+				MPlug filenamePlugm = MFnDependencyNode(metallNode).findPlug("fileTextureName");
+				MString textureNamem;
+
+				filenamePlugm.getValue(textureNamem);
+				cerr << "MetalMap!!" << endl;
+				cerr << "Set: " << fnSet.name() << endl;
+				cerr << "Texture Node Name: " << MFnDependencyNode(metallNode).name() << endl;
+				cerr << "Texture File Name: " << textureNamem.asChar() << endl;
+				//Roughness
+				MPlug texRogugh = MFnDependencyNode(srcNode).findPlug("TEX_roughness_map", &stat);
+				MItDependencyGraph dgItr(texRogugh, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
+				dgItr.disablePruningOnFilter();
+
+				if (dgItr.isDone())
+				{
+					continue;
+				}
+				MObject roughNode = dgItr.thisNode();
+				MPlug filenamePlugr = MFnDependencyNode(roughNode).findPlug("fileTextureName");
+				MString textureNamer;
+
+				filenamePlugr.getValue(textureNamer);
+				cerr << "Roughness MAP!!" << endl;
+				cerr << "Set: " << fnSet.name() << endl;
+				cerr << "Texture Node Name: " << MFnDependencyNode(roughNode).name() << endl;
+				cerr << "Texture File Name: " << textureNamer.asChar() << endl;
+				//Emissive
+				MPlug texEmissve = MFnDependencyNode(srcNode).findPlug("TEX_emissive_map", &stat);
+				MItDependencyGraph dgIte(texEmissve, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
+				dgIte.disablePruningOnFilter();
+
+				if (dgIte.isDone())
+				{
+					continue;
+				}
+				MObject emissiveNode = dgIte.thisNode();
+				MPlug filenamePluge = MFnDependencyNode(emissiveNode).findPlug("fileTextureName");
+				MString textureNamee;
+
+				filenamePluge.getValue(textureNamee);
+				cerr << "emissive MAP!!" << endl;
+				cerr << "Set: " << fnSet.name() << endl;
+				cerr << "Texture Node Name: " << MFnDependencyNode(emissiveNode).name() << endl;
+				cerr << "Texture File Name: " << textureNamee.asChar() << endl;
+				//AO
+				MPlug texAo = MFnDependencyNode(srcNode).findPlug("TEX_ao_map", &stat);
+				MItDependencyGraph dgIta(texAo, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
+				dgIta.disablePruningOnFilter();
+
+				if (dgIta.isDone())
+				{
+					continue;
+				}
+				MObject aoNode = dgIta.thisNode();
+				MPlug filenamePluga = MFnDependencyNode(aoNode).findPlug("fileTextureName");
+				MString textureNamea;
+
+				filenamePluga.getValue(textureNamea);
+				cerr << "AO MAP!!" << endl;
+				cerr << "Set: " << fnSet.name() << endl;
+				cerr << "Texture Node Name: " << MFnDependencyNode(aoNode).name() << endl;
+				cerr << "Texture File Name: " << textureNamea.asChar() << endl;
+#pragma endregion
 				for (; !piter.isDone(); piter.next())
 				{
-					MIntArray vertexIdx;
-					piter.getVertices(vertexIdx);
-					
+					MIntArray vertexidx;
+					piter.getVertices(vertexidx);
 				}
-
-				
 			}
 		}
-		
 	}
-}
-void makematerial(MObject& srcNode)
-{
-	if (srcNode.hasFn(MFn::kPhong))
-	{
-		MFnPhongShader phong(srcNode);
 
-		cerr << "found phong shader:\n" << phong.name().asChar() << "\n";
-	}
+
+}
+void findShader(MObject& srcNode)
+{
+
+	//if (srcNode.hasFn(MFn::kLambert))
+	//	MColor glow = phong.incandescence();
+		//MColor diffuse = phong.color()*phong.diffuseCoeff();
+		//MColor specular = phong.specularColor();
+		//MColor trans = phong.transparency();
+
+		//build material
+
+
+	//}
 }
 EXPORT MStatus initializePlugin(MObject obj)
 {
@@ -214,7 +356,7 @@ EXPORT MStatus initializePlugin(MObject obj)
 	/*writing a temporary mainheader for one mesh*/
 	MainHeader tempHead{ 1 };
 	outFile.write((char*)&tempHead, sizeof(MainHeader));
-
+	
 	MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
 	for (; !meshIt.isDone(); meshIt.next())
 	{
@@ -222,8 +364,11 @@ EXPORT MStatus initializePlugin(MObject obj)
 		if (trans.child(0).hasFn(MFn::kMesh))
 		{
 			Createmesh(meshIt.currentItem());
+			
 		}
+		
 	}
+	extractingMaterials();
 
 	return res;
 }

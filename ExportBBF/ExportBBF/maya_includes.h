@@ -32,6 +32,8 @@
 #include <maya/MFnSkinCluster.h>
 #include <maya/MItDependencyGraph.h>
 #include <maya/MFnSet.h>
+#include <maya/MFnLayeredShader.h>
+#include <maya/MShaderManager.h>
 
 
 // Wrappers

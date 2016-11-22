@@ -18,7 +18,29 @@ fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
 /*function that starts exporting everything chosen*/
 void exportStart(bool skel, bool mats, bool light)
 {
+	if (skel || mats || light)
+	{
+		/*writing a temporary mainheader*/
+		MainHeader tempHead{ 1 };
+		outFile.write((char*)&tempHead, sizeof(MainHeader));
+		if (skel)
+		{
 
+		}
+		if (mats)
+		{
+
+		}
+		if (light)
+		{
+
+		}
+		if (!skel && !mats && !light)
+		{
+			MGlobal::displayInfo("ERROR: 0xfded; Nothing checked for export.");
+			return;
+		}
+	}
 }
 
 /*Function thats called when the export button is pressed*/

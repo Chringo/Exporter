@@ -143,7 +143,7 @@ EXPORT MStatus initializePlugin(MObject obj)
 	MGlobal::displayInfo("Maya plugin loaded!");
 
     /*Iterate all skin clusters in scene.*/
-    //cSkelAnim.IterateSkinClusters();
+    cSkelAnim.IterateSkinClusters();
 
     /*Iterate all joints in scene.*/
     cSkelAnim.IterateJoints();

@@ -101,9 +101,12 @@ void SkelAnimExport::IterateAnimations()
 
                 while (!blendIter.isDone())
                 {
+					if (jointCounter >= jointList.size())
+						break;
+
                    hAnimationStateData animStateData;
 
-                   MString blendName = MFnDependencyNode(blendIter.currentItem(), &res).name();
+				   MFnDependencyNode blendFn(blendIter.currentItem(), &res);
 
                    MPlug outputPlug = MFnDependencyNode(blendIter.currentItem()).findPlug("rotateOrder", &res);
                    if (res == MStatus::kSuccess)
@@ -120,16 +123,13 @@ void SkelAnimExport::IterateAnimations()
                        }
                    }
 
-                   MPlugArray animatedPlugs;
-                   MAnimUtil::findAnimatedPlugs(blendIter.currentItem(), animatedPlugs, false, &res);
+				   MPlug inputBPlug = blendFn.findPlug("inputB", &res);
 
-                   if (animatedPlugs.length())
+                   if (res == MStatus::kSuccess)
                    {
-                       MObjectArray objArray;
-
-                       MAnimUtil::isAnimated(animatedPlugs[0]);
-                       
-                       MAnimUtil::findAnimation(animatedPlugs[0], objArray, &res);
+					   MObjectArray objArray;
+                      
+                       MAnimUtil::findAnimation(inputBPlug.child(0), objArray, &res);
        
                        if (objArray.length())
                        {
@@ -162,10 +162,10 @@ void SkelAnimExport::IterateAnimations()
                                jointFn.getScale(scale);
                                std::copy(scale, scale + 3, keyData.scale);
 
-                               //animStateData.keyFrames.push_back(keyData);
+                               animStateData.keyFrames.push_back(keyData);
                            }
 
-                           //jointList[jointCounter].animationStates.push_back(animStateData);
+                           jointList[jointCounter].animationStates.push_back(animStateData);
                            jointCounter++;
                        }
                    }

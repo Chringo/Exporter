@@ -11,13 +11,15 @@ public:
 	~MaterialExport();
 	//MaterialHeader mHeader;
 private:
-	
+
 	fstream * outFile;
 public:
 
-	
+	void GetNumMats();
 	void MaterialExtraction();
-	void ExtractingTextures(MObject &srcNode,MStatus &stat);
+	void ExtractingTextures(MObject &srcNode, MStatus &stat);
 	void ExtractingAttributes(MObject &srcNode);
+	void ExportingMats_Tex();
+	
 };
 

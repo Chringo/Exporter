@@ -19,7 +19,7 @@ MCallbackIdArray myCallbackArray;
 fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
 
 /*function that starts exporting everything chosen*/
-void exportStart(bool skel, bool mats, bool light, char * filePath)
+void exportStart(bool skel, bool mats, bool light, string filePath)
 {
 	if (skel || mats || light)
 	{
@@ -106,17 +106,14 @@ void exportClicked()
 	control = MQtUtil::findControl("lineEdit");
 	QString fileName = ((QLineEdit*)control)->text();
 
-	MGlobal::displayInfo("in export");
+	/*if there's a file path chosen, the program will start exporting*/
 	if (!fileName.isEmpty())
 	{
-		QChar *tet = fileName.data();
-		
-		char * fName = (char*)tet;
-		//fstream oFil(, std::fstream::out | std::fstream::binary);
-		string hejsan = fileName.toLocal8Bit().data();
-		//char * hejsan = (char*)fName;
-		//string kiss = "hejsan";
-		//const char * heeeeeee = fileName.toStdString().c_str();
+		string fName = "";
+		for (int i = 0; i < fileName.size(); ++i)
+		{
+			fName += fileName[i].unicode();
+		}
 		exportStart(skel, mats, light, fName);
 	}
 	else

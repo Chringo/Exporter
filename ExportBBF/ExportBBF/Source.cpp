@@ -1,4 +1,3 @@
-#include <Windows.h>
 #include <QtWidgets\qpushbutton.h>
 #include <QtWidgets\qcheckbox.h>
 #include <QtWidgets\qmainwindow.h>
@@ -19,9 +18,9 @@ MCallbackIdArray myCallbackArray;
 fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
 
 /*function that starts exporting everything chosen*/
-void exportStart(bool skel, bool mats, bool light, string filePath)
+void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 {
-	if (skel || mats || light)
+	if (mesh || skel || mats || light)
 	{
 		MStatus res = MS::kSuccess;
 
@@ -64,7 +63,7 @@ void exportStart(bool skel, bool mats, bool light, string filePath)
 	if (!skel && !mats && !light)
 	{
 		MGlobal::displayInfo("ERROR: 0xfded; Nothing checked for export.");
-		//return;
+		return;
 	}
 }
 
@@ -94,6 +93,9 @@ void exportClicked()
 	cb->setDisabled(true);
 
 	/*getting the rest of the ui variables for export info*/
+	control = MQtUtil::findControl("meshBox");
+	bool mesh = ((QCheckBox*)control)->checkState();
+
 	control = MQtUtil::findControl("skelBox");
 	bool skel = ((QCheckBox*)control)->checkState();
 
@@ -114,7 +116,7 @@ void exportClicked()
 		{
 			fName += fileName[i].unicode();
 		}
-		exportStart(skel, mats, light, fName);
+		exportStart(mesh, skel, mats, light, fName);
 	}
 	else
 	{

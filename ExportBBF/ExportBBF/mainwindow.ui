@@ -56,8 +56,8 @@
    <widget class="QCheckBox" name="skelBox">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>90</y>
+      <x>200</x>
+      <y>120</y>
       <width>70</width>
       <height>17</height>
      </rect>
@@ -139,6 +139,19 @@
     </property>
     <property name="text">
      <string>Lights</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="meshBox">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>90</y>
+      <width>70</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Mesh</string>
     </property>
    </widget>
   </widget>

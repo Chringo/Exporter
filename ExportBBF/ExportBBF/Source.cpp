@@ -37,7 +37,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 			/*Iterate all joints in scene.*/
 			cSkelAnim.IterateJoints();
 		}
-		if (true) //furute mesh
+		if (mesh) //furute mesh
 		{
 			MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
 			for (; !meshIt.isDone(); meshIt.next())

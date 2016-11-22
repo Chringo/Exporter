@@ -9,6 +9,7 @@
 #include "HeaderStructs.h"
 #include "MeshExport.h"
 #include <maya/MFnPlugin.h>
+#include <string.h>
 
 
 using namespace std;
@@ -18,7 +19,7 @@ MCallbackIdArray myCallbackArray;
 fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
 
 /*function that starts exporting everything chosen*/
-void exportStart(bool skel, bool mats, bool light, wchar_t * filePath)
+void exportStart(bool skel, bool mats, bool light, char * filePath)
 {
 	if (skel || mats || light)
 	{
@@ -63,7 +64,7 @@ void exportStart(bool skel, bool mats, bool light, wchar_t * filePath)
 	if (!skel && !mats && !light)
 	{
 		MGlobal::displayInfo("ERROR: 0xfded; Nothing checked for export.");
-		return;
+		//return;
 	}
 }
 
@@ -108,8 +109,14 @@ void exportClicked()
 	MGlobal::displayInfo("in export");
 	if (!fileName.isEmpty())
 	{
-		wchar_t * fName;
+		QChar *tet = fileName.data();
 		
+		char * fName = (char*)tet;
+		//fstream oFil(, std::fstream::out | std::fstream::binary);
+		string hejsan = fileName.toLocal8Bit().data();
+		//char * hejsan = (char*)fName;
+		//string kiss = "hejsan";
+		//const char * heeeeeee = fileName.toStdString().c_str();
 		exportStart(skel, mats, light, fName);
 	}
 	else

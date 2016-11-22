@@ -14,6 +14,7 @@ using namespace std;
 MCallbackIdArray myCallbackArray;
 //fstream outFile("//DESKTOP-BOKNO6D/server/knulla.BBF", std::fstream::out | std::fstream::binary);
 fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
+bool filePath = false;
 
 /*function that starts exporting everything chosen*/
 void exportStart(bool skel, bool mats, bool light)
@@ -43,6 +44,11 @@ void exportStart(bool skel, bool mats, bool light)
 	}
 }
 
+void editClicked()
+{
+
+}
+
 /*Function thats called when the export button is pressed*/
 void exportClicked()
 {
@@ -63,6 +69,8 @@ void exportClicked()
 	control = MQtUtil::findControl("lightBox");
 	bool light = ((QCheckBox*)control)->checkState();
 
+
+
 	MGlobal::displayInfo("in export");
 
 }
@@ -80,6 +88,9 @@ EXPORT MStatus initializePlugin(MObject obj)
 	/*connecting the export button to the exportClicked function*/
 	QObject::connect(cb, &QPushButton::clicked, [] {exportClicked(); });
 	
+	control = MQtUtil::findControl("editButton");
+	QPushButton *eb = (QPushButton*)control;
+	QObject::connect(eb, &QPushButton::clicked, [] {editClicked(); });
 
     SkelAnimExport cSkelAnim;
 	// most functions will use this variable to indicate for errors

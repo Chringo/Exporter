@@ -38,15 +38,11 @@ void MaterialExport::GetNumMats()
 			MObjectArray sets;
 			MObjectArray comps;
 
-			amountOfMats += 1;
-
-			
 			fnMesh.getConnectedSetsAndMembers(instanceNumber, sets, comps, true);
 
 			for (unsigned i = 0; i < sets.length(); i++)
 			{
-				
-
+			
 				MObject set = sets[i];
 				MObject comp = comps[i];
 
@@ -64,12 +60,12 @@ void MaterialExport::GetNumMats()
 				if (srcplugarray.length() == 0) continue;
 
 				MObject srcNode = srcplugarray[0].node();
-			
+				amountOfMats += 1;
 			}
 		}
 	}
-	cerr << "BAJSERS: " << amountOfMats << endl;
-
+	MainHeader mHead;
+	mHead.numOfMats = amountOfMats;
 	MaterialExtraction();
 }
 void MaterialExport::MaterialExtraction()
@@ -80,7 +76,7 @@ void MaterialExport::MaterialExtraction()
 	{
 		MDagPath dagPath;
 		stat = dagIter.getPath(dagPath);
-
+		//BAJS
 		if (stat)
 		{
 			MFnDagNode dagNode(dagPath, &stat);
@@ -98,8 +94,6 @@ void MaterialExport::MaterialExtraction()
 
 			for (unsigned i = 0; i < sets.length(); i++)
 			{
-
-
 				MObject set = sets[i];
 				MObject comp = comps[i];
 
@@ -119,9 +113,10 @@ void MaterialExport::MaterialExtraction()
 				MObject srcNode = srcplugarray[0].node();
 
 				MaterialHeader mHeader;
-				cerr << "Set: " << fnSet.name() << endl; // Shader Group
 				memcpy(mHeader.shaderName, fnSet.name().asChar(), fnSet.name().length());
 				mHeader.shaderName[fnSet.name().length()] = '\0';
+
+				//cerr << "shadername: " << mHeader.shaderName << endl;
 
 				MPlug texture = MFnDependencyNode(srcNode).findPlug("TEX_color_map", &stat);
 				MItDependencyGraph dgItt(texture, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
@@ -133,14 +128,13 @@ void MaterialExport::MaterialExtraction()
 				MString texName;
 
 				filenamePlugn.getValue(texName);
-				cerr << "texture MAP!!" << endl;
-				//cerr << "Set: " << fnSet.name() << endl;
-				cerr << "Texture Node Name: " << MFnDependencyNode(textureNode).name() << endl;
-				memcpy(mHeader.textureMap, texName.asChar(), texName.length());
-				mHeader.metallicMap[texName.length()] = '\0';
-				cerr << "Texture File Name: " << texName.asChar() << endl;
+				memcpy(mHeader.texFileName, filenamePlugn.name().asChar(), filenamePlugn.name().length());
+				mHeader.texFileName[filenamePlugn.name().length()] = '\0';
 
-#pragma region Normal
+				memcpy(mHeader.textureMap, texName.asChar(), texName.length());
+				mHeader.textureMap[texName.length()] = '\0';
+
+				#pragma region Normal
 				MPlug texNormal = MFnDependencyNode(srcNode).findPlug("TEX_normal_map", &stat);
 				MItDependencyGraph dgItn(texNormal, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
 				dgItn.disablePruningOnFilter();
@@ -150,15 +144,16 @@ void MaterialExport::MaterialExtraction()
 				MString textureName;
 
 				filenameTexPlugn.getValue(textureName);
-				cerr << "normal MAP!!" << endl;
-				//cerr << "Set: " << fnSet.name() << endl;
-				cerr << "Texture Node Name: " << MFnDependencyNode(normalNode).name() << endl;
+
+				memcpy(mHeader.norFileName, filenameTexPlugn.name().asChar(), filenameTexPlugn.name().length());
+				mHeader.norFileName[filenameTexPlugn.name().length()] = '\0';
+
 				memcpy(mHeader.normalMap, textureName.asChar(), textureName.length());
 				mHeader.normalMap[textureName.length()] = '\0';
-				cerr << "Texture File Name: " << textureName.asChar() << endl;
-#pragma endregion
+		
+				#pragma endregion
 
-#pragma region Metallic
+				#pragma region Metallic
 				MPlug texmetall = MFnDependencyNode(srcNode).findPlug("TEX_metallic_map", &stat);
 				MItDependencyGraph dgIt(texmetall, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
 				dgIt.disablePruningOnFilter();
@@ -168,14 +163,14 @@ void MaterialExport::MaterialExtraction()
 				MString textureNamem;
 
 				filenamePlugm.getValue(textureNamem);
-				cerr << "MetalMap!!" << endl;
-				//cerr << "Set: " << fnSet.name() << endl;
-				cerr << "Texture Node Name: " << MFnDependencyNode(metallNode).name() << endl;
+
+				memcpy(mHeader.metalFileName, filenamePlugm.name().asChar(), filenamePlugm.name().length());
+				mHeader.metalFileName[filenamePlugm.name().length()] = '\0';
+
 				memcpy(mHeader.metallicMap, textureNamem.asChar(), textureNamem.length());
 				mHeader.metallicMap[textureNamem.length()] = '\0';
-				cerr << "Texture File Name: " << textureNamem.asChar() << endl;
-#pragma endregion
-#pragma region Roughness
+				#pragma endregion
+				#pragma region Roughness
 				MPlug texRogugh = MFnDependencyNode(srcNode).findPlug("TEX_roughness_map", &stat);
 				MItDependencyGraph dgItr(texRogugh, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
 				dgItr.disablePruningOnFilter();
@@ -185,14 +180,15 @@ void MaterialExport::MaterialExtraction()
 				MString textureNamer;
 
 				filenamePlugr.getValue(textureNamer);
-				cerr << "Roughness MAP!!" << endl;
-				cerr << "Texture Node Name: " << MFnDependencyNode(roughNode).name() << endl;
+
+				memcpy(mHeader.roughFileName, filenamePlugr.name().asChar(), filenamePlugr.name().length());
+				mHeader.roughFileName[filenamePlugr.name().length()] = '\0';
+
 				memcpy(mHeader.roughnessMap, textureNamer.asChar(), textureNamer.length());
 				mHeader.normalMap[textureName.length()] = '\0';
-				cerr << "Texture File Name: " << textureNamer.asChar() << endl;
-#pragma endregion 
+				#pragma endregion 
 
-#pragma region AO
+				#pragma region AO
 				MPlug texAo = MFnDependencyNode(srcNode).findPlug("TEX_ao_map", &stat);
 				MItDependencyGraph dgIta(texAo, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
 				dgIta.disablePruningOnFilter();
@@ -202,13 +198,12 @@ void MaterialExport::MaterialExtraction()
 				MString textureNamea;
 
 				filenamePluga.getValue(textureNamea);
-				cerr << "AO MAP!!" << endl;
-				//cerr << "Set: " << fnSet.name() << endl;
-				cerr << "Texture Node Name: " << MFnDependencyNode(aoNode).name() << endl;
+				memcpy(mHeader.aoFileName, filenamePluga.name().asChar(), filenamePluga.name().length());
+				mHeader.aoFileName[filenamePluga.name().length()] = '\0';
+
 				memcpy(mHeader.aoMap, textureNamea.asChar(), textureNamea.length());
 				mHeader.aoMap[textureNamea.length()] = '\0';
-				cerr << "Texture File Name: " << textureNamea.asChar() << endl;
-#pragma endregion 
+				#pragma endregion 
 				//ExtractingTextures(srcNode, stat);
 			//	MaterialHeader mHeader;
 				MPlug metalness = MFnDependencyNode(srcNode).findPlug("metallic", &stat);
@@ -225,23 +220,11 @@ void MaterialExport::MaterialExtraction()
 				float emissiveValue;
 				Emissive.getValue(emissiveValue);
 				mHeader.emissive = emissiveValue;
-
-				ExportingMats_Tex();
 			}
 		}
 	}
 
-}
-
-void MaterialExport::ExtractingTextures(MObject &srcNode, MStatus &stat)
-{
-	
-}
-
-void MaterialExport::ExtractingAttributes(MObject & srcNode)
-{
-	
-
+	ExportingMats_Tex();
 }
 
 void MaterialExport::ExportingMats_Tex()

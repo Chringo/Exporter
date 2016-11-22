@@ -37,6 +37,7 @@ struct JointData
 struct MainHeader
 {
 	unsigned int meshes;
+	unsigned int numOfMats;
 };
 struct MeshHeader
 {
@@ -63,15 +64,20 @@ struct SkelVertex
 };
 struct MaterialHeader
 {
-	int numOfMats;
+	//int numOfMats;
 	char shaderName[256];
 	float roughness;
 	float metallness;
 	float emissive;
 	char textureMap[256];
+	char texFileName[256];
 	char normalMap[256];
+	char norFileName[256];
 	char metallicMap[256];
+	char metalFileName[256];
 	char roughnessMap[256];
+	char roughFileName[256];
 	char aoMap[256];
+	char aoFileName[256];
 };
 #pragma endregion

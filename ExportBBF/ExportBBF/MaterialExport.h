@@ -17,8 +17,6 @@ public:
 
 	void GetNumMats();
 	void MaterialExtraction();
-	void ExtractingTextures(MObject &srcNode, MStatus &stat);
-	void ExtractingAttributes(MObject &srcNode);
 	void ExportingMats_Tex();
 	
 };

@@ -2,6 +2,8 @@
 #include <QtWidgets\qpushbutton.h>
 #include <QtWidgets\qcheckbox.h>
 #include <QtWidgets\qmainwindow.h>
+#include <QtWidgets\qfiledialog.h>
+#include <QtWidgets\qlineedit.h>
 #include "maya_includes.h"
 #include "SkelAnimExport.h"
 #include "HeaderStructs.h"
@@ -14,7 +16,6 @@ using namespace std;
 MCallbackIdArray myCallbackArray;
 //fstream outFile("//DESKTOP-BOKNO6D/server/knulla.BBF", std::fstream::out | std::fstream::binary);
 fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
-bool filePath = false;
 
 /*function that starts exporting everything chosen*/
 void exportStart(bool skel, bool mats, bool light)
@@ -24,7 +25,14 @@ void exportStart(bool skel, bool mats, bool light)
 
 void editClicked()
 {
+	QWidget * control = MQtUtil::findControl("exportButton");
+	QWidget * cb = control->topLevelWidget();
 
+	QString fileName = QFileDialog::getSaveFileName(cb, "Choose directory", "//DESKTOP-BOKNO6D/server", "*.bbf");
+
+	control = MQtUtil::findControl("lineEdit");
+	QLineEdit * lE = (QLineEdit*)control;
+	lE->setText(fileName);
 }
 
 /*Function thats called when the export button is pressed*/
@@ -34,7 +42,10 @@ void exportClicked()
 	QWidget * control = MQtUtil::findControl("exportButton");
 	QPushButton *cb = (QPushButton*)control;
 
-	/*disabling the export button to ensure no "accidental" double clicks*/
+	/*disabling the export button and the editbutton to ensure no "accidental" double clicks*/
+	cb->setDisabled(true);
+	control = MQtUtil::findControl("editButton");
+	cb = (QPushButton*)control;
 	cb->setDisabled(true);
 
 	/*getting the rest of the ui variables for export info*/
@@ -47,10 +58,22 @@ void exportClicked()
 	control = MQtUtil::findControl("lightBox");
 	bool light = ((QCheckBox*)control)->checkState();
 
-
+	control = MQtUtil::findControl("lineEdit");
+	QString fileName = ((QLineEdit*)control)->text();
 
 	MGlobal::displayInfo("in export");
+	if (!fileName.isEmpty())
+	{
 
+	}
+	else
+	{
+		MGlobal::displayError("no file path selected, please click the edit button and choose a file path");
+		cb->setDisabled(false);
+		control = MQtUtil::findControl("exportButton");
+		cb = (QPushButton*)control;
+		cb->setDisabled(false);
+	}
 }
 
 

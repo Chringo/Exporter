@@ -21,12 +21,34 @@ void exportStart(bool skel, bool mats, bool light)
 {
 	if (skel || mats || light)
 	{
+		MStatus res = MS::kSuccess;
+
 		/*writing a temporary mainheader*/
 		MainHeader tempHead{ 1 };
 		outFile.write((char*)&tempHead, sizeof(MainHeader));
+
+		SkelAnimExport cSkelAnim;
 		if (skel)
 		{
+			/*Iterate all skin clusters in scene.*/
+			cSkelAnim.IterateSkinClusters();
 
+			/*Iterate all joints in scene.*/
+			cSkelAnim.IterateJoints();
+		}
+		if (true) //furute mesh
+		{
+			MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
+			for (; !meshIt.isDone(); meshIt.next())
+			{
+				MFnTransform trans = meshIt.currentItem();
+				if (trans.child(0).hasFn(MFn::kMesh))
+				{
+					//Createmesh(meshIt.currentItem(), cSkelAnim);
+					MeshExport newMesh(&outFile, &cSkelAnim.skinList);
+					newMesh.exportMesh(meshIt.currentItem());
+				}
+			}
 		}
 		if (mats)
 		{

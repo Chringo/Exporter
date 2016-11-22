@@ -18,7 +18,7 @@ MCallbackIdArray myCallbackArray;
 fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
 
 /*function that starts exporting everything chosen*/
-void exportStart(bool skel, bool mats, bool light)
+void exportStart(bool skel, bool mats, bool light, wchar_t * filePath)
 {
 	if (skel || mats || light)
 	{
@@ -59,11 +59,11 @@ void exportStart(bool skel, bool mats, bool light)
 		{
 
 		}
-		if (!skel && !mats && !light)
-		{
-			MGlobal::displayInfo("ERROR: 0xfded; Nothing checked for export.");
-			return;
-		}
+	}
+	if (!skel && !mats && !light)
+	{
+		MGlobal::displayInfo("ERROR: 0xfded; Nothing checked for export.");
+		return;
 	}
 }
 
@@ -108,7 +108,9 @@ void exportClicked()
 	MGlobal::displayInfo("in export");
 	if (!fileName.isEmpty())
 	{
-
+		wchar_t * fName;
+		
+		exportStart(skel, mats, light, fName);
 	}
 	else
 	{

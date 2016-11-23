@@ -65,7 +65,7 @@ void MaterialExport::GetNumMats()
 		}
 	}
 	MainHeader mHead;
-	mHead.numOfMats = amountOfMats;
+	mHead.numOfMats = amountOfMats; //<-----------------------------------------------------------------------
 	MaterialExtraction();
 }
 void MaterialExport::MaterialExtraction()
@@ -76,7 +76,6 @@ void MaterialExport::MaterialExtraction()
 	{
 		MDagPath dagPath;
 		stat = dagIter.getPath(dagPath);
-		//BAJS
 		if (stat)
 		{
 			MFnDagNode dagNode(dagPath, &stat);

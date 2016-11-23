@@ -96,4 +96,20 @@ struct MaterialHeader
 	char aoMap[256];
 	char aoFileName[256];
 };
+//struct matsHead
+//{
+//	float roughness;
+//	float metallness;
+//	float emissive;
+//	unsigned int shaderNameLength;
+//	unsigned int textureNameLength;
+//	unsigned int normalNameLength;
+//	unsigned int metallicNameLength;
+//	unsigned int woofNameLength;
+//	unsigned int aoNameLength;
+//};
+/*
+1: fyll matsHead
+2: skriv in shadergrejer i följd
+*/
 #pragma endregion

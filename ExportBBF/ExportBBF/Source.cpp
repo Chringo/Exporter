@@ -1,170 +1,216 @@
+
+#include <QtWidgets\qpushbutton.h>
+#include <QtWidgets\qcheckbox.h>
+#include <QtWidgets\qmainwindow.h>
+#include <QtWidgets\qfiledialog.h>
+#include <QtWidgets\qlineedit.h>
 #include "maya_includes.h"
 #include "SkelAnimExport.h"
 #include "HeaderStructs.h"
+#include "MeshExport.h"
 #include <maya/MFnPlugin.h>
-#include <vector>
-#include <iostream>
-#include <fstream>
+#include <string.h>
+#include "MaterialExport.h"
+
 
 using namespace std;
 
 MCallbackIdArray myCallbackArray;
-fstream outFile("knulla.BBF", std::fstream::out | std::fstream::binary);
 
-void Createmesh(MObject & mNode)
+/*function that starts exporting everything chosen*/
+void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 {
-	/*extracting the nodes from the MObject*/
-	MFnMesh mMesh(MFnTransform(mNode).child(0), NULL);
-	MFnTransform mTran = mNode;
-
-	/*forcing the quadsplit to be right handed*/
-	MString quadSplit = "setAttr """;
-	quadSplit += mMesh.name();
-	quadSplit += ".quadSplit"" 0;";
-	MGlobal::executeCommandStringResult(quadSplit);
-
-	/*Declaring variables to be used*/
-	MIntArray indexList, offsetIdList, normalCount, uvCount, uvIds, normalIdList;
-	MFloatPointArray points;
-	MFloatArray u, v;
-	MFloatVectorArray tangents;
-	
-	/*getting the index list of the vertex positions*/
-	mMesh.getTriangles(offsetIdList, indexList);
-	mMesh.getTriangleOffsets(uvCount, offsetIdList);
-	mMesh.getAssignedUVs(uvCount, uvIds);
-	mMesh.getNormalIds(normalCount, normalIdList);
-	mMesh.getTangents(tangents, MSpace::kObject);
-
-	/*getting the data for the vertices*/
-	const float * postitions = mMesh.getRawPoints(NULL);
-	const float * normalsPos = mMesh.getRawNormals(NULL);
-	mMesh.getUVs(u, v);
-
-	/*extracting all the information from maya and putting them in a array of vertices*/
-	vector<Vertex> * vertices = new vector<Vertex>[indexList.length()];
-	vector<unsigned int> * newIndex = new vector<unsigned int>[indexList.length()];
-	Vertex tempVertex;
-	/*for (unsigned int i = 0; i < indexList.length(); ++i)
+	if (mesh || skel || mats || light)
 	{
-		MString info;
-		info += indexList[i];
-		MGlobal::displayInfo(info);
-	}*/
+		MStatus res = MS::kSuccess;
 
-	//Recalculating the vertices using only the unique vertices based on individual normals
-	//unsigned int index = 0;
-	for (unsigned int i = 0; i < indexList.length(); ++i)
-	{
-		tempVertex.position.x = postitions[indexList[i] * 3];
-		tempVertex.position.y = postitions[indexList[i] * 3 + 1];
-		tempVertex.position.z = postitions[indexList[i] * 3 + 2];
-		
-		tempVertex.normal.x = normalsPos[normalIdList[offsetIdList[i]] * 3];
-		tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 1];
-		tempVertex.normal.z = normalsPos[normalIdList[offsetIdList[i]] * 3 + 2];
+		fstream outFile(filePath, std::fstream::out | std::fstream::binary);
 
-		tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
-		tempVertex.UV.v = v[uvIds[offsetIdList[i]]];
+		/*writing a temporary mainheader*/
+		MainHeader tempHead{ 1 };
+		outFile.write((char*)&tempHead, sizeof(MainHeader));
 
-		bool exists = false;
-
-		for (int j = 0; j < vertices->size(); ++j)
+		SkelAnimExport cSkelAnim;
+		if (skel)
 		{
-			if (memcmp(&tempVertex, &vertices->at(j), sizeof(Vertex)) == 0)
+			/*Iterate all skin clusters in scene.*/
+			cSkelAnim.IterateSkinClusters();
+
+			/*Iterate all joints in scene.*/
+			cSkelAnim.IterateJoints();
+		}
+		if (mesh)
+		{
+			MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
+			for (; !meshIt.isDone(); meshIt.next())
 			{
-				exists = true;
-				newIndex->push_back(j);
-				break;
+				MFnTransform trans = meshIt.currentItem();
+				if (trans.child(0).hasFn(MFn::kMesh))
+				{
+					//Createmesh(meshIt.currentItem(), cSkelAnim);
+					MeshExport newMesh(&outFile, &cSkelAnim.skinList);
+					newMesh.exportMesh(meshIt.currentItem());
+				}
 			}
 		}
-		if (!exists)
+		if (mats)
 		{
-			newIndex->push_back((unsigned int)vertices->size());
-			vertices->push_back(tempVertex);
+			MaterialExport newMat(&outFile);
+			newMat.ExportingMats_Tex();
 		}
+		if (light)
+		{
+			
+		}
+
+		/*making the buttons clickable again and closing the file*/
+		outFile.close();
+		MGlobal::displayInfo("Done with the export!");
+		QWidget * control = MQtUtil::findControl("exportButton");
+		QPushButton *cb = (QPushButton*)control;
+		cb->setDisabled(false);
+		control = MQtUtil::findControl("editButton");
+		cb = (QPushButton*)control;
+		cb->setDisabled(false);
+		return;
 	}
-	
-	for (int i = 1; i < newIndex->size(); i+=3)
+	else
 	{
-		unsigned int temp = newIndex->at(i);
-		newIndex->at(i) = newIndex->at(i + 1);
-		newIndex->at(i + 1) = temp;
+		MGlobal::displayError(" 0xfded; Nothing checked for export.");
+
+		/*making the buttons clickable again*/
+		QWidget * control = MQtUtil::findControl("exportButton");
+		QPushButton *cb = (QPushButton*)control;
+		cb->setDisabled(false);
+		control = MQtUtil::findControl("editButton");
+		cb = (QPushButton*)control;
+		cb->setDisabled(false);
 	}
-
-	vertices->shrink_to_fit();
-	newIndex->shrink_to_fit();
-
-	/*creating the mesh header and setting the length of the vertices and indices*/
-	MeshHeader mHead;
-	mHead.indexLength = newIndex->size();
-	mHead.vertices = vertices->size();
-
-	/*Getting the transformation matrix*/
-	MFnDependencyNode depNode = mMesh.parent(0);
-	MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
-	mHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
-
-	/*writing the information to the binary file*/
-	outFile.write((char*)&mHead, sizeof(MeshHeader));
-	outFile.write((char*)vertices->data(), sizeof(Vertex)*vertices->size());
-	outFile.write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());
-
-	/*deleting allocated variables*/
-	vertices->clear();
-	newIndex->clear();
 }
-void skeletonHandler(MObject & mNode)
+
+/*Function thats called when the export button is pressed*/
+void editClicked()
 {
-	MFnSkinCluster mSkel = mNode;
-	MGlobal::displayInfo(mSkel.name());
-	
+	/*getting the export button from the ui*/
+
+	/*disabling the export button and the editbutton to ensure no "accidental" double clicks*/
+	QWidget *control = MQtUtil::findControl("editButton");
+	QPushButton *cb = (QPushButton*)control;
+	//cb->setDisabled(true);
+
+
+	QString fileName = QFileDialog::getSaveFileName(cb->topLevelWidget(), "Choose directory", "//DESKTOP-BOKNO6D/server/Assets/bbf files", "*.bbf");
+
+	control = MQtUtil::findControl("lineEdit");
+	QLineEdit * lE = (QLineEdit*)control;
+	lE->setText(fileName);
 }
+
+/*Function thats called when the export button is pressed*/
+void exportClicked()
+{
+	/*getting the export button from the ui*/
+	QWidget * control = MQtUtil::findControl("exportButton");
+	QPushButton *cb = (QPushButton*)control;
+
+	/*disabling the export button and the editbutton to ensure no "accidental" double clicks*/
+	cb->setDisabled(true);
+	control = MQtUtil::findControl("editButton");
+	cb = (QPushButton*)control;
+	cb->setDisabled(true);
+
+	/*getting the rest of the ui variables for export info*/
+	control = MQtUtil::findControl("meshBox");
+	bool mesh = ((QCheckBox*)control)->checkState();
+
+	control = MQtUtil::findControl("skelBox");
+	bool skel = ((QCheckBox*)control)->checkState();
+
+	control = MQtUtil::findControl("matBox");
+	bool mats = ((QCheckBox*)control)->checkState();
+
+	control = MQtUtil::findControl("lightBox");
+	bool light = ((QCheckBox*)control)->checkState();
+
+	control = MQtUtil::findControl("lineEdit");
+	QString fileName = ((QLineEdit*)control)->text();
+
+	/*if there's a file path chosen, the program will start exporting*/
+	if (!fileName.isEmpty())
+	{
+		string fName = "";
+		for (int i = 0; i < fileName.size(); ++i)
+		{
+			fName += fileName[i].unicode();
+		}
+		exportStart(mesh, skel, mats, light, fName);
+		//MGlobal::displayInfo("in export");
+	}
+	else
+	{
+		MGlobal::displayError("no file path selected, please click the edit button and choose a file path");
+		cb->setDisabled(false);
+		control = MQtUtil::findControl("exportButton");
+		cb = (QPushButton*)control;
+		cb->setDisabled(false);
+	}
+}
+
+
 
 EXPORT MStatus initializePlugin(MObject obj)
 {
-    SkelAnimExport cSkelAnim;
+	/*initializing the ui*/
+	MGlobal::executeCommand("string $dialog = `loadUI - uiFile ""mainwindow.ui""`");
+	MGlobal::executeCommand("showWindow $dialog");
+	QWidget * control = MQtUtil::findControl("exportButton");
+	QPushButton *cb = (QPushButton*)control;
+	
+	/*connecting the export button to the exportClicked function*/
+	QObject::connect(cb, &QPushButton::clicked, [] {exportClicked(); });
+	
+	control = MQtUtil::findControl("editButton");
+	QPushButton *eb = (QPushButton*)control;
+	QObject::connect(eb, &QPushButton::clicked, [] {editClicked(); });
 
+    SkelAnimExport cSkelAnim;
 	// most functions will use this variable to indicate for errors
 	MStatus res = MS::kSuccess;
 
 	//ofstream outFile("test", std::ofstream::binary);
-	if (!outFile.is_open())
+	/*if (!outFile.is_open())
 	{
 		MGlobal::displayError("ERROR: the binary file is not open");
 		
-	}
+	}*/
 
 	MFnPlugin myPlugin(obj, "Maya plugin", "1.0", "Any", &res);
 	if (MFAIL(res)) {
 		CHECK_MSTATUS(res);
 	}
-
-	MGlobal::displayInfo("Maya plugin loaded!");
-
-    /*Iterate all skin clusters in scene.*/
-    cSkelAnim.IterateSkinClusters();
-
-    /*Iterate all joints in scene.*/
-    cSkelAnim.IterateJoints();
-
-    /*Iterate all animations of the skeleton.*/
-    cSkelAnim.IterateAnimations();
 	
-	/*writing a temporary mainheader for one mesh*/
-	MainHeader tempHead{ 1 };
-	outFile.write((char*)&tempHead, sizeof(MainHeader));
+	MGlobal::displayInfo("Maya plugin loaded!");
+    /*Iterate all skin clusters in scene.*/
+ //   cSkelAnim.IterateSkinClusters();
 
-	MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
-	for (; !meshIt.isDone(); meshIt.next())
-	{
-		MFnTransform trans = meshIt.currentItem();
-		if (trans.child(0).hasFn(MFn::kMesh))
-		{
-			Createmesh(meshIt.currentItem());
-		}
-	}
+ //   /*Iterate all joints in scene.*/
+ //   cSkelAnim.IterateJoints();
+	//
+	///*writing a temporary mainheader for one mesh*/
+	//MainHeader tempHead{ 1 };
+	//outFile.write((char*)&tempHead, sizeof(MainHeader));
 
+	//MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
+	//for (; !meshIt.isDone(); meshIt.next())
+	//{
+	//	MFnTransform trans = meshIt.currentItem();
+	//	if (trans.child(0).hasFn(MFn::kMesh))
+	//	{
+	//		//Createmesh(meshIt.currentItem(), cSkelAnim);
+	//		MeshExport newMesh(&outFile, &cSkelAnim.skinList);
+	//		newMesh.exportMesh(meshIt.currentItem());
+	//	}
+	//}
 	return res;
 }
 
@@ -174,7 +220,14 @@ EXPORT MStatus uninitializePlugin(MObject obj)
 	// our plugin
 	MFnPlugin plugin(obj);
 
-	outFile.close();
+	MGlobal::executeCommand("deleteUI -window $dialog");
+	//need to force close the ui
+
+	//QObject::disconnect(cb, exportClicked());
+	
+	//delete cb;
+
+	//outFile.close();
 	// if any resources have been allocated, release and free here before
 	// returning...
 	MMessage::removeCallbacks(myCallbackArray);

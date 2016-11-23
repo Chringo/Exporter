@@ -6,6 +6,15 @@
 #define REQUIRE_IOSTREAM
 #define EXPORT __declspec(dllexport)
 
+//#include <QtGui\qevent.h>
+////#include <qtwidgets\qabstractbutton.h>
+//#include <QtWidgets\qmainwindow.h>
+////#include <qtwidgets\qapplication.h>
+//#include <QtWidgets\qpushbutton.h>
+//#include <QtWidgets\qapplication.h>
+//#include <QtWidgets\qcheckbox.h>
+//#include <QtCore\qobject.h>
+#include <maya/MQtUtil.h>
 #include <maya/MFnMesh.h>
 #include <maya/MFnTransform.h>
 #include <maya/MFloatPointArray.h>
@@ -46,6 +55,12 @@
 #include "maya/MTime.h"
 #include "maya/MAnimUtil.h"
 
+#include "maya/MFnSet.h"
+
+
+#include <vector>
+#include <iostream>
+#include <fstream>
 
 // Wrappers
 #include <maya/MGlobal.h>

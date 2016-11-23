@@ -2,16 +2,12 @@
 #define SKELANIMEXPORT_H
  
 #include "maya_includes.h"
+#include "HeaderStructs.h"
 #include <vector>
 #include <map>
 
 #define PI 3.14159265
 
-struct hSkinData
-{
-    float weights[4];
-    unsigned int boneInfluences[4];
-};
 
 
 struct hKeyData
@@ -43,8 +39,8 @@ public:
     SkelAnimExport();
     ~SkelAnimExport();
 
-    std::vector<hSkinData> skinList;
-    std::vector<hJointData> jointList;
+    std::vector<SkinData> skinList;
+    std::vector<JointData> jointList;
 
     void IterateSkinClusters();
     void IterateJoints();

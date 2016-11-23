@@ -104,7 +104,7 @@ void SkelAnimExport::IterateAnimations()
 					if (jointCounter >= jointList.size())
 						break;
 
-                   hAnimationStateData animStateData;
+                   AnimationStateData animStateData;
 
 				   MFnDependencyNode blendFn(blendIter.currentItem(), &res);
 
@@ -142,7 +142,7 @@ void SkelAnimExport::IterateAnimations()
                            int numKeys = animCurveFn.numKeyframes(&res);
                            for (int keyIndex = 0; keyIndex < numKeys; keyIndex++)
                            {
-                               hKeyData keyData;
+                               KeyData keyData;
 
                                MTime keyTime = animCurveFn.time(keyIndex);
                                keyData.timeValue = keyTime.as(MTime::kSeconds);
@@ -240,7 +240,6 @@ void SkelAnimExport::LoadSkinData(MObject skinNode)
                     }
 
                     MDoubleArray weights;
-                    unsigned int inflCount;
                     skinFn.getWeights(skinPath, component, inflIndexArray, weights);
 
                     int weightsLength = weights.length();

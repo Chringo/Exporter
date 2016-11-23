@@ -27,10 +27,26 @@ struct SkinData
 	unsigned int boneInfluences[4];
 };
 
+struct KeyData
+{
+	float timeValue;
+	float translation[3];
+	float quaternion[4];
+	float scale[3];
+};
+
+struct AnimationStateData
+{
+	std::vector<KeyData>keyFrames;
+};
+
 struct JointData
 {
-	float inverseBindPose[16];
+	float bindPose[16];
+	int jointIndex;
 	int parentIndex;
+
+	std::vector<AnimationStateData>animationStates;
 };
 #pragma endregion
 #pragma region header structs

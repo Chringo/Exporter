@@ -1,4 +1,3 @@
-
 #include <QtWidgets\qpushbutton.h>
 #include <QtWidgets\qcheckbox.h>
 #include <QtWidgets\qmainwindow.h>
@@ -38,6 +37,9 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 
 			/*Iterate all joints in scene.*/
 			cSkelAnim.IterateJoints();
+
+			/*Iterate all animations in the skeleton.*/
+			cSkelAnim.IterateAnimations();
 		}
 		if (mesh)
 		{

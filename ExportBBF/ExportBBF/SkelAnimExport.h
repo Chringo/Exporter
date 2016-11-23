@@ -8,30 +8,6 @@
 
 #define PI 3.14159265
 
-
-
-struct hKeyData
-{
-    float timeValue;
-    float translation[3];
-    float quaternion[4];
-    float scale[3];
-};
-
-struct hAnimationStateData
-{
-    std::vector<hKeyData>keyFrames;
-};
-
-struct hJointData
-{
-    float bindPose[16];
-    int parentIndex;
-    int jointIndex;
-
-    std::vector<hAnimationStateData>animationStates;
-};
-
 class SkelAnimExport
 {
 public:

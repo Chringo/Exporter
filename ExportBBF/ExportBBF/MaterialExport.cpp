@@ -115,9 +115,7 @@ void MaterialExport::MaterialExtraction()
 				MaterialHeader mHeader;
 				memcpy(mHeader.shaderName, fnSet.name().asChar(), fnSet.name().length());
 				mHeader.shaderName[fnSet.name().length()] = '\0';
-
-				//cerr << "shadername: " << mHeader.shaderName << endl;
-
+				#pragma region textureColor
 				MPlug texture = MFnDependencyNode(srcNode).findPlug("TEX_color_map", &stat);
 				MItDependencyGraph dgItt(texture, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
 				dgItt.disablePruningOnFilter();
@@ -133,7 +131,7 @@ void MaterialExport::MaterialExtraction()
 
 				memcpy(mHeader.textureMap, texName.asChar(), texName.length());
 				mHeader.textureMap[texName.length()] = '\0';
-
+#pragma endregion
 				#pragma region Normal
 				MPlug texNormal = MFnDependencyNode(srcNode).findPlug("TEX_normal_map", &stat);
 				MItDependencyGraph dgItn(texNormal, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
@@ -206,6 +204,8 @@ void MaterialExport::MaterialExtraction()
 				#pragma endregion 
 				//ExtractingTextures(srcNode, stat);
 			//	MaterialHeader mHeader;
+
+				#pragma region Attributes
 				MPlug metalness = MFnDependencyNode(srcNode).findPlug("metallic", &stat);
 				float value;
 				metalness.getValue(value);
@@ -220,6 +220,7 @@ void MaterialExport::MaterialExtraction()
 				float emissiveValue;
 				Emissive.getValue(emissiveValue);
 				mHeader.emissive = emissiveValue;
+				#pragma endregion
 			}
 		}
 	}

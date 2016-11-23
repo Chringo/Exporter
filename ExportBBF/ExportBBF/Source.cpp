@@ -15,14 +15,21 @@ using namespace std;
 
 MCallbackIdArray myCallbackArray;
 //fstream outFile("//DESKTOP-BOKNO6D/server/knulla.BBF", std::fstream::out | std::fstream::binary);
-fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
+//fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
 
 /*function that starts exporting everything chosen*/
 void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 {
 	if (mesh || skel || mats || light)
 	{
+		fstream outFile(filePath, std::fstream::out | std::fstream::binary);
 		MStatus res = MS::kSuccess;
+
+		if (!outFile.is_open())
+		{
+			MGlobal::displayError(" Savefile was not opened.");
+			return;
+		}
 
 		/*writing a temporary mainheader*/
 		MainHeader tempHead{ 1 };
@@ -60,9 +67,17 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 
 		}
 	}
-	if (!skel && !mats && !light)
+	else
 	{
-		MGlobal::displayInfo("ERROR: 0xfded; Nothing checked for export.");
+		MGlobal::displayError(" 0xfded; Nothing checked for export.");
+
+		/*making the buttons clickable again*/
+		QWidget * control = MQtUtil::findControl("exportButton");
+		QPushButton *cb = (QPushButton*)control;
+		cb->setDisabled(false);
+		control = MQtUtil::findControl("editButton");
+		cb = (QPushButton*)control;
+		cb->setDisabled(false);
 		return;
 	}
 }
@@ -150,11 +165,11 @@ EXPORT MStatus initializePlugin(MObject obj)
 	MStatus res = MS::kSuccess;
 
 	//ofstream outFile("test", std::ofstream::binary);
-	if (!outFile.is_open())
+	/*if (!outFile.is_open())
 	{
 		MGlobal::displayError("ERROR: the binary file is not open");
 		
-	}
+	}*/
 
 	MFnPlugin myPlugin(obj, "Maya plugin", "1.0", "Any", &res);
 	if (MFAIL(res)) {
@@ -164,26 +179,26 @@ EXPORT MStatus initializePlugin(MObject obj)
 	MGlobal::displayInfo("Maya plugin loaded!");
 
     /*Iterate all skin clusters in scene.*/
-    cSkelAnim.IterateSkinClusters();
+ //   cSkelAnim.IterateSkinClusters();
 
-    /*Iterate all joints in scene.*/
-    cSkelAnim.IterateJoints();
-	
-	/*writing a temporary mainheader for one mesh*/
-	MainHeader tempHead{ 1 };
-	outFile.write((char*)&tempHead, sizeof(MainHeader));
+ //   /*Iterate all joints in scene.*/
+ //   cSkelAnim.IterateJoints();
+	//
+	///*writing a temporary mainheader for one mesh*/
+	//MainHeader tempHead{ 1 };
+	//outFile.write((char*)&tempHead, sizeof(MainHeader));
 
-	MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
-	for (; !meshIt.isDone(); meshIt.next())
-	{
-		MFnTransform trans = meshIt.currentItem();
-		if (trans.child(0).hasFn(MFn::kMesh))
-		{
-			//Createmesh(meshIt.currentItem(), cSkelAnim);
-			MeshExport newMesh(&outFile, &cSkelAnim.skinList);
-			newMesh.exportMesh(meshIt.currentItem());
-		}
-	}
+	//MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
+	//for (; !meshIt.isDone(); meshIt.next())
+	//{
+	//	MFnTransform trans = meshIt.currentItem();
+	//	if (trans.child(0).hasFn(MFn::kMesh))
+	//	{
+	//		//Createmesh(meshIt.currentItem(), cSkelAnim);
+	//		MeshExport newMesh(&outFile, &cSkelAnim.skinList);
+	//		newMesh.exportMesh(meshIt.currentItem());
+	//	}
+	//}
 
 	return res;
 }
@@ -201,7 +216,7 @@ EXPORT MStatus uninitializePlugin(MObject obj)
 	
 	//delete cb;
 
-	outFile.close();
+	//outFile.close();
 	// if any resources have been allocated, release and free here before
 	// returning...
 	MMessage::removeCallbacks(myCallbackArray);

@@ -62,15 +62,6 @@ struct SkelVertex
 	float weights[4];
 	int influence[4];
 };
-struct SkelVertex
-{
-	Vector3 position;
-	Vector3 normal;
-	Vector3 tangent;
-	Vector2 UV;
-	float weights[4];
-	int influence[4];
-};
 struct MaterialHeader
 {
 	//int numOfMats;

@@ -20,7 +20,7 @@ MCallbackIdArray myCallbackArray;
 /*function that starts exporting everything chosen*/
 void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 {
-	if (skel || mats || light)
+	if (mesh || skel || mats || light)
 	{
 		MStatus res = MS::kSuccess;
 
@@ -39,7 +39,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 			/*Iterate all joints in scene.*/
 			cSkelAnim.IterateJoints();
 		}
-		if (mesh) //furute mesh
+		if (mesh)
 		{
 			MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
 			for (; !meshIt.isDone(); meshIt.next())
@@ -55,14 +55,16 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		}
 		if (mats)
 		{
-
-		}
-		if (light)
-		{
 			MaterialExport newMat(&outFile);
 			newMat.ExportingMats_Tex();
 		}
-		/*making the buttons clickable again*/
+		if (light)
+		{
+			
+		}
+
+		/*making the buttons clickable again and closing the file*/
+		outFile.close();
 		MGlobal::displayInfo("Done with the export!");
 		QWidget * control = MQtUtil::findControl("exportButton");
 		QPushButton *cb = (QPushButton*)control;
@@ -94,7 +96,7 @@ void editClicked()
 	/*disabling the export button and the editbutton to ensure no "accidental" double clicks*/
 	QWidget *control = MQtUtil::findControl("editButton");
 	QPushButton *cb = (QPushButton*)control;
-	cb->setDisabled(true);
+	//cb->setDisabled(true);
 
 
 	QString fileName = QFileDialog::getSaveFileName(cb->topLevelWidget(), "Choose directory", "//DESKTOP-BOKNO6D/server/Assets/bbf files", "*.bbf");
@@ -142,7 +144,7 @@ void exportClicked()
 			fName += fileName[i].unicode();
 		}
 		exportStart(mesh, skel, mats, light, fName);
-		MGlobal::displayInfo("in export");
+		//MGlobal::displayInfo("in export");
 	}
 	else
 	{

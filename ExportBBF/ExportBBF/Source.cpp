@@ -66,6 +66,14 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		{
 
 		}
+		MGlobal::displayInfo("Done with the export!");
+		QWidget * control = MQtUtil::findControl("exportButton");
+		QPushButton *cb = (QPushButton*)control;
+		cb->setDisabled(false);
+		control = MQtUtil::findControl("editButton");
+		cb = (QPushButton*)control;
+		cb->setDisabled(false);
+		return;
 	}
 	else
 	{

@@ -66,6 +66,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		{
 
 		}
+
+		/*making the buttons clickable again*/
 		MGlobal::displayInfo("Done with the export!");
 		QWidget * control = MQtUtil::findControl("exportButton");
 		QPushButton *cb = (QPushButton*)control;
@@ -95,7 +97,7 @@ void editClicked()
 	QWidget * control = MQtUtil::findControl("exportButton");
 	QWidget * cb = control->topLevelWidget();
 
-	QString fileName = QFileDialog::getSaveFileName(cb, "Choose directory", "//DESKTOP-BOKNO6D/server", "*.bbf");
+	QString fileName = QFileDialog::getSaveFileName(cb, "Choose directory", "//DESKTOP-BOKNO6D/server/Assets", "*.bbf");
 
 	control = MQtUtil::findControl("lineEdit");
 	QLineEdit * lE = (QLineEdit*)control;

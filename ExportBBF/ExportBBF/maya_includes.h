@@ -45,6 +45,7 @@
 #include <maya/MFnSkinCluster.h>
 #include <maya/MItDependencyGraph.h>
 #include "maya/MItGeometry.h"
+#include "maya/MFnSet.h"
 
 
 #include <vector>

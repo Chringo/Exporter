@@ -154,12 +154,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MaterialExport.cpp" />
     <ClCompile Include="MeshExport.cpp" />
     <ClCompile Include="SkelAnimExport.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HeaderStructs.h" />
+    <ClInclude Include="MaterialExport.h" />
     <ClInclude Include="maya_includes.h" />
     <ClInclude Include="MeshExport.h" />
     <ClInclude Include="SkelAnimExport.h" />

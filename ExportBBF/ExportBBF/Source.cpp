@@ -1,3 +1,4 @@
+
 #include <QtWidgets\qpushbutton.h>
 #include <QtWidgets\qcheckbox.h>
 #include <QtWidgets\qmainwindow.h>
@@ -9,27 +10,21 @@
 #include "MeshExport.h"
 #include <maya/MFnPlugin.h>
 #include <string.h>
+#include "MaterialExport.h"
 
 
 using namespace std;
 
 MCallbackIdArray myCallbackArray;
-//fstream outFile("//DESKTOP-BOKNO6D/server/knulla.BBF", std::fstream::out | std::fstream::binary);
-//fstream outFile("pillar.BBF", std::fstream::out | std::fstream::binary);
 
 /*function that starts exporting everything chosen*/
 void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 {
 	if (mesh || skel || mats || light)
 	{
-		fstream outFile(filePath, std::fstream::out | std::fstream::binary);
 		MStatus res = MS::kSuccess;
 
-		if (!outFile.is_open())
-		{
-			MGlobal::displayError(" Savefile was not opened.");
-			return;
-		}
+		fstream outFile(filePath, std::fstream::out | std::fstream::binary);
 
 		/*writing a temporary mainheader*/
 		MainHeader tempHead{ 1 };
@@ -44,7 +39,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 			/*Iterate all joints in scene.*/
 			cSkelAnim.IterateJoints();
 		}
-		if (mesh) //furute mesh
+		if (mesh)
 		{
 			MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
 			for (; !meshIt.isDone(); meshIt.next())
@@ -60,14 +55,16 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		}
 		if (mats)
 		{
-
+			MaterialExport newMat(&outFile);
+			newMat.ExportingMats_Tex();
 		}
 		if (light)
 		{
-
+			
 		}
 
-		/*making the buttons clickable again*/
+		/*making the buttons clickable again and closing the file*/
+		outFile.close();
 		MGlobal::displayInfo("Done with the export!");
 		QWidget * control = MQtUtil::findControl("exportButton");
 		QPushButton *cb = (QPushButton*)control;
@@ -88,16 +85,21 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		control = MQtUtil::findControl("editButton");
 		cb = (QPushButton*)control;
 		cb->setDisabled(false);
-		return;
 	}
 }
 
+/*Function thats called when the export button is pressed*/
 void editClicked()
 {
-	QWidget * control = MQtUtil::findControl("exportButton");
-	QWidget * cb = control->topLevelWidget();
+	/*getting the export button from the ui*/
 
-	QString fileName = QFileDialog::getSaveFileName(cb, "Choose directory", "//DESKTOP-BOKNO6D/server/Assets/bbf files", "*.bbf");
+	/*disabling the export button and the editbutton to ensure no "accidental" double clicks*/
+	QWidget *control = MQtUtil::findControl("editButton");
+	QPushButton *cb = (QPushButton*)control;
+	//cb->setDisabled(true);
+
+
+	QString fileName = QFileDialog::getSaveFileName(cb->topLevelWidget(), "Choose directory", "//DESKTOP-BOKNO6D/server/Assets/bbf files", "*.bbf");
 
 	control = MQtUtil::findControl("lineEdit");
 	QLineEdit * lE = (QLineEdit*)control;
@@ -142,6 +144,7 @@ void exportClicked()
 			fName += fileName[i].unicode();
 		}
 		exportStart(mesh, skel, mats, light, fName);
+		//MGlobal::displayInfo("in export");
 	}
 	else
 	{
@@ -187,7 +190,6 @@ EXPORT MStatus initializePlugin(MObject obj)
 	}
 	
 	MGlobal::displayInfo("Maya plugin loaded!");
-
     /*Iterate all skin clusters in scene.*/
  //   cSkelAnim.IterateSkinClusters();
 
@@ -209,7 +211,6 @@ EXPORT MStatus initializePlugin(MObject obj)
 	//		newMesh.exportMesh(meshIt.currentItem());
 	//	}
 	//}
-
 	return res;
 }
 

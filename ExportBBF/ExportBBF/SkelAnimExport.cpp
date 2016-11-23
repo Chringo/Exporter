@@ -1,7 +1,10 @@
 #include "SkelAnimExport.h"
 
-SkelAnimExport::SkelAnimExport()
+
+
+SkelAnimExport::SkelAnimExport(std::fstream * outFile)
 {
+	this->outFile = outFile;
 }
 
 SkelAnimExport::~SkelAnimExport()
@@ -104,7 +107,7 @@ void SkelAnimExport::IterateAnimations()
 					if (jointCounter >= jointList.size())
 						break;
 
-                   AnimationStateData animStateData;
+                   AnimationStateHeader animStateData;
 
 				   MFnDependencyNode blendFn(blendIter.currentItem(), &res);
 
@@ -116,10 +119,7 @@ void SkelAnimExport::IterateAnimations()
                        outputPlug.connectedTo(outputConnection, true, false, &res);
                        if (outputConnection.length())
                        {
-                           MString connectionName = outputConnection[0].name();
                            jointFn.setObject(outputConnection[0].node());
-
-                           MString jointName = jointFn.name(&res);
                        }
                    }
 
@@ -135,14 +135,10 @@ void SkelAnimExport::IterateAnimations()
                        {
                            MFnAnimCurve animCurveFn(objArray[0], &res);
 
-                           MString curveName = animCurveFn.name();
-
-                           MGlobal::displayInfo(animCurveFn.name());
-                   
                            int numKeys = animCurveFn.numKeyframes(&res);
                            for (int keyIndex = 0; keyIndex < numKeys; keyIndex++)
                            {
-                               KeyData keyData;
+                               KeyframeHeader keyData;
 
                                MTime keyTime = animCurveFn.time(keyIndex);
                                keyData.timeValue = keyTime.as(MTime::kSeconds);
@@ -235,8 +231,6 @@ void SkelAnimExport::LoadSkinData(MObject skinNode)
                     for (unsigned jointIndex = 0; jointIndex < jointArrayLength; jointIndex++)
                     {
                         inflIndexArray.append(skinFn.indexForInfluenceObject(jointPathArray[jointIndex]));
-
-                        //MGlobal::displayInfo(MString("Influence object index: ") + inflIndexArray[jointIndex]);
                     }
 
                     MDoubleArray weights;
@@ -246,13 +240,9 @@ void SkelAnimExport::LoadSkinData(MObject skinNode)
 
                     for (int i = 0; i < weightsLength; i++)
                     {
-                        if (weights[i] == 0)
-                        {
-                            //MGlobal::displayInfo(jointPathArray[i].partialPathName().asChar());
-                            //MGlobal::displayInfo("ZERO WEIGHT!");
-                        }
-
-                        else
+						/*If a joint has zero weight value, skip it for this control vertex.
+						There is always 4 joints influencing a control vertex.*/
+						if (weights[i] != 0)
                         {
                             MGlobal::displayInfo(jointPathArray[i].partialPathName().asChar());
                             MGlobal::displayInfo(MString() + weights[i]);
@@ -266,7 +256,6 @@ void SkelAnimExport::LoadSkinData(MObject skinNode)
                         }
                     }
 
-                    MGlobal::displayInfo(MString("Weight sum: ") + weightSum + "\n");
                     weightSum = 0;
                     weightsCounter = 0, influenceCounter = 0;
 
@@ -281,7 +270,7 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
  {
     MStatus res;
 
-    JointData jointData;
+    JointHeader jointData;
 
     MFnIkJoint jointFn(jointNode, &res);
     if (res == MStatus::kSuccess)
@@ -330,6 +319,29 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
             LoadJointData(jointFn.child(childIndex), currentIndex - 1, jointList.size());
         }
     }
+}
+
+void SkelAnimExport::ExportSkelAnimData()
+{
+	JointHeader mJointHead;
+
+	const int jointCount = jointList.size();
+
+	outFile->write((const char*)jointList.data(), sizeof(JointHeader) * jointCount);
+
+	for (int jointIndex = 0; jointIndex < jointCount; jointIndex++)
+	{
+		const int animStateCount = jointList[jointIndex].animationStates.size();
+		
+		outFile->write((const char*)jointList[jointIndex].animationStates.data(), sizeof(AnimationStateHeader) * animStateCount);
+
+		for (int animIndex = 0; animIndex < animStateCount; animIndex++)
+		{
+			const int keyFrameCount = jointList[jointIndex].animationStates[animIndex].keyFrames.size();
+
+			outFile->write((const char*)jointList[jointIndex].animationStates[animIndex].keyFrames.data(), sizeof(KeyframeHeader) * keyFrameCount);
+		}
+	}
 }
 
 void SkelAnimExport::ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16])

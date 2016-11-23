@@ -97,7 +97,7 @@ void editClicked()
 	QWidget * control = MQtUtil::findControl("exportButton");
 	QWidget * cb = control->topLevelWidget();
 
-	QString fileName = QFileDialog::getSaveFileName(cb, "Choose directory", "//DESKTOP-BOKNO6D/server/Assets", "*.bbf");
+	QString fileName = QFileDialog::getSaveFileName(cb, "Choose directory", "//DESKTOP-BOKNO6D/server/Assets/bbf files", "*.bbf");
 
 	control = MQtUtil::findControl("lineEdit");
 	QLineEdit * lE = (QLineEdit*)control;

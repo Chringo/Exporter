@@ -4,8 +4,9 @@
 #include "maya_includes.h"
 #include "HeaderStructs.h"
 #include <vector>
+#include <map>
 
-
+#define PI 3.14159265
 
 class SkelAnimExport
 {
@@ -17,16 +18,15 @@ public:
     std::vector<SkinData> skinList;
     std::vector<JointData> jointList;
 
-    std::vector<MMatrix> invBindPoseList;
-
     void IterateSkinClusters();
     void IterateJoints();
+    void IterateAnimations();
 
     void LoadSkinData(MObject skinNode);
-    void LoadJointData(MObject jointNode);
+    void LoadJointData(MObject jointNode, int parentIndex, int currentIndex);
 
 private:
-
+    /*Function that converts a MMatrix to a float[16] array.*/
     void ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16]);
 };
 

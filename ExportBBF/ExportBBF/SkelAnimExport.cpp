@@ -28,14 +28,154 @@ void SkelAnimExport::IterateJoints()
 {
     MStatus res;
 
-    MItDag dependIter(MItDag::kDepthFirst, MFn::kJoint, &res);
+    MItDag jointIter(MItDag::kDepthFirst, MFn::kJoint, &res);
+
     if (res == MStatus::kSuccess)
     {
-        while (!dependIter.isDone())
-        {
-            LoadJointData(dependIter.item());
+        LoadJointData(jointIter.item(), -1, 0);
+    }
+}
 
-            dependIter.next();
+void SkelAnimExport::IterateAnimations()
+{
+    MStatus res;
+
+    MFnIkJoint jointFn;
+
+    /*Iterates all animation layers and setting their weight value to 0.
+    Later we want this because processing every layer requires all others
+    to be set to 0, otherwise probably we can't get the keyframe values.*/
+    MPlugArray layerWeights;
+
+    MItDependencyNodes layerWeightIter(MFn::kAnimLayer, &res);
+    if (res == MStatus::kSuccess)
+    {
+        while (!layerWeightIter.isDone())
+        {
+            MFnDependencyNode animLayerFn(layerWeightIter.item(), &res);
+
+            MPlug weightLayerPlug = animLayerFn.findPlug("weight", &res);
+            MPlug soloPlug = animLayerFn.findPlug("solo", &res);
+            MPlug mutePlug = animLayerFn.findPlug("parentMute", &res);
+
+            weightLayerPlug.setDouble(0);
+            soloPlug.setBool(0);
+            mutePlug.setBool(0);
+
+            layerWeights.append(weightLayerPlug);
+
+            layerWeightIter.next();
+        }
+    }
+
+    int plugWeightCounter = 0;
+
+    MItDependencyNodes animLayerIter(MFn::kAnimLayer, &res);
+    if (res == MStatus::kSuccess)
+    {
+        while (!animLayerIter.isDone())
+        {
+            int jointCounter = 0;
+
+            MFnDependencyNode animLayerFn(animLayerIter.item(), &res);
+            if (animLayerFn.name() == "BaseAnimation")
+            {
+                animLayerIter.next();
+                layerWeights[plugWeightCounter].setDouble(1);
+                plugWeightCounter++;
+                continue;
+            }
+
+            MString animLayerName = animLayerFn.name();
+            
+            layerWeights[plugWeightCounter].setDouble(1);
+
+            MPlug blendNodePlug = animLayerFn.findPlug("blendNodes", &res);
+            if (res == MStatus::kSuccess)
+            {
+                MItDependencyGraph blendIter(animLayerIter.item(), MFn::kBlendNodeAdditiveRotation,
+                    MItDependencyGraph::Direction::kDownstream, MItDependencyGraph::Traversal::kBreadthFirst,
+                    MItDependencyGraph::Level::kNodeLevel, &res);
+
+                blendIter.enablePruningOnFilter();
+
+                while (!blendIter.isDone())
+                {
+					if (jointCounter >= jointList.size())
+						break;
+
+                   AnimationStateData animStateData;
+
+				   MFnDependencyNode blendFn(blendIter.currentItem(), &res);
+
+                   MPlug outputPlug = MFnDependencyNode(blendIter.currentItem()).findPlug("rotateOrder", &res);
+                   if (res == MStatus::kSuccess)
+                   {
+                       MString plugName = outputPlug.name();
+                       MPlugArray outputConnection;
+                       outputPlug.connectedTo(outputConnection, true, false, &res);
+                       if (outputConnection.length())
+                       {
+                           MString connectionName = outputConnection[0].name();
+                           jointFn.setObject(outputConnection[0].node());
+
+                           MString jointName = jointFn.name(&res);
+                       }
+                   }
+
+				   MPlug inputBPlug = blendFn.findPlug("inputB", &res);
+
+                   if (res == MStatus::kSuccess)
+                   {
+					   MObjectArray objArray;
+                      
+                       MAnimUtil::findAnimation(inputBPlug.child(0), objArray, &res);
+       
+                       if (objArray.length())
+                       {
+                           MFnAnimCurve animCurveFn(objArray[0], &res);
+
+                           MString curveName = animCurveFn.name();
+
+                           MGlobal::displayInfo(animCurveFn.name());
+                   
+                           int numKeys = animCurveFn.numKeyframes(&res);
+                           for (int keyIndex = 0; keyIndex < numKeys; keyIndex++)
+                           {
+                               KeyData keyData;
+
+                               MTime keyTime = animCurveFn.time(keyIndex);
+                               keyData.timeValue = keyTime.as(MTime::kSeconds);
+
+                               MAnimControl::setCurrentTime(keyTime);
+
+                               double quaternion[4];
+                               jointFn.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kTransform);
+                               std::copy(quaternion, quaternion + 4, keyData.quaternion);
+
+                               MVector transVec = jointFn.getTranslation(MSpace::kTransform, &res);
+                               double translation[3];
+                               transVec.get(translation);
+                               std::copy(translation, translation + 3, keyData.translation);
+
+                               double scale[3];
+                               jointFn.getScale(scale);
+                               std::copy(scale, scale + 3, keyData.scale);
+
+                               animStateData.keyFrames.push_back(keyData);
+                           }
+
+                           jointList[jointCounter].animationStates.push_back(animStateData);
+                           jointCounter++;
+                       }
+                   }
+                   
+                   blendIter.next();
+                }
+            }
+
+            plugWeightCounter++;
+            animLayerIter.next();
         }
     }
 }
@@ -100,7 +240,6 @@ void SkelAnimExport::LoadSkinData(MObject skinNode)
                     }
 
                     MDoubleArray weights;
-                    unsigned int inflCount;
                     skinFn.getWeights(skinPath, component, inflIndexArray, weights);
 
                     int weightsLength = weights.length();
@@ -138,8 +277,8 @@ void SkelAnimExport::LoadSkinData(MObject skinNode)
     }
 }
 
-void SkelAnimExport::LoadJointData(MObject jointNode)
-{
+void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int currentIndex)
+ {
     MStatus res;
 
     JointData jointData;
@@ -147,29 +286,48 @@ void SkelAnimExport::LoadJointData(MObject jointNode)
     MFnIkJoint jointFn(jointNode, &res);
     if (res == MStatus::kSuccess)
     {
+        /*Obtain the plug for every joint's bindpose matrix.*/
         MPlug bindPosePlug = jointFn.findPlug("bindPose", &res);
         if (res == MStatus::kSuccess)
         {
-           MGlobal::displayInfo("Current joint: " + jointFn.name());
+           MString jointName = jointFn.name();
+           MGlobal::displayInfo("Current joint: " + jointName);
 
+           /*Get the matrix as a MObject.*/
            MObject bpNode;
            bindPosePlug.getValue(bpNode);
-    
-           /*Bind pose matrix when the mesh is binded.*/
+
+           /*Retrieve the matrix data from the bindpose MObject.*/
            MFnMatrixData bindPoseFn(bpNode, &res);
-    
+           
+           /*The actual bindpose matrix is obtained here from every joint.*/
            MMatrix bindPose = bindPoseFn.matrix(&res);
            if (res == MStatus::kSuccess)
            {
-               MMatrix tmpInverseBindPose;
-               tmpInverseBindPose = bindPose.inverse();
-
                float inverseBindPose[16];
-               ConvertMMatrixToFloatArray(tmpInverseBindPose, inverseBindPose);
-               memcpy(jointData.inverseBindPose, &inverseBindPose, sizeof(float) * 16);
+               /*Convert MMatrix bindpose to a float[16] array.*/
+               ConvertMMatrixToFloatArray(bindPose, inverseBindPose);
+               memcpy(jointData.bindPose, &inverseBindPose, sizeof(float) * 16);
+
+               /*Assign both current joint ID and it's parent ID.*/
+               jointData.parentIndex = parentIndex;
+               jointData.jointIndex = currentIndex;
+
+               currentIndex++;
 
                jointList.push_back(jointData);
            }
+        }
+    }
+
+    /*This is where the recursive happens. Basically for a "CHEST" joint, both the l_arm and r_arm,
+    will know that both are parents to "CHEST" joint.*/
+    if (jointFn.childCount() > 0)
+    {
+        for (int childIndex = 0; childIndex < jointFn.childCount(); childIndex++)
+        {
+            /*If there is a child in the skeleton hierarchy, decrement the currentIndex, which is now parentIndex.*/
+            LoadJointData(jointFn.child(childIndex), currentIndex - 1, jointList.size());
         }
     }
 }

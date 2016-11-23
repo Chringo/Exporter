@@ -38,13 +38,23 @@
 #include <maya/MFnPointLight.h>
 #include <maya/MSelectionList.h>
 #include <maya/MItDependencyNodes.h>
+#include <maya/MIteratorType.h>
+
+// Includes for openMayaAnim
 #include <maya/MFnAnimCurve.h>
 #include "maya/MFnSkinCluster.h"
 #include "maya/MFnIkJoint.h"
 #include <maya/MFnMatrixData.h>
 #include <maya/MFnSkinCluster.h>
+#include <maya/MFnAnimCurve.h>
+#include <maya/MItKeyframe.h>
 #include <maya/MItDependencyGraph.h>
 #include "maya/MItGeometry.h"
+#include "maya/MAnimControl.h"
+#include "maya/MQuaternion.h"
+#include "maya/MTime.h"
+#include "maya/MAnimUtil.h"
+
 #include "maya/MFnSet.h"
 
 

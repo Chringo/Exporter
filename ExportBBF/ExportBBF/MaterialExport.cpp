@@ -262,8 +262,7 @@ void MaterialExport::ExportingTex(string file)
 
 	std::string str = filePath;
 	std::string res = str.substr(str.find_last_of("/") + 1);
-	std::string fStr = file;
-	std::string fres = fStr.substr(str.find_last_of("/"));
+
 	str.erase(str.find_last_of("/"));
 	str += "/" + pAth;
 	wstring newpath_wstr(str.begin(), str.end());

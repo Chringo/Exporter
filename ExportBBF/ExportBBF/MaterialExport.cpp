@@ -133,7 +133,7 @@ void MaterialExport::MaterialExtraction()
 				string ctex = texName.asChar();
 				if (!ctex.empty())
 				{
-					test = ExportingTex(ctex);
+					ExportingTex(ctex);
 				}
 				cerr << "1: " << test<<endl;
 
@@ -155,7 +155,7 @@ void MaterialExport::MaterialExtraction()
 				string ntex = textureName.asChar();
 				if (!ntex.empty())
 				{
-					test = ExportingTex(ntex);
+					ExportingTex(ntex);
 				}
 				
 				cerr << "2: " << test << endl;
@@ -176,7 +176,7 @@ void MaterialExport::MaterialExtraction()
 				string mtex = textureNamem.asChar();
 				if (!mtex.empty())
 				{
-					test = ExportingTex(mtex);
+					ExportingTex(mtex);
 				}
 				cerr << "3: " << test << endl;
 
@@ -199,7 +199,7 @@ void MaterialExport::MaterialExtraction()
 				string rtex = textureNamer.asChar();
 				if (!rtex.empty())
 				{
-					test = ExportingTex(rtex);
+					ExportingTex(rtex);
 				}
 
 				cerr << "4: " << test << endl;
@@ -230,7 +230,7 @@ void MaterialExport::MaterialExtraction()
 				string atex = textureNamea.asChar();
 				if (!atex.empty())
 				{
-					test = ExportingTex(atex);
+					ExportingTex(atex);
 				}
 
 				//memcpy(mHeader.aoFileName, filenamePluga.name().asChar(), filenamePluga.name().length());
@@ -272,7 +272,7 @@ void MaterialExport::ExportingMats_Tex()
 	
 }
 
-int MaterialExport::ExportingTex(string file)
+void MaterialExport::ExportingTex(string file)
 {
 	int i = 0;
 	int j = 0;
@@ -290,7 +290,7 @@ int MaterialExport::ExportingTex(string file)
 
 	CopyFile(path_wstr.c_str(), newpath_wstr.c_str(), FALSE);
 
-	return i;
+	//return i;
 
 }
 

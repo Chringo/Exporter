@@ -78,14 +78,7 @@ struct MaterialHeader
 
 };
 
-struct TextureHeader
-{
-	char textureMap[256];
-	char normalMap[256];
-	char metallicMap[256];
-	char roughnessMap[256];
-	char aoMap[256];
-};
+
 //struct matsHead
 //{
 //	float roughness;

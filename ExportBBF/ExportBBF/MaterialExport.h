@@ -18,7 +18,7 @@ public:
 	void GetNumMats();
 	void MaterialExtraction();
 	void ExportingMats_Tex();
-	int ExportingTex(string file);
+	void ExportingTex(string file);
 	
 };
 

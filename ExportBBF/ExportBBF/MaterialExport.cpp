@@ -113,7 +113,7 @@ void MaterialExport::MaterialExtraction()
 				MObject srcNode = srcplugarray[0].node();
 
 				MaterialHeader mHeader;
-				TextureHeader tHeader;
+				//TextureHeader tHeader;
 
 				mHeader.shaderNameLength = fnSet.name().length();
 				#pragma region textureColor
@@ -137,8 +137,6 @@ void MaterialExport::MaterialExtraction()
 				}
 				cerr << "1: " << test<<endl;
 
-				memcpy(tHeader.textureMap, texName.asChar(), texName.length());
-				tHeader.textureMap[texName.length()] = '\0';
 #pragma endregion
 				#pragma region Normal
 				MPlug texNormal = MFnDependencyNode(srcNode).findPlug("TEX_normal_map", &stat);
@@ -180,8 +178,7 @@ void MaterialExport::MaterialExtraction()
 				}
 				cerr << "3: " << test << endl;
 
-				memcpy(tHeader.metallicMap, textureNamem.asChar(), textureNamem.length());
-				tHeader.metallicMap[textureNamem.length()] = '\0';
+				
 				#pragma endregion
 				#pragma region Roughness
 				MPlug texRogugh = MFnDependencyNode(srcNode).findPlug("TEX_roughness_map", &stat);
@@ -203,12 +200,7 @@ void MaterialExport::MaterialExtraction()
 				}
 
 				cerr << "4: " << test << endl;
-
-				//memcpy(mHeader.roughFileName, filenamePlugr.name().asChar(), filenamePlugr.name().length());
-				//mHeader.roughFileName[filenamePlugr.name().length()] = '\0';
-				//
-				memcpy(tHeader.roughnessMap, textureNamer.asChar(), textureNamer.length());
-				tHeader.roughnessMap[textureName.length()] = '\0';
+				
 				#pragma endregion 
 
 				#pragma region AO
@@ -220,9 +212,6 @@ void MaterialExport::MaterialExtraction()
 				MPlug filenamePluga = MFnDependencyNode(aoNode).findPlug("fileTextureName");
 				MString textureNamea;
 
-				
-				
-				
 				filenamePluga.getValue(textureNamea);
 				mHeader.aoNameLength = textureNamea.length();
 
@@ -233,15 +222,7 @@ void MaterialExport::MaterialExtraction()
 					ExportingTex(atex);
 				}
 
-				//memcpy(mHeader.aoFileName, filenamePluga.name().asChar(), filenamePluga.name().length());
-				//mHeader.aoFileName[filenamePluga.name().length()] = '\0';
-				//
-				memcpy(tHeader.aoMap, textureNamea.asChar(), textureNamea.length());
-				tHeader.aoMap[textureNamea.length()] = '\0';
 				#pragma endregion 
-				//ExtractingTextures(srcNode, stat);
-			//	MaterialHeader mHeader;
-
 				#pragma region Attributes
 				MPlug metalness = MFnDependencyNode(srcNode).findPlug("metallic", &stat);
 				float value;

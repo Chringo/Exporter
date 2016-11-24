@@ -161,7 +161,10 @@ void SkelAnimExport::IterateAnimations()
                                animStateData.keyFrames.push_back(keyData);
                            }
 
+						   animStateData.keyFrameCount = animStateData.keyFrames.size();
+
                            jointList[jointCounter].animationStates.push_back(animStateData);
+						   jointList[jointCounter].animStateCount = jointList[jointCounter].animationStates.size();
                            jointCounter++;
                        }
                    }
@@ -190,8 +193,6 @@ void SkelAnimExport::LoadSkinData(MObject skinNode)
     {
         MDagPathArray influences;
 
-        MGlobal::displayInfo("I'M A SKIN CLUSTER! Name: " + skinFn.name());
-
         /*Find the number of geometries connecting to the skinCluster, in this case it's always 1 mesh connected.*/
         unsigned int numGeoms = skinFn.numOutputConnections(&res);
         for (unsigned int geomIndex = 0; geomIndex < numGeoms; geomIndex++)
@@ -219,7 +220,6 @@ void SkelAnimExport::LoadSkinData(MObject skinNode)
 
                 while (!geometryIter.isDone())
                 {
-                    MGlobal::displayInfo(MString("CV index: ") + geometryIter.index());
                     /*Obtain each control vertex componoment object.*/
                     MObject component = geometryIter.component(&res);
 
@@ -244,9 +244,6 @@ void SkelAnimExport::LoadSkinData(MObject skinNode)
 						There is always 4 joints influencing a control vertex.*/
 						if (weights[i] != 0)
                         {
-                            MGlobal::displayInfo(jointPathArray[i].partialPathName().asChar());
-                            MGlobal::displayInfo(MString() + weights[i]);
-
                             skinList[cvIndex].weights[weightsCounter] = weights[i];
                             skinList[cvIndex].boneInfluences[influenceCounter] = inflIndexArray[i];
 
@@ -280,7 +277,6 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
         if (res == MStatus::kSuccess)
         {
            MString jointName = jointFn.name();
-           MGlobal::displayInfo("Current joint: " + jointName);
 
            /*Get the matrix as a MObject.*/
            MObject bpNode;
@@ -332,7 +328,7 @@ void SkelAnimExport::ExportSkelAnimData()
 	for (int jointIndex = 0; jointIndex < jointCount; jointIndex++)
 	{
 		const int animStateCount = jointList[jointIndex].animationStates.size();
-		
+
 		outFile->write((const char*)jointList[jointIndex].animationStates.data(), sizeof(AnimationStateHeader) * animStateCount);
 
 		for (int animIndex = 0; animIndex < animStateCount; animIndex++)

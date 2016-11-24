@@ -11,11 +11,13 @@ private:
 	vector<unsigned int> * newIndex = nullptr;
 	vector<SkinData> * skinList = nullptr;
 
+	unsigned int jointCount;
+
 	fstream * outFile;
 public:
 	MeshExport();
 	MeshExport(fstream * outFile);
-	MeshExport(fstream * outFile, vector<SkinData> * skinList);
+	MeshExport(fstream * outFile, vector<SkinData> * skinList, unsigned int jointCount);
 	~MeshExport();
 	void exportMesh(MObject & mNode);
 private:

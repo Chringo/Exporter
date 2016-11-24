@@ -37,6 +37,7 @@ struct KeyframeHeader
 
 struct AnimationStateHeader
 {
+	unsigned int keyFrameCount;
 	std::vector<KeyframeHeader>keyFrames;
 };
 
@@ -45,7 +46,7 @@ struct JointHeader
 	float bindPose[16];
 	int jointIndex;
 	int parentIndex;
-
+	unsigned int animStateCount;
 	std::vector<AnimationStateHeader>animationStates;
 };
 #pragma endregion
@@ -60,6 +61,7 @@ struct MeshHeader
 	unsigned int vertices;
 	unsigned int indexLength;
 	//MMatrix transMatrix;
+	unsigned int jointCount;
 	bool hasSkeleton;
 };
 struct Vertex

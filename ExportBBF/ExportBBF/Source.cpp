@@ -40,7 +40,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 	{
 		MStatus res = MS::kSuccess;
 
-		setProcessBarSize(bool mesh, bool skel, bool mats, bool light);
+		setProcessBarSize(mesh, skel, mats, light);
 
 		fstream outFile(filePath, std::fstream::out | std::fstream::binary);
 
@@ -76,7 +76,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		}
 		if (mats)
 		{
-			MaterialExport newMat(&outFile,filePath);
+			MaterialExport newMat(&outFile ,filePath);
 			newMat.MaterialExtraction();
 			
 			

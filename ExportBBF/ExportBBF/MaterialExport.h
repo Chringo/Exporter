@@ -7,17 +7,18 @@ class MaterialExport
 {
 public:
 	MaterialExport();
-	MaterialExport(fstream  *outFile);
+	MaterialExport(fstream  *outFile,string filePath);
 	~MaterialExport();
 	//MaterialHeader mHeader;
 private:
-
+	string filePath;
 	fstream * outFile;
 public:
 
 	void GetNumMats();
 	void MaterialExtraction();
 	void ExportingMats_Tex();
+	void ExportingTex(string file);
 	
 };
 

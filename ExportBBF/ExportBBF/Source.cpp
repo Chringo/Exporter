@@ -1,4 +1,5 @@
 #include <QtWidgets\qpushbutton.h>
+#include <QtWidgets\qprogressbar.h>
 #include <QtWidgets\qcheckbox.h>
 #include <QtWidgets\qmainwindow.h>
 #include <QtWidgets\qfiledialog.h>
@@ -16,12 +17,30 @@ using namespace std;
 
 MCallbackIdArray myCallbackArray;
 
+void setProcessBarSize(bool mesh, bool skel, bool mats, bool light)
+{
+	QWidget *control = MQtUtil::findControl("progressBar");
+	QProgressBar *pBar = (QProgressBar*)control;
+	int progressSize = 0;
+	if (mesh)
+		progressSize += MeshExport::getProgressBarValue();
+	if (mats)
+		progressSize += 5;
+
+	//textur = 5
+	//int hej = MeshExport::getProgressBarValue();
+	pBar->setMaximum(progressSize);
+	pBar->setValue(0);
+}
+
 /*function that starts exporting everything chosen*/
 void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 {
 	if (mesh || skel || mats || light)
 	{
 		MStatus res = MS::kSuccess;
+
+		setProcessBarSize(bool mesh, bool skel, bool mats, bool light);
 
 		fstream outFile(filePath, std::fstream::out | std::fstream::binary);
 
@@ -66,8 +85,11 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		
 		if (mats)
 		{
-			MaterialExport newMat(&outFile);
-			newMat.ExportingMats_Tex();
+			MaterialExport newMat(&outFile,filePath);
+			newMat.MaterialExtraction();
+			
+			
+
 		}
 		if (light)
 		{
@@ -120,6 +142,12 @@ void editClicked()
 /*Function thats called when the export button is pressed*/
 void exportClicked()
 {
+
+
+
+
+
+
 	/*getting the export button from the ui*/
 	QWidget * control = MQtUtil::findControl("exportButton");
 	QPushButton *cb = (QPushButton*)control;

@@ -84,8 +84,8 @@ void MaterialExport::MaterialExtraction()
 				{
 					ExportingTex(ctex);
 				}
-				cerr << "1: " << test<<endl;
-				pBar->setValue(pBar->value + 1);
+				//cerr << "1: " << test<<endl;
+				pBar->setValue(pBar->value() + 1);
 
 #pragma endregion
 				#pragma region Normal
@@ -106,8 +106,8 @@ void MaterialExport::MaterialExtraction()
 					ExportingTex(ntex);
 				}
 				
-				cerr << "2: " << test << endl;
-				pBar->setValue(pBar->value + 1);
+				//cerr << "2: " << test << endl;
+				pBar->setValue(pBar->value() + 1);
 				#pragma endregion
 
 				#pragma region Metallic
@@ -127,8 +127,8 @@ void MaterialExport::MaterialExtraction()
 				{
 					ExportingTex(mtex);
 				}
-				cerr << "3: " << test << endl;
-				pBar->setValue(pBar->value + 1);
+				//cerr << "3: " << test << endl;
+				pBar->setValue(pBar->value() + 1);
 
 				
 				#pragma endregion
@@ -151,8 +151,8 @@ void MaterialExport::MaterialExtraction()
 					ExportingTex(rtex);
 				}
 
-				cerr << "4: " << test << endl;
-				pBar->setValue(pBar->value + 1);
+				//cerr << "4: " << test << endl;
+				pBar->setValue(pBar->value() + 1);
 				
 				#pragma endregion 
 
@@ -168,8 +168,8 @@ void MaterialExport::MaterialExtraction()
 				filenamePluga.getValue(textureNamea);
 				mHeader.aoNameLength = textureNamea.length();
 
-				cerr << "5: " << test << endl;
-				pBar->setValue(pBar->value + 1);
+				//cerr << "5: " << test << endl;
+				pBar->setValue(pBar->value() + 1);
 				string atex = textureNamea.asChar();
 				if (!atex.empty())
 				{

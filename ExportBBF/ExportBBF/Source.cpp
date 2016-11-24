@@ -39,8 +39,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 	if (mesh || skel || mats || light)
 	{
 		MStatus res = MS::kSuccess;
-		QWidget *control = MQtUtil::findControl("progressBar");
-		QProgressBar *pBar = (QProgressBar*)control;
+		QWidget *bar = MQtUtil::findControl("progressBar");
+		QProgressBar *pBar = (QProgressBar*)bar;
 		setProcessBarSize(mesh, skel, mats, light);
 
 		fstream outFile(filePath, std::fstream::out | std::fstream::binary);

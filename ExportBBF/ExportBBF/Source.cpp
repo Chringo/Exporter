@@ -1,4 +1,5 @@
 #include <QtWidgets\qpushbutton.h>
+#include <QtWidgets\qprogressbar.h>
 #include <QtWidgets\qcheckbox.h>
 #include <QtWidgets\qmainwindow.h>
 #include <QtWidgets\qfiledialog.h>
@@ -15,6 +16,17 @@
 using namespace std;
 
 MCallbackIdArray myCallbackArray;
+
+void setProcessBarSize()
+{
+	QWidget *control = MQtUtil::findControl("progressBar");
+	QProgressBar *pBar = (QProgressBar*)control;
+
+	//textur = 5
+
+	pBar->setMaximum(5);
+	pBar->setValue(0);
+}
 
 /*function that starts exporting everything chosen*/
 void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)

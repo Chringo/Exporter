@@ -56,6 +56,8 @@
 #include "maya/MAnimUtil.h"
 
 #include "maya/MFnSet.h"
+#include <Windows.h>
+#include <WinBase.h>
 
 
 #include <vector>

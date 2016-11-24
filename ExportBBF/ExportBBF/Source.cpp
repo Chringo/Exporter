@@ -71,8 +71,11 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		}
 		if (mats)
 		{
-			MaterialExport newMat(&outFile);
-			newMat.ExportingMats_Tex();
+			MaterialExport newMat(&outFile,filePath);
+			newMat.MaterialExtraction();
+			
+			
+
 		}
 		if (light)
 		{
@@ -125,6 +128,12 @@ void editClicked()
 /*Function thats called when the export button is pressed*/
 void exportClicked()
 {
+
+
+
+
+
+
 	/*getting the export button from the ui*/
 	QWidget * control = MQtUtil::findControl("exportButton");
 	QPushButton *cb = (QPushButton*)control;

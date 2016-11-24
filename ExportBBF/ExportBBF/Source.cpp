@@ -23,8 +23,8 @@ void setProcessBarSize()
 	QProgressBar *pBar = (QProgressBar*)control;
 
 	//textur = 5
-
-	pBar->setMaximum(5);
+	//int hej = MeshExport::getProgressBarValue();
+	pBar->setMaximum(MeshExport::getProgressBarValue() + 5);
 	pBar->setValue(0);
 }
 
@@ -34,6 +34,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 	if (mesh || skel || mats || light)
 	{
 		MStatus res = MS::kSuccess;
+
+		setProcessBarSize();
 
 		fstream outFile(filePath, std::fstream::out | std::fstream::binary);
 

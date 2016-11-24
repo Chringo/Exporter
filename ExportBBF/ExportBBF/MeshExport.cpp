@@ -57,6 +57,17 @@ void MeshExport::exportMesh(MObject & mNode)
 	}
 }
 
+int MeshExport::getProgressBarValue()
+{
+	MIntArray offset, indexList;
+	MItDag meshIt(MItDag::kBreadthFirst, MFn::kMesh, NULL);
+	for (; !meshIt.isDone(); meshIt.next())
+	{
+		MFnMesh(meshIt.currentItem()).getTriangles(offset, indexList);
+	}
+	return indexList.length();
+}
+
 void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 {
 	/*Declaring variables to be used*/

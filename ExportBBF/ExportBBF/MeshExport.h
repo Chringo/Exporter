@@ -18,6 +18,7 @@ public:
 	MeshExport(fstream * outFile, vector<SkinData> * skinList);
 	~MeshExport();
 	void exportMesh(MObject & mNode);
+	static int getProgressBarValue();
 private:
 	/*export a mesh with a skeleton*/
 	void exportDynamic(MFnMesh & mMesh, MFnTransform & mTran);

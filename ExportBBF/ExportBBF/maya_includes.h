@@ -46,6 +46,8 @@
 #include <maya/MItDependencyGraph.h>
 #include "maya/MItGeometry.h"
 #include "maya/MFnSet.h"
+#include <Windows.h>
+#include <WinBase.h>
 
 
 #include <vector>

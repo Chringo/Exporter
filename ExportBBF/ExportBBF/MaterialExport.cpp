@@ -4,9 +4,10 @@ MaterialExport::MaterialExport()
 {
 }
 
-MaterialExport::MaterialExport(fstream * outFile)
+MaterialExport::MaterialExport(fstream * outFile,string filePath)
 {
 	this->outFile = outFile;
+	this->filePath = filePath;
 }
 
 
@@ -65,7 +66,7 @@ void MaterialExport::GetNumMats()
 		}
 	}
 	MainHeader mHead;
-	mHead.numOfMats = amountOfMats; //<-----------------------------------------------------------------------
+	//mHead.numOfMats = amountOfMats; //<-----------------------------------------------------------------------
 	MaterialExtraction();
 }
 void MaterialExport::MaterialExtraction()
@@ -112,8 +113,9 @@ void MaterialExport::MaterialExtraction()
 				MObject srcNode = srcplugarray[0].node();
 
 				MaterialHeader mHeader;
-				memcpy(mHeader.shaderName, fnSet.name().asChar(), fnSet.name().length());
-				mHeader.shaderName[fnSet.name().length()] = '\0';
+				TextureHeader tHeader;
+
+				mHeader.shaderNameLength = fnSet.name().length();
 				#pragma region textureColor
 				MPlug texture = MFnDependencyNode(srcNode).findPlug("TEX_color_map", &stat);
 				MItDependencyGraph dgItt(texture, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
@@ -125,11 +127,18 @@ void MaterialExport::MaterialExtraction()
 				MString texName;
 
 				filenamePlugn.getValue(texName);
-				memcpy(mHeader.texFileName, filenamePlugn.name().asChar(), filenamePlugn.name().length());
-				mHeader.texFileName[filenamePlugn.name().length()] = '\0';
+			
+				mHeader.textureNameLength = texName.length();
+				int test = 0;
+				string ctex = texName.asChar();
+				if (!ctex.empty())
+				{
+					test = ExportingTex(ctex);
+				}
+				cerr << "1: " << test<<endl;
 
-				memcpy(mHeader.textureMap, texName.asChar(), texName.length());
-				mHeader.textureMap[texName.length()] = '\0';
+				memcpy(tHeader.textureMap, texName.asChar(), texName.length());
+				tHeader.textureMap[texName.length()] = '\0';
 #pragma endregion
 				#pragma region Normal
 				MPlug texNormal = MFnDependencyNode(srcNode).findPlug("TEX_normal_map", &stat);
@@ -141,13 +150,15 @@ void MaterialExport::MaterialExtraction()
 				MString textureName;
 
 				filenameTexPlugn.getValue(textureName);
-
-				memcpy(mHeader.norFileName, filenameTexPlugn.name().asChar(), filenameTexPlugn.name().length());
-				mHeader.norFileName[filenameTexPlugn.name().length()] = '\0';
-
-				memcpy(mHeader.normalMap, textureName.asChar(), textureName.length());
-				mHeader.normalMap[textureName.length()] = '\0';
-		
+				mHeader.normalNameLength = textureName.length();
+			
+				string ntex = textureName.asChar();
+				if (!ntex.empty())
+				{
+					test = ExportingTex(ntex);
+				}
+				
+				cerr << "2: " << test << endl;
 				#pragma endregion
 
 				#pragma region Metallic
@@ -159,13 +170,18 @@ void MaterialExport::MaterialExtraction()
 				MPlug filenamePlugm = MFnDependencyNode(metallNode).findPlug("fileTextureName");
 				MString textureNamem;
 
+			
 				filenamePlugm.getValue(textureNamem);
+				mHeader.metallicNameLength = textureNamem.length();
+				string mtex = textureNamem.asChar();
+				if (!mtex.empty())
+				{
+					test = ExportingTex(mtex);
+				}
+				cerr << "3: " << test << endl;
 
-				memcpy(mHeader.metalFileName, filenamePlugm.name().asChar(), filenamePlugm.name().length());
-				mHeader.metalFileName[filenamePlugm.name().length()] = '\0';
-
-				memcpy(mHeader.metallicMap, textureNamem.asChar(), textureNamem.length());
-				mHeader.metallicMap[textureNamem.length()] = '\0';
+				memcpy(tHeader.metallicMap, textureNamem.asChar(), textureNamem.length());
+				tHeader.metallicMap[textureNamem.length()] = '\0';
 				#pragma endregion
 				#pragma region Roughness
 				MPlug texRogugh = MFnDependencyNode(srcNode).findPlug("TEX_roughness_map", &stat);
@@ -176,13 +192,23 @@ void MaterialExport::MaterialExtraction()
 				MPlug filenamePlugr = MFnDependencyNode(roughNode).findPlug("fileTextureName");
 				MString textureNamer;
 
+			
+			
 				filenamePlugr.getValue(textureNamer);
+				mHeader.woofNameLength = textureNamer.length();
+				string rtex = textureNamer.asChar();
+				if (!rtex.empty())
+				{
+					test = ExportingTex(rtex);
+				}
 
-				memcpy(mHeader.roughFileName, filenamePlugr.name().asChar(), filenamePlugr.name().length());
-				mHeader.roughFileName[filenamePlugr.name().length()] = '\0';
+				cerr << "4: " << test << endl;
 
-				memcpy(mHeader.roughnessMap, textureNamer.asChar(), textureNamer.length());
-				mHeader.normalMap[textureName.length()] = '\0';
+				//memcpy(mHeader.roughFileName, filenamePlugr.name().asChar(), filenamePlugr.name().length());
+				//mHeader.roughFileName[filenamePlugr.name().length()] = '\0';
+				//
+				memcpy(tHeader.roughnessMap, textureNamer.asChar(), textureNamer.length());
+				tHeader.roughnessMap[textureName.length()] = '\0';
 				#pragma endregion 
 
 				#pragma region AO
@@ -194,12 +220,24 @@ void MaterialExport::MaterialExtraction()
 				MPlug filenamePluga = MFnDependencyNode(aoNode).findPlug("fileTextureName");
 				MString textureNamea;
 
+				
+				
+				
 				filenamePluga.getValue(textureNamea);
-				memcpy(mHeader.aoFileName, filenamePluga.name().asChar(), filenamePluga.name().length());
-				mHeader.aoFileName[filenamePluga.name().length()] = '\0';
+				mHeader.aoNameLength = textureNamea.length();
 
-				memcpy(mHeader.aoMap, textureNamea.asChar(), textureNamea.length());
-				mHeader.aoMap[textureNamea.length()] = '\0';
+				cerr << "5: " << test << endl;
+				string atex = textureNamea.asChar();
+				if (!atex.empty())
+				{
+					test = ExportingTex(atex);
+				}
+
+				//memcpy(mHeader.aoFileName, filenamePluga.name().asChar(), filenamePluga.name().length());
+				//mHeader.aoFileName[filenamePluga.name().length()] = '\0';
+				//
+				memcpy(tHeader.aoMap, textureNamea.asChar(), textureNamea.length());
+				tHeader.aoMap[textureNamea.length()] = '\0';
 				#pragma endregion 
 				//ExtractingTextures(srcNode, stat);
 			//	MaterialHeader mHeader;
@@ -230,8 +268,30 @@ void MaterialExport::MaterialExtraction()
 void MaterialExport::ExportingMats_Tex()
 {
 	MaterialHeader mHead;
-
 	outFile->write((char*)&mHead, sizeof(MaterialHeader));
+	
+}
+
+int MaterialExport::ExportingTex(string file)
+{
+	int i = 0;
+	int j = 0;
+	size_t f = file.rfind("/", file.length());
+	string pAth = file.substr(f + 1, file.length() - f);
+
+	std::string str = filePath;
+	std::string res = str.substr(str.find_last_of("/") + 1);
+	std::string fStr = file;
+	std::string fres = fStr.substr(str.find_last_of("/"));
+	str.erase(str.find_last_of("/"));
+	str += "/" + pAth;
+	wstring newpath_wstr(str.begin(), str.end());
+	wstring path_wstr(file.begin(), file.end());
+
+	CopyFile(path_wstr.c_str(), newpath_wstr.c_str(), FALSE);
+
+	return i;
+
 }
 
 

@@ -48,7 +48,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		MainHeader tempHead{ 1 };
 		outFile.write((char*)&tempHead, sizeof(MainHeader));
 
-		SkelAnimExport cSkelAnim;
+		SkelAnimExport cSkelAnim(&outFile);
 		if (skel)
 		{
 			/*Iterate all skin clusters in scene.*/
@@ -59,6 +59,10 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 
 			/*Iterate all animations in the skeleton.*/
 			cSkelAnim.IterateAnimations();
+
+			/*Write down all skeletal and animation data to Binary.*/
+			cSkelAnim.ExportSkelAnimData();
+
 		}
 		if (mesh)
 		{
@@ -203,7 +207,6 @@ EXPORT MStatus initializePlugin(MObject obj)
 	QPushButton *eb = (QPushButton*)control;
 	QObject::connect(eb, &QPushButton::clicked, [] {editClicked(); });
 
-    SkelAnimExport cSkelAnim;
 	// most functions will use this variable to indicate for errors
 	MStatus res = MS::kSuccess;
 

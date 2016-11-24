@@ -17,14 +17,19 @@ using namespace std;
 
 MCallbackIdArray myCallbackArray;
 
-void setProcessBarSize()
+void setProcessBarSize(bool mesh, bool skel, bool mats, bool light)
 {
 	QWidget *control = MQtUtil::findControl("progressBar");
 	QProgressBar *pBar = (QProgressBar*)control;
+	int progressSize = 0;
+	if (mesh)
+		progressSize += MeshExport::getProgressBarValue();
+	if (mats)
+		progressSize += 5;
 
 	//textur = 5
 	//int hej = MeshExport::getProgressBarValue();
-	pBar->setMaximum(MeshExport::getProgressBarValue() + 5);
+	pBar->setMaximum(progressSize);
 	pBar->setValue(0);
 }
 
@@ -35,7 +40,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 	{
 		MStatus res = MS::kSuccess;
 
-		setProcessBarSize();
+		setProcessBarSize(bool mesh, bool skel, bool mats, bool light);
 
 		fstream outFile(filePath, std::fstream::out | std::fstream::binary);
 

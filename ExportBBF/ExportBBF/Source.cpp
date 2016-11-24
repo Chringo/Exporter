@@ -48,20 +48,19 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		MainHeader tempHead{ 1 };
 		outFile.write((char*)&tempHead, sizeof(MainHeader));
 
-		SkelAnimExport cSkelAnim;
-		if (skel)
-		{
-			/*Iterate all skin clusters in scene.*/
-			cSkelAnim.IterateSkinClusters();
+		SkelAnimExport cSkelAnim(&outFile);
 
-			/*Iterate all joints in scene.*/
-			cSkelAnim.IterateJoints();
-
-			/*Iterate all animations in the skeleton.*/
-			cSkelAnim.IterateAnimations();
-		}
 		if (mesh)
 		{
+			if (skel)
+			{
+				/*Iterate all skin clusters in scene.*/
+				cSkelAnim.IterateSkinClusters();
+
+				/*Iterate all joints in scene.*/
+				cSkelAnim.IterateJoints();
+			}
+
 			MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
 			for (; !meshIt.isDone(); meshIt.next())
 			{
@@ -69,11 +68,21 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 				if (trans.child(0).hasFn(MFn::kMesh))
 				{
 					//Createmesh(meshIt.currentItem(), cSkelAnim);
-					MeshExport newMesh(&outFile, &cSkelAnim.skinList);
+					MeshExport newMesh(&outFile, &cSkelAnim.skinList, cSkelAnim.jointList.size());
 					newMesh.exportMesh(meshIt.currentItem());
 				}
 			}
 		}
+
+		if (skel)
+		{
+			/*Iterate all animations in the skeleton.*/
+			cSkelAnim.IterateAnimations();
+
+			/*Write down all skeletal and animation data to Binary.*/
+			cSkelAnim.ExportSkelAnimData();
+		}
+		
 		if (mats)
 		{
 			MaterialExport newMat(&outFile ,filePath);
@@ -203,7 +212,6 @@ EXPORT MStatus initializePlugin(MObject obj)
 	QPushButton *eb = (QPushButton*)control;
 	QObject::connect(eb, &QPushButton::clicked, [] {editClicked(); });
 
-    SkelAnimExport cSkelAnim;
 	// most functions will use this variable to indicate for errors
 	MStatus res = MS::kSuccess;
 

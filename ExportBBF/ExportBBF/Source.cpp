@@ -26,9 +26,9 @@ void setProcessBarSize(bool mesh, bool skel, bool mats, bool light)
 		progressSize += MeshExport::getProgressBarValue();
 	if (mats)
 		progressSize += 5;
+	if (skel)
+		progressSize += 4;
 
-	//textur = 5
-	//int hej = MeshExport::getProgressBarValue();
 	pBar->setMaximum(progressSize);
 	pBar->setValue(0);
 }
@@ -39,8 +39,9 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 	if (mesh || skel || mats || light)
 	{
 		MStatus res = MS::kSuccess;
-
-		setProcessBarSize(bool mesh, bool skel, bool mats, bool light);
+		QWidget *bar = MQtUtil::findControl("progressBar");
+		QProgressBar *pBar = (QProgressBar*)bar;
+		setProcessBarSize(mesh, skel, mats, light);
 
 		fstream outFile(filePath, std::fstream::out | std::fstream::binary);
 
@@ -56,9 +57,11 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 			{
 				/*Iterate all skin clusters in scene.*/
 				cSkelAnim.IterateSkinClusters();
+				pBar->setValue(pBar->value() + 1);
 
 				/*Iterate all joints in scene.*/
 				cSkelAnim.IterateJoints();
+				pBar->setValue(pBar->value() + 1);
 			}
 
 			MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
@@ -78,14 +81,16 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		{
 			/*Iterate all animations in the skeleton.*/
 			cSkelAnim.IterateAnimations();
+			pBar->setValue(pBar->value() + 1);
 
 			/*Write down all skeletal and animation data to Binary.*/
 			cSkelAnim.ExportSkelAnimData();
+			pBar->setValue(pBar->value() + 1);
 		}
 		
 		if (mats)
 		{
-			MaterialExport newMat(&outFile,filePath);
+			MaterialExport newMat(&outFile ,filePath);
 			newMat.MaterialExtraction();
 			
 			

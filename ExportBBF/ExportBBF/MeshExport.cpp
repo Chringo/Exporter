@@ -78,6 +78,8 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 	MFloatPointArray points;
 	MFloatArray u, v;
 	MFloatVectorArray tangents;
+	QWidget *control = MQtUtil::findControl("progressBar");
+	QProgressBar *pBar = (QProgressBar*)control;
 
 	/*getting the index list of the vertex positions*/
 	mMesh.getTriangles(offsetIdList, indexList);
@@ -149,9 +151,10 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 			newIndex->push_back((unsigned int)sVertices->size());
 			sVertices->push_back(tempVertex);
 		}
+		pBar->setValue(pBar->value() + 1);
 	}
-	sVertices->shrink_to_fit(); //kanske sedundant
-	newIndex->shrink_to_fit();
+	//sVertices->shrink_to_fit(); //kanske sedundant
+	//newIndex->shrink_to_fit();
 
 	/*creating the mesh header and setting the length of the vertices and indices*/
 
@@ -182,6 +185,8 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 	MFloatArray u, v;
 	MFloatVectorArray tangents;
 	MeshHeader hHead;
+	QWidget *control = MQtUtil::findControl("progressBar");
+	QProgressBar *pBar = (QProgressBar*)control;
 
 	/*getting the index list of the vertex positions*/
 	mMesh.getTriangles(offsetIdList, indexList);
@@ -236,10 +241,11 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 			newIndex->push_back((unsigned int)vertices->size());
 			vertices->push_back(tempVertex);
 		}
+		pBar->setValue(pBar->value() + 1);
 	}
 
-	vertices->shrink_to_fit();
-	newIndex->shrink_to_fit();
+	//vertices->shrink_to_fit();
+	//newIndex->shrink_to_fit();
 
 	/*creating the mesh header and setting the length of the vertices and indices*/
 	hHead.indexLength = (unsigned int)newIndex->size();

@@ -15,62 +15,11 @@ MaterialExport::~MaterialExport()
 {
 }
 
-void MaterialExport::GetNumMats()
-{
-	MStatus stat;
-	MItDag dagIter(MItDag::kBreadthFirst, MFn::kInvalid, &stat);
-	int amountOfMats = 0;
-	for (; !dagIter.isDone(); dagIter.next())
-	{
-		MDagPath dagPath;
-		stat = dagIter.getPath(dagPath);
-
-		if (stat)
-		{
-			MFnDagNode dagNode(dagPath, &stat);
-
-			if (dagNode.isIntermediateObject())continue;
-			if (!dagPath.hasFn(MFn::kMesh))continue;
-			if (dagPath.hasFn(MFn::kTransform))continue;
-
-			MFnMesh fnMesh(dagPath);
-
-			unsigned instanceNumber = dagPath.instanceNumber();
-			MObjectArray sets;
-			MObjectArray comps;
-
-			fnMesh.getConnectedSetsAndMembers(instanceNumber, sets, comps, true);
-
-			for (unsigned i = 0; i < sets.length(); i++)
-			{
-			
-				MObject set = sets[i];
-				MObject comp = comps[i];
-
-				MFnSet fnSet(set);
-
-				MFnDependencyNode dnSet(set);
-				MObject ssattr = dnSet.attribute(MString("surfaceShader"));
-
-				MPlug sPlug(set, ssattr);
-
-				MPlugArray srcplugarray;
-
-				sPlug.connectedTo(srcplugarray, true, false);
-
-				if (srcplugarray.length() == 0) continue;
-
-				MObject srcNode = srcplugarray[0].node();
-				amountOfMats += 1;
-			}
-		}
-	}
-	MainHeader mHead;
-	//mHead.numOfMats = amountOfMats; //<-----------------------------------------------------------------------
-	MaterialExtraction();
-}
 void MaterialExport::MaterialExtraction()
 {
+	QWidget *control = MQtUtil::findControl("progressBar");
+	QProgressBar *pBar = (QProgressBar*)control;
+
 	MStatus stat;
 	MItDag dagIter(MItDag::kBreadthFirst, MFn::kInvalid, &stat);
 	for (; !dagIter.isDone(); dagIter.next())
@@ -135,7 +84,8 @@ void MaterialExport::MaterialExtraction()
 				{
 					ExportingTex(ctex);
 				}
-				cerr << "1: " << test<<endl;
+				//cerr << "1: " << test<<endl;
+				pBar->setValue(pBar->value() + 1);
 
 #pragma endregion
 				#pragma region Normal
@@ -156,7 +106,8 @@ void MaterialExport::MaterialExtraction()
 					ExportingTex(ntex);
 				}
 				
-				cerr << "2: " << test << endl;
+				//cerr << "2: " << test << endl;
+				pBar->setValue(pBar->value() + 1);
 				#pragma endregion
 
 				#pragma region Metallic
@@ -176,7 +127,8 @@ void MaterialExport::MaterialExtraction()
 				{
 					ExportingTex(mtex);
 				}
-				cerr << "3: " << test << endl;
+				//cerr << "3: " << test << endl;
+				pBar->setValue(pBar->value() + 1);
 
 				
 				#pragma endregion
@@ -199,7 +151,8 @@ void MaterialExport::MaterialExtraction()
 					ExportingTex(rtex);
 				}
 
-				cerr << "4: " << test << endl;
+				//cerr << "4: " << test << endl;
+				pBar->setValue(pBar->value() + 1);
 				
 				#pragma endregion 
 
@@ -215,7 +168,8 @@ void MaterialExport::MaterialExtraction()
 				filenamePluga.getValue(textureNamea);
 				mHeader.aoNameLength = textureNamea.length();
 
-				cerr << "5: " << test << endl;
+				//cerr << "5: " << test << endl;
+				pBar->setValue(pBar->value() + 1);
 				string atex = textureNamea.asChar();
 				if (!atex.empty())
 				{

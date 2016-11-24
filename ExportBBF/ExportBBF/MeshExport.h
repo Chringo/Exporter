@@ -2,6 +2,7 @@
 #define MESH_EXPORT_H
 #include "HeaderStructs.h"
 #include "maya_includes.h"
+#include <QtWidgets\qprogressbar.h>
 
 using namespace std;
 class MeshExport

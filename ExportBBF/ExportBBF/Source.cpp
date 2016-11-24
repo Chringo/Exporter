@@ -27,8 +27,6 @@ void setProcessBarSize(bool mesh, bool skel, bool mats, bool light)
 	if (mats)
 		progressSize += 5;
 
-	//textur = 5
-	//int hej = MeshExport::getProgressBarValue();
 	pBar->setMaximum(progressSize);
 	pBar->setValue(0);
 }

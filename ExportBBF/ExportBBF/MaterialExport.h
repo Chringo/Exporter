@@ -1,6 +1,7 @@
 #pragma once
 #include "HeaderStructs.h"
 #include "maya_includes.h"
+#include <QtWidgets\qprogressbar.h>
 
 using namespace std;
 class MaterialExport
@@ -15,7 +16,6 @@ private:
 	fstream * outFile;
 public:
 
-	void GetNumMats();
 	void MaterialExtraction();
 	void ExportingMats_Tex();
 	void ExportingTex(string file);

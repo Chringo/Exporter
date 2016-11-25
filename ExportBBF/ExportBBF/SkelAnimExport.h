@@ -27,6 +27,20 @@ public:
 	void ExportSkelAnimData();
 
 private:
+
+	struct AnimationPerJoint
+	{
+		std::vector<KeyframeHeader> keyframes;
+	};
+
+	struct tempJointStruct
+	{
+		std::vector<AnimationPerJoint> animationData; 
+		std::vector<AnimationStateHeader> animationCount;
+	};
+
+	std::vector<tempJointStruct> tempAnimations;
+
     /*Function that converts a MMatrix to a float[16] array.*/
     void ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16]);
 

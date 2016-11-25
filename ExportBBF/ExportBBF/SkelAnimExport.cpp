@@ -45,11 +45,14 @@ void SkelAnimExport::IterateAnimations()
 
     MFnIkJoint jointFn;
 
-    /*Iterates all animation layers and setting their weight value to 0.
-    Later we want this because processing every layer requires all others
-    to be set to 0, otherwise probably we can't get the keyframe values.*/
-    MPlugArray layerWeights;
+	/*Resizing the animation list, which is the size of the joint list.*/
+	tempAnimations.resize(jointList.size());
 
+	MPlugArray layerWeights;
+
+	/*Iterates all animation layers and setting their weight value to 0.
+	Later we want this because processing every layer requires all others
+	to be set to 0, otherwise probably we can't get the keyframe values.*/
     MItDependencyNodes layerWeightIter(MFn::kAnimLayer, &res);
     if (res == MStatus::kSuccess)
     {
@@ -72,15 +75,16 @@ void SkelAnimExport::IterateAnimations()
     }
 
     int plugWeightCounter = 0;
-
+	/*Iterates every animation layer for the joints of the skeleton.*/
     MItDependencyNodes animLayerIter(MFn::kAnimLayer, &res);
     if (res == MStatus::kSuccess)
     {
         while (!animLayerIter.isDone())
         {
             int jointCounter = 0;
-
             MFnDependencyNode animLayerFn(animLayerIter.item(), &res);
+
+			/*Skip the base animation layer, we DON'T EVER use that as a layer for this project.*/
             if (animLayerFn.name() == "BaseAnimation")
             {
                 animLayerIter.next();
@@ -89,10 +93,10 @@ void SkelAnimExport::IterateAnimations()
                 continue;
             }
 
-            MString animLayerName = animLayerFn.name();
-            
+			/*Set weight plug to 1, for the current animation layer that is extracted.*/
             layerWeights[plugWeightCounter].setDouble(1);
 
+			/*Iterate all blend nodes, which are the joints connected to each animation layer.*/
             MPlug blendNodePlug = animLayerFn.findPlug("blendNodes", &res);
             if (res == MStatus::kSuccess)
             {
@@ -104,47 +108,59 @@ void SkelAnimExport::IterateAnimations()
 
                 while (!blendIter.isDone())
                 {
+					/*There is a strange occurrence when the blend nodes are connected to two layers in a iteration,
+					so if the joint counter is equal or greater than joint list, break from the loop.*/
 					if (jointCounter >= jointList.size())
 						break;
 
                    AnimationStateHeader animStateData;
+				   AnimationPerJoint animationPerJoint;
 
 				   MFnDependencyNode blendFn(blendIter.currentItem(), &res);
 
+				   /*Find the connection plug from the blend node to find the "REAL joint" node.*/
                    MPlug outputPlug = MFnDependencyNode(blendIter.currentItem()).findPlug("rotateOrder", &res);
                    if (res == MStatus::kSuccess)
                    {
-                       MString plugName = outputPlug.name();
                        MPlugArray outputConnection;
                        outputPlug.connectedTo(outputConnection, true, false, &res);
                        if (outputConnection.length())
                        {
+						   /*Set the joint Fn from the node of the connection plug.*/
                            jointFn.setObject(outputConnection[0].node());
                        }
                    }
-
+				   /*Find the plug that is connected to the animation curve.*/
 				   MPlug inputBPlug = blendFn.findPlug("inputB", &res);
 
                    if (res == MStatus::kSuccess)
                    {
 					   MObjectArray objArray;
                       
+					   /*Finds the animation curve connected to the blend node plug, which is "animated".*/
                        MAnimUtil::findAnimation(inputBPlug.child(0), objArray, &res);
        
                        if (objArray.length())
                        {
+						   /*If a keyframe is set in the timeline in Maya, all the curves will get a value by default,
+						   so to get keyframe values, only the rotation curve is required to get ALL transformation values.*/
                            MFnAnimCurve animCurveFn(objArray[0], &res);
 
+						   /*Obtain the number of keys from each animation curve found.*/
                            int numKeys = animCurveFn.numKeyframes(&res);
                            for (int keyIndex = 0; keyIndex < numKeys; keyIndex++)
                            {
                                KeyframeHeader keyData;
 
+							   /*The current time on the timeline in Maya for each set keyframe.*/
                                MTime keyTime = animCurveFn.time(keyIndex);
+							   /*The current time value for each keyframe, in seconds format.*/
                                keyData.timeValue = keyTime.as(MTime::kSeconds);
 
+							   /*With the time of the current keyframe, we set where the keyframe is set in timeline.*/
                                MAnimControl::setCurrentTime(keyTime);
 
+							   /*Keyframes transformation values are obtained here: quat, trans and scale.*/
                                double quaternion[4];
                                jointFn.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kTransform);
                                std::copy(quaternion, quaternion + 4, keyData.quaternion);
@@ -158,13 +174,17 @@ void SkelAnimExport::IterateAnimations()
                                jointFn.getScale(scale);
                                std::copy(scale, scale + 3, keyData.scale);
 
-                               animStateData.keyFrames.push_back(keyData);
+							   animationPerJoint.keyframes.push_back(keyData);
+							   
                            }
 
-						   animStateData.keyFrameCount = animStateData.keyFrames.size();
+						   animStateData.keyFrameCount = animationPerJoint.keyframes.size();
 
-                           jointList[jointCounter].animationStates.push_back(animStateData);
-						   jointList[jointCounter].animStateCount = jointList[jointCounter].animationStates.size();
+						   tempAnimations[jointCounter].animationCount.push_back(animStateData);
+						   tempAnimations[jointCounter].animationData.push_back(animationPerJoint);
+
+						   jointList[jointCounter].animStateCount = tempAnimations[jointCounter].animationData.size();
+						  
                            jointCounter++;
                        }
                    }
@@ -319,23 +339,23 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
 
 void SkelAnimExport::ExportSkelAnimData()
 {
-	JointHeader mJointHead;
-
+	/*Writing down all skeletal animation data to binary format ".bff"*/
 	const int jointCount = jointList.size();
 
-	outFile->write((const char*)jointList.data(), sizeof(JointHeader) * jointCount);
+	outFile->write((char*)jointList.data(), sizeof(JointHeader) * jointCount);
 
 	for (int jointIndex = 0; jointIndex < jointCount; jointIndex++)
 	{
-		const int animStateCount = jointList[jointIndex].animationStates.size();
+		const int animationCount = jointList[jointIndex].animStateCount;
 
-		outFile->write((const char*)jointList[jointIndex].animationStates.data(), sizeof(AnimationStateHeader) * animStateCount);
+		outFile->write((char*)tempAnimations[jointIndex].animationCount.data(), sizeof(AnimationStateHeader) * animationCount);
 
-		for (int animIndex = 0; animIndex < animStateCount; animIndex++)
+		for (int animIndex = 0; animIndex < animationCount; animIndex++)
 		{
-			const int keyFrameCount = jointList[jointIndex].animationStates[animIndex].keyFrames.size();
+			const int keyFrameCount = tempAnimations[jointIndex].animationData[animIndex].keyframes.size();
 
-			outFile->write((const char*)jointList[jointIndex].animationStates[animIndex].keyFrames.data(), sizeof(KeyframeHeader) * keyFrameCount);
+			outFile->write((char*)tempAnimations[jointIndex].animationData[animIndex].keyframes.data(), sizeof(KeyframeHeader) * keyFrameCount);
+
 		}
 	}
 }

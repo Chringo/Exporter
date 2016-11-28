@@ -3,20 +3,24 @@
  
 #include "maya_includes.h"
 #include "HeaderStructs.h"
+
 #include <vector>
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
 
 #define PI 3.14159265
 
 class SkelAnimExport
 {
 public:
-
-    SkelAnimExport(std::fstream* outFile);
+	SkelAnimExport();
     ~SkelAnimExport();
 
     std::vector<SkinData> skinList;
-    std::vector<JointHeader> jointList;
-
+    
     void IterateSkinClusters();
     void IterateJoints();
     void IterateAnimations();
@@ -24,25 +28,12 @@ public:
     void LoadSkinData(MObject skinNode);
     void LoadJointData(MObject jointNode, int parentIndex, int currentIndex);
 
-	void ExportSkelAnimData();
-
 private:
-
-	struct AnimationPerJoint
-	{
-		std::vector<KeyframeHeader> keyframes;
-	};
-
-	struct tempJointStruct
-	{
-		std::vector<AnimationPerJoint> animationData; 
-		std::vector<AnimationStateHeader> animationCount;
-	};
-
-	std::vector<tempJointStruct> tempAnimations;
 
     /*Function that converts a MMatrix to a float[16] array.*/
     void ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16]);
+
+	std::vector<JointHeader> jointList;
 
 	std::fstream* outFile;
 };

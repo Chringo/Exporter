@@ -49,7 +49,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		MainHeader tempHead{ 1 };
 		outFile.write((char*)&tempHead, sizeof(MainHeader));
 
-		SkelAnimExport cSkelAnim(&outFile);
+		SkelAnimExport cSkelAnim;
 
 		if (mesh)
 		{
@@ -57,10 +57,6 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 			{
 				/*Iterate all skin clusters in scene.*/
 				cSkelAnim.IterateSkinClusters();
-				pBar->setValue(pBar->value() + 1);
-
-				/*Iterate all joints in scene.*/
-				cSkelAnim.IterateJoints();
 				pBar->setValue(pBar->value() + 1);
 			}
 
@@ -71,7 +67,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 				if (trans.child(0).hasFn(MFn::kMesh))
 				{
 					//Createmesh(meshIt.currentItem(), cSkelAnim);
-					MeshExport newMesh(&outFile, &cSkelAnim.skinList, cSkelAnim.jointList.size());
+					MeshExport newMesh(&outFile, &cSkelAnim.skinList);
 					newMesh.exportMesh(meshIt.currentItem());
 				}
 			}
@@ -79,13 +75,17 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 
 		if (skel)
 		{
+			/*Iterate all joints in scene.*/
+			cSkelAnim.IterateJoints();
+			pBar->setValue(pBar->value() + 1);
+
 			/*Iterate all animations in the skeleton.*/
 			cSkelAnim.IterateAnimations();
 			pBar->setValue(pBar->value() + 1);
 
 			/*Write down all skeletal and animation data to Binary.*/
-			cSkelAnim.ExportSkelAnimData();
-			pBar->setValue(pBar->value() + 1);
+			//cSkelAnim.ExportSkelAnimData();
+			//pBar->setValue(pBar->value() + 1);
 		}
 		
 		if (mats)

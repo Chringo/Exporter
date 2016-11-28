@@ -18,7 +18,7 @@ private:
 public:
 	MeshExport();
 	MeshExport(fstream * outFile);
-	MeshExport(fstream * outFile, vector<SkinData> * skinList, unsigned int jointCount);
+	MeshExport(fstream * outFile, vector<SkinData> * skinList);
 	~MeshExport();
 	void exportMesh(MObject & mNode);
 	static int getProgressBarValue();

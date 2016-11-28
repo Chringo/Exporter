@@ -62,17 +62,34 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 				/*Iterate all joints in scene.*/
 				cSkelAnim.IterateJoints();
 				pBar->setValue(pBar->value() + 1);
-			}
 
-			MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
-			for (; !meshIt.isDone(); meshIt.next())
-			{
-				MFnTransform trans = meshIt.currentItem();
-				if (trans.child(0).hasFn(MFn::kMesh))
+
+				MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
+				for (; !meshIt.isDone(); meshIt.next())
 				{
-					//Createmesh(meshIt.currentItem(), cSkelAnim);
-					MeshExport newMesh(&outFile, &cSkelAnim.skinList, cSkelAnim.jointList.size());
-					newMesh.exportMesh(meshIt.currentItem());
+					MFnTransform trans = meshIt.currentItem();
+					if (trans.child(0).hasFn(MFn::kMesh))
+					{
+						//Createmesh(meshIt.currentItem(), cSkelAnim);
+						MeshExport newMesh(&outFile, &cSkelAnim.skinList, cSkelAnim.jointList.size());
+						newMesh.exportMesh(meshIt.currentItem());
+					}
+
+				}
+			}
+			else
+			{
+				MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
+				for (; !meshIt.isDone(); meshIt.next())
+				{
+					MFnTransform trans = meshIt.currentItem();
+					if (trans.child(0).hasFn(MFn::kMesh))
+					{
+						//Createmesh(meshIt.currentItem(), cSkelAnim);
+						MeshExport newMesh(&outFile);
+						newMesh.exportMesh(meshIt.currentItem());
+					}
+
 				}
 			}
 		}
@@ -92,8 +109,6 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		{
 			MaterialExport newMat(&outFile ,filePath);
 			newMat.MaterialExtraction();
-			
-			
 
 		}
 		if (light)
@@ -147,12 +162,6 @@ void editClicked()
 /*Function thats called when the export button is pressed*/
 void exportClicked()
 {
-
-
-
-
-
-
 	/*getting the export button from the ui*/
 	QWidget * control = MQtUtil::findControl("exportButton");
 	QPushButton *cb = (QPushButton*)control;

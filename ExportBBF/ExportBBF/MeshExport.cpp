@@ -10,6 +10,7 @@ MeshExport::MeshExport()
 MeshExport::MeshExport(std::fstream * outFile)
 {
 	this->outFile = outFile;
+	this->jointCount = 0;
 }
 
 MeshExport::MeshExport(fstream * outFile, vector<SkinData>* skinList, unsigned int jointCount)
@@ -42,17 +43,20 @@ void MeshExport::exportMesh(MObject & mNode)
 	MGlobal::executeCommandStringResult(quadSplit);
 
 	/*checking if the mesh has a skeleton*/
-	MStatus res;
-	MFnDependencyNode skinDepNode = mMesh.object();
-	MPlug skinCluster = skinDepNode.findPlug("inMesh", &res);
-	MPlugArray skinClusterConnection;
-	skinCluster.connectedTo(skinClusterConnection, true, false, &res);
-	MFnSkinCluster skinClusterObject(skinClusterConnection[0].node(), &res);
-
-	/*Checking to see if the mesh has a skeleton*/
-	if (res)
+	if (skinList != nullptr)
 	{
-		exportDynamic(mMesh, mTran);
+		MStatus res;
+		MFnDependencyNode skinDepNode = mMesh.object();
+		MPlug skinCluster = skinDepNode.findPlug("inMesh", &res);
+		MPlugArray skinClusterConnection;
+		skinCluster.connectedTo(skinClusterConnection, true, false, &res);
+		MFnSkinCluster skinClusterObject(skinClusterConnection[0].node(), &res);
+
+		/*Checking to see if the mesh has a skeleton*/
+		if (res)
+		{
+			exportDynamic(mMesh, mTran);
+		}
 	}
 	else
 	{

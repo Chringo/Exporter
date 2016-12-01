@@ -29,7 +29,7 @@ void SkelAnimExport::IterateJoints()
 {
     MStatus res;
 
-	fstream skeletonFile("C:/Users/erik_/Desktop/skeletal.bbf", std::fstream::out | std::fstream::binary);
+	fstream skeletonFile("C:/Users/erik_/Desktop/skeletal.skel", std::fstream::out | std::fstream::binary);
     MItDag jointIter(MItDag::kDepthFirst, MFn::kJoint, &res);
 
     if (res == MStatus::kSuccess)
@@ -100,7 +100,7 @@ void SkelAnimExport::IterateAnimations()
 
 			int jointCounter = 0;
 
-			string layerName = "C:/Users/erik_/Desktop/" + string(animLayerFn.name().asChar()) + ".bbf";
+			string layerName = "C:/Users/erik_/Desktop/" + string(animLayerFn.name().asChar()) + ".anim";
 
 			fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
 

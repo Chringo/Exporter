@@ -22,8 +22,20 @@ MeshExport::MeshExport(fstream * outFile, vector<SkinData>* skinList, unsigned i
 		this->jointCount = jointCount;
 }
 
+MeshExport::MeshExport(string & filePath)
+{
+	outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
+
+	MainHeader s_Head;
+	s_Head.type = (int)Resources::ResourceType::RES_MESH;
+	s_Head.id	= (int)filePath.c_str();
+
+	outFile->write((char*)&s_Head, sizeof(MainHeader));
+}
+
 MeshExport::~MeshExport()
 {
+	delete outFile; //may crash here <---------------------------------------------------
 	//vertices->clear();
 	//newIndex->clear();
 	//delete vertices;
@@ -32,6 +44,8 @@ MeshExport::~MeshExport()
 
 void MeshExport::exportMesh(MObject & mNode)
 {
+
+
 	/*extracting the nodes from the MObject*/
 	MFnMesh mMesh(MFnTransform(mNode).child(0), NULL);
 	MFnTransform mTran = mNode;

@@ -48,7 +48,7 @@ void SkelAnimExport::IterateJoints()
 
 	SkeletonHeader skelHeader;
 	skelHeader.jointCount = jointList.size();
-	skelHeader.skeletonId = 0;
+	//skelHeader.skeletonId = 0;
 
 	MainHeader s_head;
 	string tempSendSkelId = m_filePath + ".skel";

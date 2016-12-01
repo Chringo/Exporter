@@ -45,18 +45,7 @@ struct KeyframeHeader
 	float scale[3];
 };
 
-struct SkeletonHeader
-{
-	int jointCount;
-	int skeletonId;
-};
 
-struct JointHeader
-{
-	float bindPose[16];
-	int jointIndex;
-	int parentIndex;
-};
 
 //struct KeyframeHolder
 //{
@@ -71,6 +60,18 @@ struct JointHeader
 
 #pragma endregion
 #pragma region header structs
+struct SkeletonHeader
+{
+	unsigned int jointCount;
+	//int skeletonId;
+};
+
+struct JointHeader
+{
+	float bindPose[16];
+	int jointIndex;
+	int parentIndex;
+};
 struct MainHeader
 {
 	int type;

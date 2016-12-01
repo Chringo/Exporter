@@ -29,6 +29,7 @@ public:
     void LoadSkinData(MObject skinNode);
     void LoadJointData(MObject jointNode, int parentIndex, int currentIndex);
 
+	void addToFilePath(string &filePath);
 private:
 
     /*Function that converts a MMatrix to a float[16] array.*/

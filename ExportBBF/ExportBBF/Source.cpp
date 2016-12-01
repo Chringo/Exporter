@@ -48,10 +48,11 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		/*writing a temporary mainheader*/
 		//MainHeader tempHead{ 1 };
 		//outFile.write((char*)&tempHead, sizeof(MainHeader));
-
+		size_t f = filePath.rfind("/", filePath.length());
+		string newPath = filePath.substr(0, f + 1);
 		
 
-		SkelAnimExport cSkelAnim(filePath);
+		SkelAnimExport cSkelAnim(newPath);
 
 		if (mesh)
 		{
@@ -68,9 +69,10 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 					MFnTransform trans = meshIt.currentItem();
 					if (trans.child(0).hasFn(MFn::kMesh))
 					{
-						//Createmesh(meshIt.currentItem(), cSkelAnim);
-						//MeshExport newMesh(&outFile, &cSkelAnim.skinList);
-						MeshExport newMesh(filePath, &cSkelAnim.skinList);
+						/*changing the filepath for the skeleton to the same as the mesh*/
+						cSkelAnim.addToFilePath((string)trans.name().asChar());
+						
+						MeshExport newMesh((newPath + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
 						newMesh.exportMesh(meshIt.currentItem());
 					}
 
@@ -85,7 +87,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 					if (trans.child(0).hasFn(MFn::kMesh))
 					{
 						//Createmesh(meshIt.currentItem(), cSkelAnim);
-						MeshExport newMesh(filePath);
+						MeshExport newMesh((newPath + (string)trans.name().asChar() + ".bbf"));
 						newMesh.exportMesh(meshIt.currentItem());
 					}
 				}
@@ -106,7 +108,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		
 		if (mats)
 		{
-			MaterialExport newMat(filePath);
+			MaterialExport newMat(newPath);
 			newMat.MaterialExtraction();
 
 		}
@@ -149,7 +151,6 @@ void editClicked()
 	QWidget *control = MQtUtil::findControl("editButton");
 	QPushButton *cb = (QPushButton*)control;
 	//cb->setDisabled(true);
-
 
 	QString fileName = QFileDialog::getSaveFileName(cb->topLevelWidget(), "Choose directory", "//DESKTOP-BOKNO6D/server/Assets/bbf files", "*.bbf");
 

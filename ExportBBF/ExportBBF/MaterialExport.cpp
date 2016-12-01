@@ -7,17 +7,10 @@ MaterialExport::MaterialExport()
 MaterialExport::MaterialExport(string &filePath)
 {
 	//this->outFile = outFile;
-	size_t f = filePath.rfind(".", filePath.length());
-	this->filePath = filePath.substr(0, f - 1);
-	this->filePath += ".mat";
-
-	outFile = new fstream(this->filePath, std::fstream::out | std::fstream::binary);
-
-	MainHeader s_Head;
-	s_Head.type = (int)Resources::ResourceType::RES_MATERIAL;
-	s_Head.id = (unsigned int)this->filePath.c_str();
-
-	outFile->write((char*)&s_Head, sizeof(MainHeader));
+	//size_t f = filePath.rfind(".", filePath.length());
+	//this->filePath = filePath.substr(0, f - 1);
+	//this->filePath += ".mat";
+	this->filePath = filePath;
 }
 
 
@@ -73,7 +66,8 @@ void MaterialExport::MaterialExtraction()
 				MObject srcNode = srcplugarray[0].node();
 
 				MaterialHeader mHeader;
-				//TextureHeader tHeader;
+				/*setting the filename to the material name*/
+				this->filePath += string(MFnDependencyNode(srcNode).name().asChar()) + ".mat";
 
 				mHeader.shaderNameLength = fnSet.name().length();
 				#pragma region textureColor
@@ -207,12 +201,19 @@ void MaterialExport::MaterialExtraction()
 			}
 		}
 	}
-
 	ExportingMats_Tex();
 }
 
 void MaterialExport::ExportingMats_Tex()
 {
+	outFile = new fstream(this->filePath, std::fstream::out | std::fstream::binary);
+
+	MainHeader s_Head;
+	s_Head.type = (int)Resources::ResourceType::RES_MATERIAL;
+	s_Head.id = (unsigned int)this->filePath.c_str();
+
+	outFile->write((char*)&s_Head, sizeof(MainHeader));
+
 	MaterialHeader mHead;
 	outFile->write((char*)&mHead, sizeof(MaterialHeader));
 	

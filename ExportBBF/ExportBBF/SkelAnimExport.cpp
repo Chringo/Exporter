@@ -8,9 +8,9 @@ SkelAnimExport::SkelAnimExport()
 SkelAnimExport::SkelAnimExport(string & filePath)
 {
 	//m_filePath = filePath; //<--------------------------------------- kolla in denna senare
-	size_t f = filePath.rfind(".", filePath.length());
-	m_filePath = filePath.substr(0, f-1);
-
+	//size_t f = filePath.rfind(".", filePath.length());
+	//m_filePath = filePath.substr(0, f-1);
+	m_filePath = filePath;
 
 }
 
@@ -38,8 +38,8 @@ void SkelAnimExport::IterateJoints()
 {
     MStatus res;
 
-	fstream skeletonFile((m_filePath + ".skel"), std::fstream::out | std::fstream::binary);
     MItDag jointIter(MItDag::kDepthFirst, MFn::kJoint, &res);
+	fstream skeletonFile((m_filePath +".skel"), std::fstream::out | std::fstream::binary);
 
     if (res == MStatus::kSuccess)
     {
@@ -373,6 +373,11 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
             LoadJointData(jointFn.child(childIndex), currentIndex - 1, jointList.size());
         }
     }
+}
+
+void SkelAnimExport::addToFilePath(string & filePath)
+{
+	m_filePath += filePath;
 }
 
 void SkelAnimExport::ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16])

@@ -13,13 +13,10 @@ MeshExport::MeshExport(std::fstream * outFile)
 	this->jointCount = 0;
 }
 
-MeshExport::MeshExport(fstream * outFile, vector<SkinData>* skinList, unsigned int jointCount)
+MeshExport::MeshExport(fstream * outFile, vector<SkinData>* skinList)
 {
 	this->outFile = outFile;
 	this->skinList = skinList;
-
-	if (jointCount != NULL)
-		this->jointCount = jointCount;
 }
 
 MeshExport::MeshExport(string & filePath)
@@ -178,7 +175,7 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 
 	hHead.indexLength = (unsigned int)newIndex->size();
 	hHead.vertices = (unsigned int)sVertices->size();
-	hHead.jointCount = jointCount;
+	//hHead.jointCount = jointCount;
 
 	/*Getting the transformation matrix*/
 	//MFnDependencyNode depNode = mMesh.parent(0);
@@ -268,7 +265,6 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 	/*creating the mesh header and setting the length of the vertices and indices*/
 	hHead.indexLength = (unsigned int)newIndex->size();
 	hHead.vertices = (unsigned int)vertices->size();
-	hHead.jointCount = 0;
 
 	/*Getting the transformation matrix*/
 	//MFnDependencyNode depNode = mMesh.parent(0);

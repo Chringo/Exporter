@@ -39,29 +39,13 @@ void SkelAnimExport::IterateJoints()
     MStatus res;
 
     MItDag jointIter(MItDag::kDepthFirst, MFn::kJoint, &res);
-	fstream skeletonFile((m_filePath +".skel"), std::fstream::out | std::fstream::binary);
 
     if (res == MStatus::kSuccess)
     {
         LoadJointData(jointIter.item(), -1, 0);
     }
 
-	SkeletonHeader skelHeader;
-	skelHeader.jointCount = jointList.size();
-	//skelHeader.skeletonId = 0;
-
-	MainHeader s_head;
-	string tempSendSkelId = m_filePath + ".skel";
-	s_head.type = (int)Resources::ResourceType::RES_SKELETON;
-	s_head.id = (unsigned int)(tempSendSkelId.c_str());
-
-	skeletonFile.write((char*)&s_head, sizeof(MainHeader));
-
-	skeletonFile.write((char*)&skelHeader, sizeof(SkeletonHeader));
-
-	skeletonFile.write((char*)jointList.data(), sizeof(JointHeader) * skelHeader.jointCount);
-
-	skeletonFile.close();
+	
 }
 
 void SkelAnimExport::IterateAnimations()
@@ -117,14 +101,17 @@ void SkelAnimExport::IterateAnimations()
 			int jointCounter = 0;
 
 			string layerName = (m_filePath + "_") + string(animLayerFn.name().asChar()) + ".anim";
-
 			fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
+			nrOfAnimLayers++;
 
 			MainHeader s_Head;
 			string tempAnimId = m_filePath + "_" + string(animLayerFn.name().asChar()) + ".anim";
 			s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
-			s_Head.id	= (unsigned int)tempAnimId.c_str();
+			s_Head.id	= (unsigned int)std::hash<std::string>{}(tempAnimId);
 			animationFile.write((char*)&s_Head, sizeof(MainHeader));
+
+			LayerIdHeader layerId{ s_Head.id };
+			animIdList.push_back(layerId);
 
 			JointAnimHeader jointAnimHead;
 			jointAnimHead.jointCount = jointList.size();
@@ -378,6 +365,30 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
 void SkelAnimExport::addToFilePath(string & filePath)
 {
 	m_filePath += filePath;
+}
+
+void SkelAnimExport::writeJointData()
+{
+	fstream skeletonFile((m_filePath + ".skel"), std::fstream::out | std::fstream::binary);
+
+	SkeletonHeader skelHeader;
+	skelHeader.jointCount = jointList.size();
+	skelHeader.animLayerCount = nrOfAnimLayers;
+
+	MainHeader s_head;
+	string tempSendSkelId = m_filePath + ".skel";
+	s_head.type = (int)Resources::ResourceType::RES_SKELETON;
+	s_head.id = (unsigned int)std::hash<std::string>{}(m_filePath);
+
+	skeletonFile.write((char*)&s_head, sizeof(MainHeader));
+
+	skeletonFile.write((char*)&skelHeader, sizeof(SkeletonHeader));
+
+	skeletonFile.write((char*)jointList.data(), sizeof(JointHeader) * skelHeader.jointCount);
+
+	skeletonFile.write((char*)animIdList.data(), sizeof(LayerIdHeader) * nrOfAnimLayers);
+
+	skeletonFile.close();
 }
 
 void SkelAnimExport::ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16])

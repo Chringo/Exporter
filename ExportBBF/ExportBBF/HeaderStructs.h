@@ -1,6 +1,7 @@
 #pragma once
 #pragma region utilStructs
 #include "maya_includes.h"
+#include <sys/stat.h>
 struct Vector2
 {
 	float u, v;
@@ -27,6 +28,23 @@ struct SkinData
 	unsigned int boneInfluences[4];
 };
 
+
+
+
+
+//struct KeyframeHolder
+//{
+//	std::vector<KeyframeHeader> keyframes;
+//};
+//
+//struct AnimationJointHeader
+//{
+//	std::vector<KeyframeHolder> animationData;
+//	std::vector<AnimationStateHeader> animationCount;
+//};
+
+#pragma endregion
+#pragma region header structs
 struct JointAnimHeader
 {
 	unsigned int jointCount;
@@ -44,26 +62,16 @@ struct KeyframeHeader
 	float quaternion[4];
 	float scale[3];
 };
-
-
-
-//struct KeyframeHolder
-//{
-//	std::vector<KeyframeHeader> keyframes;
-//};
-//
-//struct AnimationJointHeader
-//{
-//	std::vector<KeyframeHolder> animationData;
-//	std::vector<AnimationStateHeader> animationCount;
-//};
-
-#pragma endregion
-#pragma region header structs
 struct SkeletonHeader
 {
 	unsigned int jointCount;
+	unsigned int animLayerCount;
 	//int skeletonId;
+};
+
+struct LayerIdHeader
+{
+	unsigned int id;
 };
 
 struct JointHeader
@@ -74,8 +82,8 @@ struct JointHeader
 };
 struct MainHeader
 {
+	unsigned int id = 0;
 	int type;
-	unsigned int id;
 };
 struct MeshHeader
 {
@@ -132,7 +140,18 @@ namespace Resources
 		RES_ANIMATION = 7,
 		RES_UI = 8
 	};
+
+	
 }
+//bool fileExists(const std::string& filename)
+//{
+//	struct stat buf;
+//	if (stat(filename.c_str(), &buf) != -1)
+//	{
+//		return true;
+//	}
+//	return false;
+//}
 //struct matsHead
 //{
 //	float roughness;

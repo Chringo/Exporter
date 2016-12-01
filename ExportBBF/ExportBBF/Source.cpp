@@ -102,6 +102,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 
 			/*Iterate all animations in the skeleton.*/
 			cSkelAnim.IterateAnimations();
+			cSkelAnim.writeJointData();
 			pBar->setValue(pBar->value() + 1);
 
 		}

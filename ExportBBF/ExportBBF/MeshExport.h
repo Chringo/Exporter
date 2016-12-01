@@ -13,6 +13,7 @@ private:
 	vector<SkinData> * skinList = nullptr;
 
 	unsigned int jointCount;
+	bool overWrite = true;
 
 	fstream * outFile;
 public:

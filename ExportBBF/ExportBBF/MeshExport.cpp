@@ -17,22 +17,80 @@ MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 {
 	this->skinList = skinList;
 
+	/*if (false)
+	{
+		if (MessageBox(NULL, TEXT("Overwrite file?"), TEXT("File already exists"), MB_YESNO) == IDYES)
+		{
+			outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
+
+			MainHeader s_Head;
+			s_Head.type = (int)Resources::ResourceType::RES_MESH;
+			s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+
+			outFile->write((char*)&s_Head, sizeof(MainHeader));
+		}
+		else
+			overWrite = false;
+	}
+	else
+	{
+
+		MainHeader s_Head;
+		s_Head.type = (int)Resources::ResourceType::RES_MESH;
+		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+
+		outFile->write((char*)&s_Head, sizeof(MainHeader));
+	}*/
 	outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 
 	MainHeader s_Head;
 	s_Head.type = (int)Resources::ResourceType::RES_MESH;
-	s_Head.id = (int)filePath.c_str();
+	s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
 
 	outFile->write((char*)&s_Head, sizeof(MainHeader));
 }
 
 MeshExport::MeshExport(string & filePath)
 {
+	//outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
+
+	//MainHeader s_Head;
+	//s_Head.type = (int)Resources::ResourceType::RES_MESH;
+	//s_Head.id	= (unsigned int)std::hash<std::string>{}(filePath);
+
+	///*std::string str = "Meet the new boss...";
+	//std::size_t str_hash = std::hash<std::string>{}(str); */
+
+	//outFile->write((char*)&s_Head, sizeof(MainHeader));
+	/*if (false)
+	{
+		if (MessageBox(NULL, TEXT("Overwrite file?"), TEXT("File already exists"), MB_YESNO) == IDYES)
+		{
+			outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
+
+			MainHeader s_Head;
+			s_Head.type = (int)Resources::ResourceType::RES_MESH;
+			s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+
+			outFile->write((char*)&s_Head, sizeof(MainHeader));
+		}
+		else
+			overWrite = false;
+	}
+	else
+	{
+
+		MainHeader s_Head;
+		s_Head.type = (int)Resources::ResourceType::RES_MESH;
+		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+
+		outFile->write((char*)&s_Head, sizeof(MainHeader));
+	}*/
 	outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 
 	MainHeader s_Head;
 	s_Head.type = (int)Resources::ResourceType::RES_MESH;
-	s_Head.id	= (unsigned int)filePath.c_str();
+	s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
 
 	outFile->write((char*)&s_Head, sizeof(MainHeader));
 }
@@ -48,37 +106,38 @@ MeshExport::~MeshExport()
 
 void MeshExport::exportMesh(MObject & mNode)
 {
-
-
-	/*extracting the nodes from the MObject*/
-	MFnMesh mMesh(MFnTransform(mNode).child(0), NULL);
-	MFnTransform mTran = mNode;
-
-	/*forcing the quadsplit to be right handed*/
-	MString quadSplit = "setAttr """;
-	quadSplit += mMesh.name();
-	quadSplit += ".quadSplit"" 0;";
-	MGlobal::executeCommandStringResult(quadSplit);
-
-	/*checking if the mesh has a skeleton*/
-	if (skinList != nullptr)
+	if (overWrite)
 	{
-		MStatus res;
-		MFnDependencyNode skinDepNode = mMesh.object();
-		MPlug skinCluster = skinDepNode.findPlug("inMesh", &res);
-		MPlugArray skinClusterConnection;
-		skinCluster.connectedTo(skinClusterConnection, true, false, &res);
-		MFnSkinCluster skinClusterObject(skinClusterConnection[0].node(), &res);
+		/*extracting the nodes from the MObject*/
+		MFnMesh mMesh(MFnTransform(mNode).child(0), NULL);
+		MFnTransform mTran = mNode;
 
-		/*Checking to see if the mesh has a skeleton*/
-		if (res)
+		/*forcing the quadsplit to be right handed*/
+		MString quadSplit = "setAttr """;
+		quadSplit += mMesh.name();
+		quadSplit += ".quadSplit"" 0;";
+		MGlobal::executeCommandStringResult(quadSplit);
+
+		/*checking if the mesh has a skeleton*/
+		if (skinList != nullptr)
 		{
-			exportDynamic(mMesh, mTran);
+			MStatus res;
+			MFnDependencyNode skinDepNode = mMesh.object();
+			MPlug skinCluster = skinDepNode.findPlug("inMesh", &res);
+			MPlugArray skinClusterConnection;
+			skinCluster.connectedTo(skinClusterConnection, true, false, &res);
+			MFnSkinCluster skinClusterObject(skinClusterConnection[0].node(), &res);
+
+			/*Checking to see if the mesh has a skeleton*/
+			if (res)
+			{
+				exportDynamic(mMesh, mTran);
+			}
 		}
-	}
-	else
-	{
-		exportStatic(mMesh, mTran);
+		else
+		{
+			exportStatic(mMesh, mTran);
+		}
 	}
 }
 

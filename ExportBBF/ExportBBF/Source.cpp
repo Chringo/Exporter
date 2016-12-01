@@ -51,7 +51,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 
 		
 
-		SkelAnimExport cSkelAnim;
+		SkelAnimExport cSkelAnim(filePath);
 
 		if (mesh)
 		{

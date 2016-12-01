@@ -17,6 +17,7 @@ class SkelAnimExport
 {
 public:
 	SkelAnimExport();
+	SkelAnimExport(string &filePath);
     ~SkelAnimExport();
 
     std::vector<SkinData> skinList;
@@ -35,7 +36,9 @@ private:
 
 	std::vector<JointHeader> jointList;
 
-	std::fstream* outFile;
+	//std::fstream* outFile;
+
+	string m_filePath;
 };
 
 #endif 

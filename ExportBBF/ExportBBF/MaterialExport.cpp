@@ -216,6 +216,7 @@ void MaterialExport::ExportingMats_Tex()
 	MaterialHeader mHead;
 	outFile->write((char*)&mHead, sizeof(MaterialHeader));
 	
+	outFile->close();
 }
 
 void MaterialExport::ExportingTex(string file)

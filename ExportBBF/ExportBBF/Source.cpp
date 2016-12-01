@@ -27,7 +27,7 @@ void setProcessBarSize(bool mesh, bool skel, bool mats, bool light)
 	if (mats)
 		progressSize += 5;
 	if (skel)
-		progressSize += 4;
+		progressSize += 3;
 
 	pBar->setMaximum(progressSize);
 	pBar->setValue(0);
@@ -102,7 +102,6 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 			cSkelAnim.IterateAnimations();
 			pBar->setValue(pBar->value() + 1);
 
-			/*Write down all skeletal and animation data to Binary.*/
 		}
 		
 		if (mats)

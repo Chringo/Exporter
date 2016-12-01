@@ -7,7 +7,11 @@ SkelAnimExport::SkelAnimExport()
 
 SkelAnimExport::SkelAnimExport(string & filePath)
 {
-	m_filePath = filePath.c_str() - 4; //<--------------------------------------- kolla in denna senare
+	//m_filePath = filePath; //<--------------------------------------- kolla in denna senare
+	size_t f = filePath.rfind(".", filePath.length());
+	m_filePath = filePath.substr(0, f-1);
+
+
 }
 
 SkelAnimExport::~SkelAnimExport()

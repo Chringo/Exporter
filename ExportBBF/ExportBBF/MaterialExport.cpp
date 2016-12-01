@@ -7,7 +7,8 @@ MaterialExport::MaterialExport()
 MaterialExport::MaterialExport(string &filePath)
 {
 	//this->outFile = outFile;
-	this->filePath = (filePath.c_str() - 4);
+	size_t f = filePath.rfind(".", filePath.length());
+	this->filePath = filePath.substr(0, f - 1);
 	this->filePath += ".mat";
 
 	outFile = new fstream(this->filePath, std::fstream::out | std::fstream::binary);

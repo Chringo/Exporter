@@ -13,10 +13,17 @@ MeshExport::MeshExport(std::fstream * outFile)
 	this->jointCount = 0;
 }
 
-MeshExport::MeshExport(fstream * outFile, vector<SkinData>* skinList)
+MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 {
-	this->outFile = outFile;
 	this->skinList = skinList;
+
+	outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
+
+	MainHeader s_Head;
+	s_Head.type = (int)Resources::ResourceType::RES_MESH;
+	s_Head.id = (int)filePath.c_str();
+
+	outFile->write((char*)&s_Head, sizeof(MainHeader));
 }
 
 MeshExport::MeshExport(string & filePath)
@@ -190,6 +197,7 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 	/*clearing the variables*/
 	sVertices->clear();
 	newIndex->clear();
+	outFile->close();
 }
 
 void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
@@ -279,4 +287,5 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 	/*deleting allocated variables*/
 	vertices->clear();
 	newIndex->clear();
+	outFile->close();
 }

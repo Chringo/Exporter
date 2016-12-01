@@ -43,7 +43,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		QProgressBar *pBar = (QProgressBar*)bar;
 		setProcessBarSize(mesh, skel, mats, light);
 
-		fstream outFile;
+		//fstream outFile;
 
 		/*writing a temporary mainheader*/
 		//MainHeader tempHead{ 1 };
@@ -70,7 +70,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 					{
 						//Createmesh(meshIt.currentItem(), cSkelAnim);
 						//MeshExport newMesh(&outFile, &cSkelAnim.skinList);
-						MeshExport newMesh(filePath);
+						MeshExport newMesh(filePath, &cSkelAnim.skinList);
 						newMesh.exportMesh(meshIt.currentItem());
 					}
 
@@ -107,7 +107,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		
 		if (mats)
 		{
-			MaterialExport newMat(&outFile ,filePath);
+			MaterialExport newMat(filePath);
 			newMat.MaterialExtraction();
 
 		}
@@ -117,7 +117,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		}
 
 		/*making the buttons clickable again and closing the file*/
-		outFile.close();
+		//outFile.close();
 		MGlobal::displayInfo("Done with the export!");
 		QWidget * control = MQtUtil::findControl("exportButton");
 		QPushButton *cb = (QPushButton*)control;

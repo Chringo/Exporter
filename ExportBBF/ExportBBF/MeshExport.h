@@ -19,7 +19,7 @@ public:
 	MeshExport();
 	MeshExport(fstream * outFile);
 	MeshExport(string &filePath);
-	MeshExport(fstream * outFile, vector<SkinData> * skinList);
+	MeshExport(string & filePath, vector<SkinData> * skinList);
 	~MeshExport();
 	void exportMesh(MObject & mNode);
 	static int getProgressBarValue();

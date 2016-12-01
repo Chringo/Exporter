@@ -8,7 +8,7 @@ class MaterialExport
 {
 public:
 	MaterialExport();
-	MaterialExport(fstream  *outFile,string filePath);
+	MaterialExport(string &filePath);
 	~MaterialExport();
 	//MaterialHeader mHeader;
 private:

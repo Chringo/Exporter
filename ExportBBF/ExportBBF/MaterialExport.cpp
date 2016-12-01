@@ -4,15 +4,25 @@ MaterialExport::MaterialExport()
 {
 }
 
-MaterialExport::MaterialExport(fstream * outFile,string filePath)
+MaterialExport::MaterialExport(string &filePath)
 {
-	this->outFile = outFile;
-	this->filePath = filePath;
+	//this->outFile = outFile;
+	this->filePath = (filePath.c_str() - 4);
+	this->filePath += ".mat";
+
+	outFile = new fstream(this->filePath, std::fstream::out | std::fstream::binary);
+
+	MainHeader s_Head;
+	s_Head.type = (int)Resources::ResourceType::RES_MATERIAL;
+	s_Head.id = (int)this->filePath.c_str();
+
+	outFile->write((char*)&s_Head, sizeof(MainHeader));
 }
 
 
 MaterialExport::~MaterialExport()
 {
+	delete outFile;
 }
 
 void MaterialExport::MaterialExtraction()

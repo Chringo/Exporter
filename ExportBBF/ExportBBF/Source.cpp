@@ -43,7 +43,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		QProgressBar *pBar = (QProgressBar*)bar;
 		setProcessBarSize(mesh, skel, mats, light);
 
-		fstream outFile(filePath, std::fstream::out | std::fstream::binary);
+		fstream outFile;
 
 		/*writing a temporary mainheader*/
 		//MainHeader tempHead{ 1 };
@@ -73,7 +73,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 					if (trans.child(0).hasFn(MFn::kMesh))
 					{
 						//Createmesh(meshIt.currentItem(), cSkelAnim);
-						MeshExport newMesh(&outFile, &cSkelAnim.skinList, cSkelAnim.jointList.size());
+						//MeshExport newMesh(&outFile, &cSkelAnim.skinList, cSkelAnim.jointList.size());
+						MeshExport newMesh(filePath);
 						newMesh.exportMesh(meshIt.currentItem());
 					}
 
@@ -88,7 +89,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 					if (trans.child(0).hasFn(MFn::kMesh))
 					{
 						//Createmesh(meshIt.currentItem(), cSkelAnim);
-						MeshExport newMesh(&outFile);
+						MeshExport newMesh(filePath);
 						newMesh.exportMesh(meshIt.currentItem());
 					}
 

@@ -1,10 +1,13 @@
 #include "SkelAnimExport.h"
 
 
-
-SkelAnimExport::SkelAnimExport(std::fstream * outFile)
+SkelAnimExport::SkelAnimExport()
 {
-	this->outFile = outFile;
+}
+
+SkelAnimExport::SkelAnimExport(string & filePath)
+{
+	m_filePath = filePath.c_str() - 4; //<--------------------------------------- kolla in denna senare
 }
 
 SkelAnimExport::~SkelAnimExport()
@@ -31,12 +34,30 @@ void SkelAnimExport::IterateJoints()
 {
     MStatus res;
 
+	fstream skeletonFile((m_filePath + ".skel"), std::fstream::out | std::fstream::binary);
     MItDag jointIter(MItDag::kDepthFirst, MFn::kJoint, &res);
 
     if (res == MStatus::kSuccess)
     {
         LoadJointData(jointIter.item(), -1, 0);
     }
+
+	SkeletonHeader skelHeader;
+	skelHeader.jointCount = jointList.size();
+	skelHeader.skeletonId = 0;
+
+	MainHeader s_head;
+	string tempSendSkelId = m_filePath + ".skel";
+	s_head.type = (int)Resources::ResourceType::RES_SKELETON;
+	s_head.id = (int)(tempSendSkelId.c_str());
+
+	skeletonFile.write((char*)&s_head, sizeof(MainHeader));
+
+	skeletonFile.write((char*)&skelHeader, sizeof(SkeletonHeader));
+
+	skeletonFile.write((char*)jointList.data(), sizeof(JointHeader) * skelHeader.jointCount);
+
+	skeletonFile.close();
 }
 
 void SkelAnimExport::IterateAnimations()
@@ -44,9 +65,6 @@ void SkelAnimExport::IterateAnimations()
     MStatus res;
 
     MFnIkJoint jointFn;
-
-	/*Resizing the animation list, which is the size of the joint list.*/
-	tempAnimations.resize(jointList.size());
 
 	MPlugArray layerWeights;
 
@@ -81,7 +99,6 @@ void SkelAnimExport::IterateAnimations()
     {
         while (!animLayerIter.isDone())
         {
-            int jointCounter = 0;
             MFnDependencyNode animLayerFn(animLayerIter.item(), &res);
 
 			/*Skip the base animation layer, we DON'T EVER use that as a layer for this project.*/
@@ -92,6 +109,22 @@ void SkelAnimExport::IterateAnimations()
                 plugWeightCounter++;
                 continue;
             }
+
+			int jointCounter = 0;
+
+			string layerName = (m_filePath + "_") + string(animLayerFn.name().asChar()) + ".anim";
+
+			fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
+
+			MainHeader s_Head;
+			string tempAnimId = m_filePath + "_" + string(animLayerFn.name().asChar()) + ".anim";
+			s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
+			s_Head.id	= (int)tempAnimId.c_str();
+			animationFile.write((char*)&s_Head, sizeof(MainHeader));
+
+			JointAnimHeader jointAnimHead;
+			jointAnimHead.jointCount = jointList.size();
+			animationFile.write((char*)&jointAnimHead, sizeof(jointAnimHead));
 
 			/*Set weight plug to 1, for the current animation layer that is extracted.*/
             layerWeights[plugWeightCounter].setDouble(1);
@@ -112,9 +145,6 @@ void SkelAnimExport::IterateAnimations()
 					so if the joint counter is equal or greater than joint list, break from the loop.*/
 					if (jointCounter >= jointList.size())
 						break;
-
-                   AnimationStateHeader animStateData;
-				   AnimationPerJoint animationPerJoint;
 
 				   MFnDependencyNode blendFn(blendIter.currentItem(), &res);
 
@@ -148,6 +178,12 @@ void SkelAnimExport::IterateAnimations()
 
 						   /*Obtain the number of keys from each animation curve found.*/
                            int numKeys = animCurveFn.numKeyframes(&res);
+
+						   JointKeyFrameHeader keyTrack;
+						   keyTrack.numKeys = numKeys;
+
+						   animationFile.write((char*)&keyTrack, sizeof(keyTrack));
+
                            for (int keyIndex = 0; keyIndex < numKeys; keyIndex++)
                            {
                                KeyframeHeader keyData;
@@ -172,19 +208,15 @@ void SkelAnimExport::IterateAnimations()
 
                                double scale[3];
                                jointFn.getScale(scale);
-                               std::copy(scale, scale + 3, keyData.scale);
+                               std::copy(scale, scale + 3, keyData.scale);			
 
-							   animationPerJoint.keyframes.push_back(keyData);
-							   
+							   animationFile.write((char*)&keyData, sizeof(KeyframeHeader));
                            }
 
-						   animStateData.keyFrameCount = animationPerJoint.keyframes.size();
+						   //animationFile.write((char*)keyframeList.data(), sizeof(KeyframeHeader) * numKeys);
 
-						   tempAnimations[jointCounter].animationCount.push_back(animStateData);
-						   tempAnimations[jointCounter].animationData.push_back(animationPerJoint);
+						   //keyframeList.clear();
 
-						   jointList[jointCounter].animStateCount = tempAnimations[jointCounter].animationData.size();
-						  
                            jointCounter++;
                        }
                    }
@@ -194,6 +226,8 @@ void SkelAnimExport::IterateAnimations()
             }
 
             plugWeightCounter++;
+
+			animationFile.close();
             animLayerIter.next();
         }
     }
@@ -335,29 +369,6 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
             LoadJointData(jointFn.child(childIndex), currentIndex - 1, jointList.size());
         }
     }
-}
-
-void SkelAnimExport::ExportSkelAnimData()
-{
-	/*Writing down all skeletal animation data to binary format ".bff"*/
-	const int jointCount = jointList.size();
-
-	outFile->write((char*)jointList.data(), sizeof(JointHeader) * jointCount);
-
-	for (int jointIndex = 0; jointIndex < jointCount; jointIndex++)
-	{
-		const int animationCount = jointList[jointIndex].animStateCount;
-
-		outFile->write((char*)tempAnimations[jointIndex].animationCount.data(), sizeof(AnimationStateHeader) * animationCount);
-
-		for (int animIndex = 0; animIndex < animationCount; animIndex++)
-		{
-			const int keyFrameCount = tempAnimations[jointIndex].animationData[animIndex].keyframes.size();
-
-			outFile->write((char*)tempAnimations[jointIndex].animationData[animIndex].keyframes.data(), sizeof(KeyframeHeader) * keyFrameCount);
-
-		}
-	}
 }
 
 void SkelAnimExport::ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16])

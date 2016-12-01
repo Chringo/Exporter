@@ -27,6 +27,16 @@ struct SkinData
 	unsigned int boneInfluences[4];
 };
 
+struct JointAnimHeader
+{
+	unsigned int jointCount;
+};
+
+struct JointKeyFrameHeader
+{
+	unsigned int numKeys;
+};
+
 struct KeyframeHeader
 {
 	float timeValue;
@@ -35,9 +45,10 @@ struct KeyframeHeader
 	float scale[3];
 };
 
-struct AnimationStateHeader
+struct SkeletonHeader
 {
-	unsigned int keyFrameCount;
+	int jointCount;
+	int skeletonId;
 };
 
 struct JointHeader
@@ -45,9 +56,19 @@ struct JointHeader
 	float bindPose[16];
 	int jointIndex;
 	int parentIndex;
-
-	unsigned int animStateCount;
 };
+
+//struct KeyframeHolder
+//{
+//	std::vector<KeyframeHeader> keyframes;
+//};
+//
+//struct AnimationJointHeader
+//{
+//	std::vector<KeyframeHolder> animationData;
+//	std::vector<AnimationStateHeader> animationCount;
+//};
+
 #pragma endregion
 #pragma region header structs
 struct MainHeader
@@ -61,7 +82,7 @@ struct MeshHeader
 	unsigned int vertices;
 	unsigned int indexLength;
 	//MMatrix transMatrix;
-	unsigned int jointCount;
+	//unsigned int jointCount;
 	bool hasSkeleton;
 };
 struct Vertex

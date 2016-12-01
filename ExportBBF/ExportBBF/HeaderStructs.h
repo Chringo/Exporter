@@ -74,8 +74,7 @@ struct JointHeader
 struct MainHeader
 {
 	int type;
-	int id;
-	//unsigned int numOfMats;
+	unsigned int id;
 };
 struct MeshHeader
 {

@@ -15,7 +15,7 @@ MaterialExport::MaterialExport(string &filePath)
 
 	MainHeader s_Head;
 	s_Head.type = (int)Resources::ResourceType::RES_MATERIAL;
-	s_Head.id = (int)this->filePath.c_str();
+	s_Head.id = (unsigned int)this->filePath.c_str();
 
 	outFile->write((char*)&s_Head, sizeof(MainHeader));
 }

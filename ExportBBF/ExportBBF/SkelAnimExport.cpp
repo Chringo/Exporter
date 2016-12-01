@@ -53,7 +53,7 @@ void SkelAnimExport::IterateJoints()
 	MainHeader s_head;
 	string tempSendSkelId = m_filePath + ".skel";
 	s_head.type = (int)Resources::ResourceType::RES_SKELETON;
-	s_head.id = (int)(tempSendSkelId.c_str());
+	s_head.id = (unsigned int)(tempSendSkelId.c_str());
 
 	skeletonFile.write((char*)&s_head, sizeof(MainHeader));
 
@@ -123,7 +123,7 @@ void SkelAnimExport::IterateAnimations()
 			MainHeader s_Head;
 			string tempAnimId = m_filePath + "_" + string(animLayerFn.name().asChar()) + ".anim";
 			s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
-			s_Head.id	= (int)tempAnimId.c_str();
+			s_Head.id	= (unsigned int)tempAnimId.c_str();
 			animationFile.write((char*)&s_Head, sizeof(MainHeader));
 
 			JointAnimHeader jointAnimHead;

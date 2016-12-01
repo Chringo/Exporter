@@ -52,7 +52,8 @@ struct JointHeader
 #pragma region header structs
 struct MainHeader
 {
-	unsigned int meshes;
+	int type;
+	int id;
 	//unsigned int numOfMats;
 };
 struct MeshHeader
@@ -95,6 +96,22 @@ struct MaterialHeader
 
 };
 
+namespace Resources
+{
+	enum ResourceType
+	{
+		RES_UNKOWN = -1,
+		RES_TEXTURE = 0,
+		RES_MATERIAL = 1,
+		RES_MESH = 2,
+		RES_MODEL = 3,
+		RES_SKELETON = 4,
+		RES_SOUND = 5,
+		RES_LIGHT = 6,
+		RES_ANIMATION = 7,
+		RES_UI = 8
+	};
+}
 //struct matsHead
 //{
 //	float roughness;

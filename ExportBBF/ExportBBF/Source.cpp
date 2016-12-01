@@ -43,11 +43,11 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		QProgressBar *pBar = (QProgressBar*)bar;
 		setProcessBarSize(mesh, skel, mats, light);
 
-		fstream outFile(filePath, std::fstream::out | std::fstream::binary);
+		fstream outFile;
 
 		/*writing a temporary mainheader*/
-		MainHeader tempHead{ 1 };
-		outFile.write((char*)&tempHead, sizeof(MainHeader));
+		//MainHeader tempHead{ 1 };
+		//outFile.write((char*)&tempHead, sizeof(MainHeader));
 
 		SkelAnimExport cSkelAnim(&outFile);
 

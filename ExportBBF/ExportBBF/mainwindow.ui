@@ -128,17 +128,17 @@
      <string>Edit</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="lightBox">
+   <widget class="QCheckBox" name="animBox">
     <property name="geometry">
      <rect>
       <x>200</x>
       <y>90</y>
-      <width>70</width>
+      <width>91</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
-     <string>Lights</string>
+     <string>Animations</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="meshBox">

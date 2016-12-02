@@ -17,7 +17,7 @@ using namespace std;
 
 MCallbackIdArray myCallbackArray;
 
-void setProcessBarSize(bool mesh, bool skel, bool mats, bool light)
+void setProcessBarSize(bool mesh, bool skel, bool mats, bool anims)
 {
 	QWidget *control = MQtUtil::findControl("progressBar");
 	QProgressBar *pBar = (QProgressBar*)control;
@@ -30,20 +30,22 @@ void setProcessBarSize(bool mesh, bool skel, bool mats, bool light)
 		progressSize += 3;
 	else if (skel)
 		progressSize += 2;
+	if (anims)
+		progressSize += 1;
 
 	pBar->setMaximum(progressSize);
 	pBar->setValue(0);
 }
 
 /*function that starts exporting everything chosen*/
-void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
+void exportStart(bool mesh, bool skel, bool mats, bool anims, string filePath)
 {
-	if (mesh || skel || mats || light)
+	if (mesh || skel || mats || anims)
 	{
 		MStatus res = MS::kSuccess;
 		QWidget *bar = MQtUtil::findControl("progressBar");
 		QProgressBar *pBar = (QProgressBar*)bar;
-		setProcessBarSize(mesh, skel, mats, light);
+		setProcessBarSize(mesh, skel, mats, anims);
 
 		//fstream outFile;
 
@@ -113,23 +115,25 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 
 			/*Iterate all animations in the skeleton.*/
 			cSkelAnim.setFilePath(filePath + "/Animations/");
-			cSkelAnim.IterateAnimations();
+			cSkelAnim.IterateAnimations(anims);
+			pBar->setValue(pBar->value() + 1);
 
 			cSkelAnim.setFilePath(filePath + "/Skeletons/");
 			cSkelAnim.writeJointData();
 			pBar->setValue(pBar->value() + 1);
 
 		}
-		
+		if (!skel && anims)
+		{
+			cSkelAnim.setFilePath(filePath + "/Animations/");
+			cSkelAnim.IterateAnimations(anims);
+			pBar->setValue(pBar->value() + 1);
+		}
 		if (mats)
 		{
 			MaterialExport newMat(filePath + "/Materials/");
 			newMat.MaterialExtraction();
 
-		}
-		if (light)
-		{
-			
 		}
 
 		/*making the buttons clickable again and closing the file*/
@@ -197,8 +201,8 @@ void exportClicked()
 	control = MQtUtil::findControl("matBox");
 	bool mats = ((QCheckBox*)control)->checkState();
 
-	control = MQtUtil::findControl("lightBox");
-	bool light = ((QCheckBox*)control)->checkState();
+	control = MQtUtil::findControl("animBox");
+	bool anims = ((QCheckBox*)control)->checkState();
 
 	control = MQtUtil::findControl("lineEdit");
 	QString fileName = ((QLineEdit*)control)->text();
@@ -211,7 +215,7 @@ void exportClicked()
 		{
 			fName += fileName[i].unicode();
 		}
-		exportStart(mesh, skel, mats, light, fName);
+		exportStart(mesh, skel, mats, anims, fName);
 		//MGlobal::displayInfo("in export");
 	}
 	else

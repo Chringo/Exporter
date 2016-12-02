@@ -24,7 +24,7 @@ public:
     
     void IterateSkinClusters();
     void IterateJoints();
-    void IterateAnimations();
+    void IterateAnimations(bool anims);
 
     void LoadSkinData(MObject skinNode);
     void LoadJointData(MObject jointNode, int parentIndex, int currentIndex);

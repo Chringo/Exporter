@@ -58,7 +58,7 @@ void SkelAnimExport::IterateJoints()
 	
 }
 
-void SkelAnimExport::IterateAnimations()
+void SkelAnimExport::IterateAnimations(bool anims)
 {
     MStatus res;
 
@@ -110,14 +110,150 @@ void SkelAnimExport::IterateAnimations()
 
 			int jointCounter = 0;
 			nrOfAnimLayers++;
-
-			string layerName = (m_filePath + m_meshName + "_") + string(animLayerFn.name().asChar()) + ".anim";
-			if (animExists(layerName))
+			if (anims)
 			{
-				string animName = ("Overwrite " + m_meshName + "_" + string(animLayerFn.name().asChar()) + "?");
-				std::wstring stemp = std::wstring(animName.begin(), animName.end());
-				LPCWSTR sw = stemp.c_str();
-				if (MessageBox(NULL, sw, TEXT(".anim file already exists"), MB_YESNO) == IDYES)
+				string layerName = (m_filePath + m_meshName + "_") + string(animLayerFn.name().asChar()) + ".anim";
+				if (animExists(layerName))
+				{
+					string animName = ("Overwrite " + m_meshName + "_" + string(animLayerFn.name().asChar()) + "?");
+					std::wstring stemp = std::wstring(animName.begin(), animName.end());
+					LPCWSTR sw = stemp.c_str();
+					if (MessageBox(NULL, sw, TEXT(".anim file already exists"), MB_YESNO) == IDYES)
+					{
+						fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
+
+						MainHeader s_Head;
+						string tempAnimId = m_filePath + m_meshName + "_" + string(animLayerFn.name().asChar()) + ".anim";
+						s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
+						s_Head.id = (unsigned int)std::hash<std::string>{}(tempAnimId);
+
+						animationFile.write((char*)&s_Head, sizeof(MainHeader));
+
+						LayerIdHeader layerId{ s_Head.id };
+						animIdList.push_back(layerId);
+
+						JointAnimHeader jointAnimHead;
+						jointAnimHead.jointCount = jointList.size();
+						animationFile.write((char*)&jointAnimHead, sizeof(JointAnimHeader));
+
+						//fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
+
+						/*MainHeader s_Head;
+						string tempAnimId = m_filePath + m_meshName + "_" + string(animLayerFn.name().asChar()) + ".anim";
+						s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
+						s_Head.id	= (unsigned int)std::hash<std::string>{}(tempAnimId);
+						animationFile.write((char*)&s_Head, sizeof(MainHeader));*/
+
+						/*LayerIdHeader layerId{ s_Head.id };
+						animIdList.push_back(layerId);
+
+						JointAnimHeader jointAnimHead;
+						jointAnimHead.jointCount = jointList.size();
+						animationFile.write((char*)&jointAnimHead, sizeof(jointAnimHead));*/
+
+						/*Set weight plug to 1, for the current animation layer that is extracted.*/
+						layerWeights[plugWeightCounter].setDouble(1);
+
+						/*Iterate all blend nodes, which are the joints connected to each animation layer.*/
+						MPlug blendNodePlug = animLayerFn.findPlug("blendNodes", &res);
+						if (res == MStatus::kSuccess)
+						{
+							MItDependencyGraph blendIter(animLayerIter.item(), MFn::kBlendNodeAdditiveRotation,
+								MItDependencyGraph::Direction::kDownstream, MItDependencyGraph::Traversal::kBreadthFirst,
+								MItDependencyGraph::Level::kNodeLevel, &res);
+
+							blendIter.enablePruningOnFilter();
+
+							while (!blendIter.isDone())
+							{
+								/*There is a strange occurrence when the blend nodes are connected to two layers in a iteration,
+								so if the joint counter is equal or greater than joint list, break from the loop.*/
+								if (jointCounter >= jointList.size())
+									break;
+
+								MFnDependencyNode blendFn(blendIter.currentItem(), &res);
+
+								/*Find the connection plug from the blend node to find the "REAL joint" node.*/
+								MPlug outputPlug = MFnDependencyNode(blendIter.currentItem()).findPlug("rotateOrder", &res);
+								if (res == MStatus::kSuccess)
+								{
+									MPlugArray outputConnection;
+									outputPlug.connectedTo(outputConnection, true, false, &res);
+									if (outputConnection.length())
+									{
+										/*Set the joint Fn from the node of the connection plug.*/
+										jointFn.setObject(outputConnection[0].node());
+									}
+								}
+								/*Find the plug that is connected to the animation curve.*/
+								MPlug inputBPlug = blendFn.findPlug("inputB", &res);
+
+								if (res == MStatus::kSuccess)
+								{
+									MObjectArray objArray;
+
+									/*Finds the animation curve connected to the blend node plug, which is "animated".*/
+									MAnimUtil::findAnimation(inputBPlug.child(0), objArray, &res);
+
+									if (objArray.length())
+									{
+										/*If a keyframe is set in the timeline in Maya, all the curves will get a value by default,
+										so to get keyframe values, only the rotation curve is required to get ALL transformation values.*/
+										MFnAnimCurve animCurveFn(objArray[0], &res);
+
+										/*Obtain the number of keys from each animation curve found.*/
+										int numKeys = animCurveFn.numKeyframes(&res);
+
+										JointKeyFrameHeader keyTrack;
+										keyTrack.numKeys = numKeys;
+
+										animationFile.write((char*)&keyTrack, sizeof(JointKeyFrameHeader));
+
+										for (int keyIndex = 0; keyIndex < numKeys; keyIndex++)
+										{
+											KeyframeHeader keyData;
+
+											/*The current time on the timeline in Maya for each set keyframe.*/
+											MTime keyTime = animCurveFn.time(keyIndex);
+											/*The current time value for each keyframe, in seconds format.*/
+											keyData.timeValue = keyTime.as(MTime::kSeconds);
+
+											/*With the time of the current keyframe, we set where the keyframe is set in timeline.*/
+											MAnimControl::setCurrentTime(keyTime);
+
+											/*Keyframes transformation values are obtained here: quat, trans and scale.*/
+											double quaternion[4];
+											jointFn.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kTransform);
+											std::copy(quaternion, quaternion + 4, keyData.quaternion);
+
+											MVector transVec = jointFn.getTranslation(MSpace::kTransform, &res);
+											double translation[3];
+											transVec.get(translation);
+											std::copy(translation, translation + 3, keyData.translation);
+
+											double scale[3];
+											jointFn.getScale(scale);
+											std::copy(scale, scale + 3, keyData.scale);
+
+											animationFile.write((char*)&keyData, sizeof(KeyframeHeader));
+										}
+
+										//animationFile.write((char*)keyframeList.data(), sizeof(KeyframeHeader) * numKeys);
+
+										//keyframeList.clear();
+
+										jointCounter++;
+									}
+								}
+								blendIter.next();
+							}
+						}
+
+						plugWeightCounter++;
+						animationFile.close();
+					}
+				}
+				else
 				{
 					fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
 
@@ -252,141 +388,6 @@ void SkelAnimExport::IterateAnimations()
 					animationFile.close();
 				}
 			}
-			else
-			{
-				fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
-
-				MainHeader s_Head;
-				string tempAnimId = m_filePath + m_meshName + "_" + string(animLayerFn.name().asChar()) + ".anim";
-				s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
-				s_Head.id = (unsigned int)std::hash<std::string>{}(tempAnimId);
-
-				animationFile.write((char*)&s_Head, sizeof(MainHeader));
-
-				LayerIdHeader layerId{ s_Head.id };
-				animIdList.push_back(layerId);
-
-				JointAnimHeader jointAnimHead;
-				jointAnimHead.jointCount = jointList.size();
-				animationFile.write((char*)&jointAnimHead, sizeof(JointAnimHeader));
-
-				//fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
-
-				/*MainHeader s_Head;
-				string tempAnimId = m_filePath + m_meshName + "_" + string(animLayerFn.name().asChar()) + ".anim";
-				s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
-				s_Head.id	= (unsigned int)std::hash<std::string>{}(tempAnimId);
-				animationFile.write((char*)&s_Head, sizeof(MainHeader));*/
-
-				/*LayerIdHeader layerId{ s_Head.id };
-				animIdList.push_back(layerId);
-
-				JointAnimHeader jointAnimHead;
-				jointAnimHead.jointCount = jointList.size();
-				animationFile.write((char*)&jointAnimHead, sizeof(jointAnimHead));*/
-
-				/*Set weight plug to 1, for the current animation layer that is extracted.*/
-				layerWeights[plugWeightCounter].setDouble(1);
-
-				/*Iterate all blend nodes, which are the joints connected to each animation layer.*/
-				MPlug blendNodePlug = animLayerFn.findPlug("blendNodes", &res);
-				if (res == MStatus::kSuccess)
-				{
-					MItDependencyGraph blendIter(animLayerIter.item(), MFn::kBlendNodeAdditiveRotation,
-						MItDependencyGraph::Direction::kDownstream, MItDependencyGraph::Traversal::kBreadthFirst,
-						MItDependencyGraph::Level::kNodeLevel, &res);
-
-					blendIter.enablePruningOnFilter();
-
-					while (!blendIter.isDone())
-					{
-						/*There is a strange occurrence when the blend nodes are connected to two layers in a iteration,
-						so if the joint counter is equal or greater than joint list, break from the loop.*/
-						if (jointCounter >= jointList.size())
-							break;
-
-						MFnDependencyNode blendFn(blendIter.currentItem(), &res);
-
-						/*Find the connection plug from the blend node to find the "REAL joint" node.*/
-						MPlug outputPlug = MFnDependencyNode(blendIter.currentItem()).findPlug("rotateOrder", &res);
-						if (res == MStatus::kSuccess)
-						{
-							MPlugArray outputConnection;
-							outputPlug.connectedTo(outputConnection, true, false, &res);
-							if (outputConnection.length())
-							{
-								/*Set the joint Fn from the node of the connection plug.*/
-								jointFn.setObject(outputConnection[0].node());
-							}
-						}
-						/*Find the plug that is connected to the animation curve.*/
-						MPlug inputBPlug = blendFn.findPlug("inputB", &res);
-
-						if (res == MStatus::kSuccess)
-						{
-							MObjectArray objArray;
-
-							/*Finds the animation curve connected to the blend node plug, which is "animated".*/
-							MAnimUtil::findAnimation(inputBPlug.child(0), objArray, &res);
-
-							if (objArray.length())
-							{
-								/*If a keyframe is set in the timeline in Maya, all the curves will get a value by default,
-								so to get keyframe values, only the rotation curve is required to get ALL transformation values.*/
-								MFnAnimCurve animCurveFn(objArray[0], &res);
-
-								/*Obtain the number of keys from each animation curve found.*/
-								int numKeys = animCurveFn.numKeyframes(&res);
-
-								JointKeyFrameHeader keyTrack;
-								keyTrack.numKeys = numKeys;
-
-								animationFile.write((char*)&keyTrack, sizeof(JointKeyFrameHeader));
-
-								for (int keyIndex = 0; keyIndex < numKeys; keyIndex++)
-								{
-									KeyframeHeader keyData;
-
-									/*The current time on the timeline in Maya for each set keyframe.*/
-									MTime keyTime = animCurveFn.time(keyIndex);
-									/*The current time value for each keyframe, in seconds format.*/
-									keyData.timeValue = keyTime.as(MTime::kSeconds);
-
-									/*With the time of the current keyframe, we set where the keyframe is set in timeline.*/
-									MAnimControl::setCurrentTime(keyTime);
-
-									/*Keyframes transformation values are obtained here: quat, trans and scale.*/
-									double quaternion[4];
-									jointFn.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kTransform);
-									std::copy(quaternion, quaternion + 4, keyData.quaternion);
-
-									MVector transVec = jointFn.getTranslation(MSpace::kTransform, &res);
-									double translation[3];
-									transVec.get(translation);
-									std::copy(translation, translation + 3, keyData.translation);
-
-									double scale[3];
-									jointFn.getScale(scale);
-									std::copy(scale, scale + 3, keyData.scale);
-
-									animationFile.write((char*)&keyData, sizeof(KeyframeHeader));
-								}
-
-								//animationFile.write((char*)keyframeList.data(), sizeof(KeyframeHeader) * numKeys);
-
-								//keyframeList.clear();
-
-								jointCounter++;
-							}
-						}
-						blendIter.next();
-					}
-				}
-
-				plugWeightCounter++;
-				animationFile.close();
-			}
-			//HERE<Z...........------------------------------------------
             animLayerIter.next();
         }
     }

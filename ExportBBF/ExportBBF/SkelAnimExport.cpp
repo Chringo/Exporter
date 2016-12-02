@@ -133,7 +133,7 @@ void SkelAnimExport::IterateAnimations()
 
 					JointAnimHeader jointAnimHead;
 					jointAnimHead.jointCount = jointList.size();
-					animationFile.write((char*)&jointAnimHead, sizeof(jointAnimHead));
+					animationFile.write((char*)&jointAnimHead, sizeof(JointAnimHeader));
 
 					//fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
 
@@ -206,7 +206,7 @@ void SkelAnimExport::IterateAnimations()
 									JointKeyFrameHeader keyTrack;
 									keyTrack.numKeys = numKeys;
 
-									animationFile.write((char*)&keyTrack, sizeof(keyTrack));
+									animationFile.write((char*)&keyTrack, sizeof(JointKeyFrameHeader));
 
 									for (int keyIndex = 0; keyIndex < numKeys; keyIndex++)
 									{
@@ -268,7 +268,7 @@ void SkelAnimExport::IterateAnimations()
 
 				JointAnimHeader jointAnimHead;
 				jointAnimHead.jointCount = jointList.size();
-				animationFile.write((char*)&jointAnimHead, sizeof(jointAnimHead));
+				animationFile.write((char*)&jointAnimHead, sizeof(JointAnimHeader));
 
 				//fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
 
@@ -341,7 +341,7 @@ void SkelAnimExport::IterateAnimations()
 								JointKeyFrameHeader keyTrack;
 								keyTrack.numKeys = numKeys;
 
-								animationFile.write((char*)&keyTrack, sizeof(keyTrack));
+								animationFile.write((char*)&keyTrack, sizeof(JointKeyFrameHeader));
 
 								for (int keyIndex = 0; keyIndex < numKeys; keyIndex++)
 								{

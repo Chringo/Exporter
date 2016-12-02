@@ -224,12 +224,36 @@ void exportClicked()
 	}
 }
 
+void correctMYDIR(string & uiDir)
+{
 
+	for (int i = 0; i < uiDir.length(); ++i)
+	{
+		if ((const char*)uiDir.at(i) == "\"")
+		{
+			uiDir.at(i) = "/";
+		}
+	}
+}
 
 EXPORT MStatus initializePlugin(MObject obj)
 {
 	/*initializing the ui*/
-	MGlobal::executeCommand("string $dialog = `loadUI - uiFile ""mainwindow.ui""`");
+
+	//MString c_directory = "string $dialog = `loadUI -uiFile ";
+	string hejsan = MYDIR;
+
+	correctMYDIR(hejsan);
+
+	MString uiDir = "string $uiD = \"";
+	uiDir += MYDIR;
+	uiDir += "mainwindow.ui\"`";
+	//correctMYDIR(uiDir);
+	//MGlobal::executeCommand("string $uiDir[] = `getFileList -folder $subDir -filespec \"*.ui\"`");
+	//MGlobal::executeCommand("$subDir += $uiDir[0]");
+	//MGlobal::executeCommand("string $dialog = `loadUI -uiFile $subDir`");
+	MGlobal::executeCommand(uiDir);
+	MGlobal::executeCommand("string $dialog = `loadUI -uiFile $uiD`");
 	MGlobal::executeCommand("showWindow $dialog");
 	QWidget * control = MQtUtil::findControl("exportButton");
 	QPushButton *cb = (QPushButton*)control;

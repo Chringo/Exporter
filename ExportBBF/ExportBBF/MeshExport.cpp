@@ -44,6 +44,7 @@ MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 	}
 	else
 	{
+		outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 
 		MainHeader s_Head;
 		s_Head.type = (int)Resources::ResourceType::RES_MESH;
@@ -89,6 +90,7 @@ MeshExport::MeshExport(string & filePath)
 	}
 	else
 	{
+		outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 
 		MainHeader s_Head;
 		s_Head.type = (int)Resources::ResourceType::RES_MESH;

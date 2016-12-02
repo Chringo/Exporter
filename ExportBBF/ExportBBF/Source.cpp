@@ -153,7 +153,7 @@ void editClicked()
 	QPushButton *cb = (QPushButton*)control;
 	//cb->setDisabled(true);
 
-	QString fileName = QFileDialog::getSaveFileName(cb->topLevelWidget(), "Choose directory", "//DESKTOP-BOKNO6D/server/Assets/bbf files", "*.bbf");
+	QString fileName = QFileDialog::getExistingDirectory(cb->topLevelWidget(), "Choose directory", "//DESKTOP-BOKNO6D/server/Assets/bbf files");
 
 	control = MQtUtil::findControl("lineEdit");
 	QLineEdit * lE = (QLineEdit*)control;

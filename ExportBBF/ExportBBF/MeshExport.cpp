@@ -24,7 +24,13 @@ MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 
 	if (bbfExists(filePath))
 	{
-		if (MessageBox(NULL, TEXT("Overwrite .bbf?"), TEXT("bbf file already exists"), MB_YESNO) == IDYES)
+		size_t f = filePath.rfind("/", filePath.length());
+		string pAth = filePath.substr(f + 1, filePath.length());
+
+		string meshName = ("Overwrite " + pAth + "?");
+		std::wstring stemp = std::wstring(meshName.begin(), meshName.end());
+		LPCWSTR sw = stemp.c_str();
+		if (MessageBox(NULL, sw, TEXT("bbf file already exists"), MB_YESNO) == IDYES)
 		{
 			outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 
@@ -70,7 +76,13 @@ MeshExport::MeshExport(string & filePath)
 	//outFile->write((char*)&s_Head, sizeof(MainHeader));
 	if (bbfExists(filePath))
 	{
-		if (MessageBox(NULL, TEXT("Overwrite .bbf?"), TEXT("bbf file already exists"), MB_YESNO) == IDYES)
+		size_t f = filePath.rfind("/", filePath.length());
+		string pAth = filePath.substr(f + 1, filePath.length());
+
+		string meshName = ("Overwrite " + pAth + "?");
+		std::wstring stemp = std::wstring(meshName.begin(), meshName.end());
+		LPCWSTR sw = stemp.c_str();
+		if (MessageBox(NULL, sw, TEXT("bbf file already exists"), MB_YESNO) == IDYES)
 		{
 			outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 

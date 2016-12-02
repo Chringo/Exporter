@@ -266,6 +266,13 @@ void MaterialExport::ExportingMats_Tex()
 
 		outFile->write((char*)&this->mHeader, sizeof(MaterialHeader));
 
+		outFile->write((char*)&this->tHeader.shaderName, mHeader.shaderNameLength);
+		outFile->write((char*)&this->tHeader.textureName, mHeader.textureNameLength);
+		outFile->write((char*)&this->tHeader.normalName, mHeader.normalNameLength);
+		outFile->write((char*)&this->tHeader.metallicName, mHeader.metallicNameLength);
+		outFile->write((char*)&this->tHeader.roughName, mHeader.roughNameLength);
+		outFile->write((char*)&this->tHeader.aoName, mHeader.aoNameLength);
+
 	//	outFile->write((char*)&this->tHeader, sizeof(TextureHeader));
 
 

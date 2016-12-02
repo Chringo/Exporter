@@ -120,9 +120,18 @@ struct MaterialHeader
 	unsigned int textureNameLength;
 	unsigned int normalNameLength;
 	unsigned int metallicNameLength;
-	unsigned int woofNameLength;
+	unsigned int roughNameLength;
 	unsigned int aoNameLength;
 
+};
+struct TextureHeader
+{
+	char shaderName[256];
+	char textureName[256];
+	char normalName[256];
+	char metallicName[256];
+	char roughName[256];
+	char aoName[256];
 };
 
 namespace Resources

@@ -16,7 +16,7 @@ private:
 	fstream * outFile;
 	bool overWrite = true;
 	MaterialHeader mHeader;
-
+	TextureHeader tHeader;
 public:
 
 	void MaterialExtraction();

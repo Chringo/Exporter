@@ -84,6 +84,9 @@ void MaterialExport::MaterialExtraction()
 				MItDependencyGraph dgItt(texture, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
 				dgItt.disablePruningOnFilter();
 
+				memcpy(tHeader.shaderName, fnSet.name().asChar(), fnSet.name().length());
+				tHeader.shaderName[fnSet.name().length()] = '\0';
+
 
 				MObject textureNode = dgItt.thisNode();
 				MPlug filenamePlugn = MFnDependencyNode(textureNode).findPlug("fileTextureName");
@@ -97,6 +100,8 @@ void MaterialExport::MaterialExtraction()
 				if (!ctex.empty())
 				{
 					ExportingTex(ctex);
+					memcpy(tHeader.textureName, texName.asChar(), texName.length());
+					tHeader.textureName[texName.length()] = '\0';
 				}
 				//cerr << "1: " << test<<endl;
 				pBar->setValue(pBar->value() + 1);
@@ -118,6 +123,8 @@ void MaterialExport::MaterialExtraction()
 				if (!ntex.empty())
 				{
 					ExportingTex(ntex);
+					memcpy(tHeader.normalName, textureName.asChar(), textureName.length());
+					tHeader.normalName[textureName.length()] = '\0';
 				}
 
 				//cerr << "2: " << test << endl;
@@ -140,6 +147,8 @@ void MaterialExport::MaterialExtraction()
 				if (!mtex.empty())
 				{
 					ExportingTex(mtex);
+					memcpy(tHeader.metallicName, textureNamem.asChar(), textureNamem.length());
+					tHeader.metallicName[textureNamem.length()] = '\0';
 				}
 				//cerr << "3: " << test << endl;
 				pBar->setValue(pBar->value() + 1);
@@ -158,11 +167,13 @@ void MaterialExport::MaterialExtraction()
 
 
 				filenamePlugr.getValue(textureNamer);
-				mHeader.woofNameLength = textureNamer.length();
+				mHeader.roughNameLength = textureNamer.length();
 				string rtex = textureNamer.asChar();
 				if (!rtex.empty())
 				{
 					ExportingTex(rtex);
+					memcpy(tHeader.roughName, textureNamer.asChar(),textureNamer.length());
+					tHeader.roughName[textureNamer.length()] = '\0';
 				}
 
 				//cerr << "4: " << test << endl;
@@ -188,6 +199,8 @@ void MaterialExport::MaterialExtraction()
 				if (!atex.empty())
 				{
 					ExportingTex(atex);
+					memcpy(tHeader.aoName, textureNamea.asChar(), textureNamea.length());
+					tHeader.aoName[textureNamea.length()] = '\0';
 				}
 
 #pragma endregion 
@@ -229,6 +242,12 @@ void MaterialExport::ExportingMats_Tex()
 			outFile->write((char*)&this->mHeader, sizeof(MaterialHeader));
 
 			//HÄR SEBASTEIANS
+			outFile->write((char*)&this->tHeader.shaderName, mHeader.shaderNameLength);
+			outFile->write((char*)&this->tHeader.textureName, mHeader.textureNameLength);
+			outFile->write((char*)&this->tHeader.normalName, mHeader.normalNameLength);
+			outFile->write((char*)&this->tHeader.metallicName, mHeader.metallicNameLength);
+			outFile->write((char*)&this->tHeader.roughName, mHeader.roughNameLength);
+			outFile->write((char*)&this->tHeader.aoName, mHeader.aoNameLength);
 		}
 		else
 		{
@@ -246,6 +265,9 @@ void MaterialExport::ExportingMats_Tex()
 		outFile->write((char*)&s_Head, sizeof(MainHeader));
 
 		outFile->write((char*)&this->mHeader, sizeof(MaterialHeader));
+
+	//	outFile->write((char*)&this->tHeader, sizeof(TextureHeader));
+
 
 		// ovh HÄR SEBASTEIANS
 	}

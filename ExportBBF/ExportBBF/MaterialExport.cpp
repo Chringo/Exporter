@@ -4,6 +4,15 @@ MaterialExport::MaterialExport()
 {
 }
 
+bool bbfExist(const std::string& fileName)
+{
+	struct stat buf;
+	if (stat(fileName.c_str(), &buf) != -1)
+	{
+		return true;
+	}
+	return false;
+}
 MaterialExport::MaterialExport(string &filePath)
 {
 	//this->outFile = outFile;
@@ -11,7 +20,31 @@ MaterialExport::MaterialExport(string &filePath)
 	//this->filePath = filePath.substr(0, f - 1);
 	//this->filePath += ".mat";
 	this->filePath = filePath;
+	if (bbfExist(filePath))
+	{
+		if (MessageBox(NULL, TEXT("OverWrite file? "), TEXT("File Already Exists "), MB_YESNO) == IDYES)
+		{
+			outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
+
+			MainHeader s_Head;
+			s_Head.type = (int)Resources::ResourceType::RES_MATERIAL;
+			s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+
+			outFile->write((char*)&s_Head, sizeof(MainHeader));
+		}
+		else overWrite = false;
+
+	}
+	else
+	{
+		MainHeader s_Head;
+		s_Head.type = (int)Resources::ResourceType::RES_MATERIAL;
+		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+
+		outFile->write((char*)&s_Head, sizeof(MainHeader));
+	}
 }
+
 
 
 MaterialExport::~MaterialExport()
@@ -206,16 +239,37 @@ void MaterialExport::MaterialExtraction()
 
 void MaterialExport::ExportingMats_Tex()
 {
-	outFile = new fstream(this->filePath, std::fstream::out | std::fstream::binary);
+	if (bbfExist(this->filePath))
+	{
+		if (MessageBox(NULL, TEXT("Overwrite file? "), TEXT("File Already Exists "), MB_YESNO) == IDYES)
+		{
+			outFile = new fstream(this->filePath, std::fstream::out | std::fstream::binary);
+			MainHeader s_Head;
+			s_Head.type = (int)Resources::ResourceType::RES_MATERIAL;
+			s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
 
-	MainHeader s_Head;
-	s_Head.type = (int)Resources::ResourceType::RES_MATERIAL;
-	s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+			outFile->write((char*)&s_Head, sizeof(MainHeader));
 
-	outFile->write((char*)&s_Head, sizeof(MainHeader));
+			MaterialHeader mHead;
+			outFile->write((char*)&mHead, sizeof(MaterialHeader));
 
-	MaterialHeader mHead;
-	outFile->write((char*)&mHead, sizeof(MaterialHeader));
+		}
+		else
+		{
+			overWrite = false;
+		}
+	}
+	else
+	{
+		MainHeader s_Head;
+		s_Head.type = (int)Resources::ResourceType::RES_MATERIAL;
+		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+
+		outFile->write((char*)&s_Head, sizeof(MainHeader));
+	}
+	
+
+	
 	
 	outFile->close();
 }

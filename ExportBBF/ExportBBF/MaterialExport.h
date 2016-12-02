@@ -14,6 +14,7 @@ public:
 private:
 	string filePath;
 	fstream * outFile;
+	bool overWrite = true;
 public:
 
 	void MaterialExtraction();

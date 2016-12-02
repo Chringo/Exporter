@@ -59,7 +59,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, string filePath)
 		SkelAnimExport cSkelAnim(filePath + "/Skeletons/"); //check this <---------------------------------------------
 
 		
-		if (skel)
+		if (skel || anims)
 		{
 			/*Iterate all skin clusters in scene.*/
 			/*cSkelAnim.IterateSkinClusters();
@@ -75,7 +75,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, string filePath)
 					/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
 					cSkelAnim.setMeshName((string)trans.name().asChar());
 
-					if (mesh)
+					if (mesh && skel)
 					{
 
 						cSkelAnim.IterateSkinClusters();
@@ -107,7 +107,29 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, string filePath)
 			}
 		}
 
-		if (skel)
+		if (skel && !anims)
+		{
+			/*Iterate all joints in scene.*/
+			cSkelAnim.IterateJoints();
+			pBar->setValue(pBar->value() + 1);
+
+			/*Iterate all animations in the skeleton.*/
+			//cSkelAnim.setFilePath(filePath + "/Animations/");
+			cSkelAnim.IterateAnimations(anims);
+			//pBar->setValue(pBar->value() + 1);
+
+			cSkelAnim.setFilePath(filePath + "/Skeletons/");
+			cSkelAnim.writeJointData();
+			pBar->setValue(pBar->value() + 1);
+
+		}
+		else if (!skel && anims)
+		{
+			cSkelAnim.setFilePath(filePath + "/Animations/");
+			cSkelAnim.IterateAnimations(anims);
+			pBar->setValue(pBar->value() + 1);
+		}
+		else if (skel && anims)
 		{
 			/*Iterate all joints in scene.*/
 			cSkelAnim.IterateJoints();
@@ -120,13 +142,6 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, string filePath)
 
 			cSkelAnim.setFilePath(filePath + "/Skeletons/");
 			cSkelAnim.writeJointData();
-			pBar->setValue(pBar->value() + 1);
-
-		}
-		if (!skel && anims)
-		{
-			cSkelAnim.setFilePath(filePath + "/Animations/");
-			cSkelAnim.IterateAnimations(anims);
 			pBar->setValue(pBar->value() + 1);
 		}
 		if (mats)

@@ -110,27 +110,30 @@ void SkelAnimExport::IterateAnimations(bool anims)
 
 			int jointCounter = 0;
 			nrOfAnimLayers++;
+
+			MainHeader s_Head;
+			string tempAnimId = m_filePath + m_meshName + "_" + string(animLayerFn.name().asChar()) + ".anim";
+			s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
+			s_Head.id = (unsigned int)std::hash<std::string>{}(tempAnimId);
+
+			LayerIdHeader layerId{ s_Head.id };
+			animIdList.push_back(layerId);
+
+			//string layerName = (m_filePath + m_meshName + "_") + string(animLayerFn.name().asChar()) + ".anim";
 			if (anims)
 			{
-				string layerName = (m_filePath + m_meshName + "_") + string(animLayerFn.name().asChar()) + ".anim";
-				if (animExists(layerName))
+				if (animExists(tempAnimId))
 				{
 					string animName = ("Overwrite " + m_meshName + "_" + string(animLayerFn.name().asChar()) + "?");
 					std::wstring stemp = std::wstring(animName.begin(), animName.end());
 					LPCWSTR sw = stemp.c_str();
 					if (MessageBox(NULL, sw, TEXT(".anim file already exists"), MB_YESNO) == IDYES)
 					{
-						fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
-
-						MainHeader s_Head;
-						string tempAnimId = m_filePath + m_meshName + "_" + string(animLayerFn.name().asChar()) + ".anim";
-						s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
-						s_Head.id = (unsigned int)std::hash<std::string>{}(tempAnimId);
+						fstream animationFile(tempAnimId.c_str(), std::fstream::out | std::fstream::binary);
 
 						animationFile.write((char*)&s_Head, sizeof(MainHeader));
 
-						LayerIdHeader layerId{ s_Head.id };
-						animIdList.push_back(layerId);
+						
 
 						JointAnimHeader jointAnimHead;
 						jointAnimHead.jointCount = jointList.size();
@@ -255,17 +258,17 @@ void SkelAnimExport::IterateAnimations(bool anims)
 				}
 				else
 				{
-					fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
+					fstream animationFile(tempAnimId.c_str(), std::fstream::out | std::fstream::binary);
 
-					MainHeader s_Head;
+					/*MainHeader s_Head;
 					string tempAnimId = m_filePath + m_meshName + "_" + string(animLayerFn.name().asChar()) + ".anim";
 					s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
-					s_Head.id = (unsigned int)std::hash<std::string>{}(tempAnimId);
+					s_Head.id = (unsigned int)std::hash<std::string>{}(tempAnimId);*/
 
 					animationFile.write((char*)&s_Head, sizeof(MainHeader));
 
-					LayerIdHeader layerId{ s_Head.id };
-					animIdList.push_back(layerId);
+					/*LayerIdHeader layerId{ s_Head.id };
+					animIdList.push_back(layerId);*/
 
 					JointAnimHeader jointAnimHead;
 					jointAnimHead.jointCount = jointList.size();
@@ -557,9 +560,9 @@ void SkelAnimExport::writeJointData()
 			skelHeader.animLayerCount = nrOfAnimLayers;
 
 			MainHeader s_head;
-			string tempSendSkelId = m_filePath + ".skel";
+			//string tempSendSkelId = m_filePath + ".skel";
 			s_head.type = (int)Resources::ResourceType::RES_SKELETON;
-			s_head.id = (unsigned int)std::hash<std::string>{}(m_filePath);
+			s_head.id = (unsigned int)std::hash<std::string>{}((m_filePath + m_meshName + ".skel"));
 
 			skeletonFile.write((char*)&s_head, sizeof(MainHeader));
 
@@ -581,9 +584,8 @@ void SkelAnimExport::writeJointData()
 		skelHeader.animLayerCount = nrOfAnimLayers;
 
 		MainHeader s_head;
-		string tempSendSkelId = m_filePath + ".skel";
 		s_head.type = (int)Resources::ResourceType::RES_SKELETON;
-		s_head.id = (unsigned int)std::hash<std::string>{}(m_filePath);
+		s_head.id = (unsigned int)std::hash<std::string>{}((m_filePath + m_meshName + ".skel"));
 
 		skeletonFile.write((char*)&s_head, sizeof(MainHeader));
 

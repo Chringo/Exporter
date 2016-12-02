@@ -143,27 +143,7 @@ namespace Resources
 
 	
 }
-//bool fileExists(const std::string& filename)
-//{
-//	struct stat buf;
-//	if (stat(filename.c_str(), &buf) != -1)
-//	{
-//		return true;
-//	}
-//	return false;
-//}
-//struct matsHead
-//{
-//	float roughness;
-//	float metallness;
-//	float emissive;
-//	unsigned int shaderNameLength;
-//	unsigned int textureNameLength;
-//	unsigned int normalNameLength;
-//	unsigned int metallicNameLength;
-//	unsigned int woofNameLength;
-//	unsigned int aoNameLength;
-//};
+
 /*
 1: fyll matsHead
 2: skriv in shadergrejer i följd

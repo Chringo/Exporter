@@ -13,11 +13,21 @@ MeshExport::MeshExport(std::fstream * outFile)
 	this->jointCount = 0;
 }
 
+bool bbfExists(const std::string& filename)
+{
+	struct stat buf;
+	if (stat(filename.c_str(), &buf) != -1)
+	{
+		return true;
+	}
+	return false;
+}
+
 MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 {
 	this->skinList = skinList;
 
-	/*if (false)
+	if (bbfExists(filePath))
 	{
 		if (MessageBox(NULL, TEXT("Overwrite file?"), TEXT("File already exists"), MB_YESNO) == IDYES)
 		{
@@ -40,14 +50,14 @@ MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
 
 		outFile->write((char*)&s_Head, sizeof(MainHeader));
-	}*/
-	outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
+	}
+	/*outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 
 	MainHeader s_Head;
 	s_Head.type = (int)Resources::ResourceType::RES_MESH;
 	s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
 
-	outFile->write((char*)&s_Head, sizeof(MainHeader));
+	outFile->write((char*)&s_Head, sizeof(MainHeader));*/
 }
 
 MeshExport::MeshExport(string & filePath)
@@ -62,7 +72,7 @@ MeshExport::MeshExport(string & filePath)
 	//std::size_t str_hash = std::hash<std::string>{}(str); */
 
 	//outFile->write((char*)&s_Head, sizeof(MainHeader));
-	/*if (false)
+	if (bbfExists(filePath))
 	{
 		if (MessageBox(NULL, TEXT("Overwrite file?"), TEXT("File already exists"), MB_YESNO) == IDYES)
 		{
@@ -85,14 +95,14 @@ MeshExport::MeshExport(string & filePath)
 		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
 
 		outFile->write((char*)&s_Head, sizeof(MainHeader));
-	}*/
-	outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
+	}
+	/*outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 
 	MainHeader s_Head;
 	s_Head.type = (int)Resources::ResourceType::RES_MESH;
 	s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
 
-	outFile->write((char*)&s_Head, sizeof(MainHeader));
+	outFile->write((char*)&s_Head, sizeof(MainHeader));*/
 }
 
 MeshExport::~MeshExport()

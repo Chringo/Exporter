@@ -69,8 +69,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 					MFnTransform trans = meshIt.currentItem();
 					if (trans.child(0).hasFn(MFn::kMesh))
 					{
-						/*changing the filepath for the skeleton to the same as the mesh*/
-						cSkelAnim.addToFilePath((string)trans.name().asChar());
+						/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
+						cSkelAnim.setMeshName((string)trans.name().asChar());
 						
 						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
 						newMesh.exportMesh(meshIt.currentItem());
@@ -101,7 +101,10 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 			pBar->setValue(pBar->value() + 1);
 
 			/*Iterate all animations in the skeleton.*/
+			cSkelAnim.setFilePath(filePath + "/Animations/");
 			cSkelAnim.IterateAnimations();
+
+			cSkelAnim.setFilePath(filePath + "/Skeletons/");
 			cSkelAnim.writeJointData();
 			pBar->setValue(pBar->value() + 1);
 

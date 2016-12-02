@@ -29,7 +29,8 @@ public:
     void LoadSkinData(MObject skinNode);
     void LoadJointData(MObject jointNode, int parentIndex, int currentIndex);
 
-	void addToFilePath(string &filePath);
+	void setFilePath(string &filePath);
+	void setMeshName(string &meshName);
 
 	void writeJointData();
 
@@ -45,6 +46,7 @@ private:
 	//std::fstream* outFile;
 
 	string m_filePath;
+	string m_meshName;
 };
 
 #endif 

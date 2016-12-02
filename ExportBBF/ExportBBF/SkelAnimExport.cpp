@@ -100,12 +100,12 @@ void SkelAnimExport::IterateAnimations()
 
 			int jointCounter = 0;
 
-			string layerName = (m_filePath + "_") + string(animLayerFn.name().asChar()) + ".anim";
+			string layerName = (m_filePath + m_meshName + "_") + string(animLayerFn.name().asChar()) + ".anim"; //HÄR<-----------------------------
 			fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
 			nrOfAnimLayers++;
 
 			MainHeader s_Head;
-			string tempAnimId = m_filePath + "_" + string(animLayerFn.name().asChar()) + ".anim";
+			string tempAnimId = m_filePath + m_meshName + "_" + string(animLayerFn.name().asChar()) + ".anim";
 			s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
 			s_Head.id	= (unsigned int)std::hash<std::string>{}(tempAnimId);
 			animationFile.write((char*)&s_Head, sizeof(MainHeader));
@@ -362,14 +362,19 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
     }
 }
 
-void SkelAnimExport::addToFilePath(string & filePath)
+void SkelAnimExport::setFilePath(string & filePath)
 {
-	m_filePath += filePath;
+	this->m_filePath = filePath;
+}
+
+void SkelAnimExport::setMeshName(string & meshName)
+{
+	this->m_meshName = meshName;
 }
 
 void SkelAnimExport::writeJointData()
 {
-	fstream skeletonFile((m_filePath + ".skel"), std::fstream::out | std::fstream::binary);
+	fstream skeletonFile((m_filePath + m_meshName + ".skel"), std::fstream::out | std::fstream::binary);
 
 	SkeletonHeader skelHeader;
 	skelHeader.jointCount = jointList.size();

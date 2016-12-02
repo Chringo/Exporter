@@ -29,7 +29,7 @@ MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 
 	if (bbfExists(filePath))
 	{
-		if (MessageBox(NULL, TEXT("Overwrite .bbf file?"), TEXT("File already exists (The model file)"), MB_YESNO) == IDYES)
+		if (MessageBox(NULL, TEXT("Overwrite .bbf?"), TEXT("bbf file already exists"), MB_YESNO) == IDYES)
 		{
 			outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 
@@ -75,7 +75,7 @@ MeshExport::MeshExport(string & filePath)
 	//outFile->write((char*)&s_Head, sizeof(MainHeader));
 	if (bbfExists(filePath))
 	{
-		if (MessageBox(NULL, TEXT("Overwrite file?"), TEXT("File already exists"), MB_YESNO) == IDYES)
+		if (MessageBox(NULL, TEXT("Overwrite .bbf?"), TEXT("bbf file already exists"), MB_YESNO) == IDYES)
 		{
 			outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 

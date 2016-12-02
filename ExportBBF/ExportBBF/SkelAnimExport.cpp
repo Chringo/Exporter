@@ -539,7 +539,56 @@ void SkelAnimExport::setMeshName(string & meshName)
 
 void SkelAnimExport::writeJointData()
 {
-	fstream skeletonFile((m_filePath + m_meshName + ".skel"), std::fstream::out | std::fstream::binary);
+	if (bbfExists((m_filePath + m_meshName + ".skel")))
+	{
+		if (MessageBox(NULL, TEXT("Overwrite .bbf?"), TEXT("bbf file already exists"), MB_YESNO) == IDYES)
+		{
+			fstream skeletonFile((m_filePath + m_meshName + ".skel"), std::fstream::out | std::fstream::binary);
+
+			SkeletonHeader skelHeader;
+			skelHeader.jointCount = jointList.size();
+			skelHeader.animLayerCount = nrOfAnimLayers;
+
+			MainHeader s_head;
+			string tempSendSkelId = m_filePath + ".skel";
+			s_head.type = (int)Resources::ResourceType::RES_SKELETON;
+			s_head.id = (unsigned int)std::hash<std::string>{}(m_filePath);
+
+			skeletonFile.write((char*)&s_head, sizeof(MainHeader));
+
+			skeletonFile.write((char*)&skelHeader, sizeof(SkeletonHeader));
+
+			skeletonFile.write((char*)jointList.data(), sizeof(JointHeader) * skelHeader.jointCount);
+
+			skeletonFile.write((char*)animIdList.data(), sizeof(LayerIdHeader) * nrOfAnimLayers);
+
+			skeletonFile.close();
+		}
+	}
+	else
+	{
+		fstream skeletonFile((m_filePath + m_meshName + ".skel"), std::fstream::out | std::fstream::binary);
+
+		SkeletonHeader skelHeader;
+		skelHeader.jointCount = jointList.size();
+		skelHeader.animLayerCount = nrOfAnimLayers;
+
+		MainHeader s_head;
+		string tempSendSkelId = m_filePath + ".skel";
+		s_head.type = (int)Resources::ResourceType::RES_SKELETON;
+		s_head.id = (unsigned int)std::hash<std::string>{}(m_filePath);
+
+		skeletonFile.write((char*)&s_head, sizeof(MainHeader));
+
+		skeletonFile.write((char*)&skelHeader, sizeof(SkeletonHeader));
+
+		skeletonFile.write((char*)jointList.data(), sizeof(JointHeader) * skelHeader.jointCount);
+
+		skeletonFile.write((char*)animIdList.data(), sizeof(LayerIdHeader) * nrOfAnimLayers);
+
+		skeletonFile.close();
+	}
+	/*fstream skeletonFile((m_filePath + m_meshName + ".skel"), std::fstream::out | std::fstream::binary);
 
 	SkeletonHeader skelHeader;
 	skelHeader.jointCount = jointList.size();
@@ -558,7 +607,7 @@ void SkelAnimExport::writeJointData()
 
 	skeletonFile.write((char*)animIdList.data(), sizeof(LayerIdHeader) * nrOfAnimLayers);
 
-	skeletonFile.close();
+	skeletonFile.close();*/
 }
 
 void SkelAnimExport::ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16])

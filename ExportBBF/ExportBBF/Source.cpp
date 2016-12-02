@@ -224,34 +224,17 @@ void exportClicked()
 	}
 }
 
-void correctMYDIR(string & uiDir)
-{
-
-	for (int i = 0; i < uiDir.length(); ++i)
-	{
-		if ((const char*)uiDir.at(i) == "\"")
-		{
-			uiDir.at(i) = "/";
-		}
-	}
-}
-
 EXPORT MStatus initializePlugin(MObject obj)
 {
-	/*initializing the ui*/
-
-	//MString c_directory = "string $dialog = `loadUI -uiFile ";
-	string hejsan = MYDIR;
-
-	correctMYDIR(hejsan);
+	/*getting the path to the directory*/
+	string myDir = MYDIR;
+	replace(myDir.begin(), myDir.end(), '\\', '/');
 
 	MString uiDir = "string $uiD = \"";
-	uiDir += MYDIR;
-	uiDir += "mainwindow.ui\"`";
-	//correctMYDIR(uiDir);
-	//MGlobal::executeCommand("string $uiDir[] = `getFileList -folder $subDir -filespec \"*.ui\"`");
-	//MGlobal::executeCommand("$subDir += $uiDir[0]");
-	//MGlobal::executeCommand("string $dialog = `loadUI -uiFile $subDir`");
+	uiDir += myDir.c_str();
+	uiDir += "mainwindow.ui\"";
+
+	/*initializing the ui*/
 	MGlobal::executeCommand(uiDir);
 	MGlobal::executeCommand("string $dialog = `loadUI -uiFile $uiD`");
 	MGlobal::executeCommand("showWindow $dialog");
@@ -268,40 +251,12 @@ EXPORT MStatus initializePlugin(MObject obj)
 	// most functions will use this variable to indicate for errors
 	MStatus res = MS::kSuccess;
 
-	//ofstream outFile("test", std::ofstream::binary);
-	/*if (!outFile.is_open())
-	{
-		MGlobal::displayError("ERROR: the binary file is not open");
-		
-	}*/
-
 	MFnPlugin myPlugin(obj, "Maya plugin", "1.0", "Any", &res);
 	if (MFAIL(res)) {
 		CHECK_MSTATUS(res);
 	}
 	
 	MGlobal::displayInfo("Maya plugin loaded!");
-    /*Iterate all skin clusters in scene.*/
- //   cSkelAnim.IterateSkinClusters();
-
- //   /*Iterate all joints in scene.*/
- //   cSkelAnim.IterateJoints();
-	//
-	///*writing a temporary mainheader for one mesh*/
-	//MainHeader tempHead{ 1 };
-	//outFile.write((char*)&tempHead, sizeof(MainHeader));
-
-	//MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
-	//for (; !meshIt.isDone(); meshIt.next())
-	//{
-	//	MFnTransform trans = meshIt.currentItem();
-	//	if (trans.child(0).hasFn(MFn::kMesh))
-	//	{
-	//		//Createmesh(meshIt.currentItem(), cSkelAnim);
-	//		MeshExport newMesh(&outFile, &cSkelAnim.skinList);
-	//		newMesh.exportMesh(meshIt.currentItem());
-	//	}
-	//}
 	return res;
 }
 

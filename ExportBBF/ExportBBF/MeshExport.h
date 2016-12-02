@@ -18,7 +18,6 @@ private:
 	fstream * outFile;
 public:
 	MeshExport();
-	MeshExport(fstream * outFile);
 	MeshExport(string &filePath);
 	MeshExport(string & filePath, vector<SkinData> * skinList);
 	~MeshExport();

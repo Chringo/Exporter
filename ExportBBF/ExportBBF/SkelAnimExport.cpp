@@ -5,7 +5,7 @@ SkelAnimExport::SkelAnimExport()
 {
 }
 
-bool bbfExists(const std::string& filename)
+bool animExists(const std::string& filename)
 {
 	struct stat buf;
 	if (stat(filename.c_str(), &buf) != -1)
@@ -112,9 +112,12 @@ void SkelAnimExport::IterateAnimations()
 			nrOfAnimLayers++;
 
 			string layerName = (m_filePath + m_meshName + "_") + string(animLayerFn.name().asChar()) + ".anim";
-			if (bbfExists(layerName))
+			if (animExists(layerName))
 			{
-				if (MessageBox(NULL, TEXT("Overwrite .anim?"), TEXT(".anim file already exists"), MB_YESNO) == IDYES)
+				string animName = ("Overwrite " + m_meshName + "_" + string(animLayerFn.name().asChar()) + "?");
+				std::wstring stemp = std::wstring(animName.begin(), animName.end());
+				LPCWSTR sw = stemp.c_str();
+				if (MessageBox(NULL, sw, TEXT(".anim file already exists"), MB_YESNO) == IDYES)
 				{
 					fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
 
@@ -539,9 +542,12 @@ void SkelAnimExport::setMeshName(string & meshName)
 
 void SkelAnimExport::writeJointData()
 {
-	if (bbfExists((m_filePath + m_meshName + ".skel")))
+	if (animExists((m_filePath + m_meshName + ".skel")))
 	{
-		if (MessageBox(NULL, TEXT("Overwrite .bbf?"), TEXT("bbf file already exists"), MB_YESNO) == IDYES)
+		string animName = ("Overwrite " + m_meshName + ".skel?");
+		std::wstring stemp = std::wstring(animName.begin(), animName.end());
+		LPCWSTR sw = stemp.c_str();
+		if (MessageBox(NULL, sw, TEXT(".skel file already exists"), MB_YESNO) == IDYES)
 		{
 			fstream skeletonFile((m_filePath + m_meshName + ".skel"), std::fstream::out | std::fstream::binary);
 

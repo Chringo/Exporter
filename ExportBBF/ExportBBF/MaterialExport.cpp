@@ -230,7 +230,13 @@ void MaterialExport::ExportingMats_Tex()
 {
 	if (bbfExist(this->filePath))
 	{
-		if (MessageBox(NULL, TEXT("Overwrite file? "), TEXT("File Already Exists "), MB_YESNO) == IDYES)
+		size_t f = filePath.rfind("/", filePath.length());
+		string pAth = filePath.substr(f + 1, filePath.length());
+
+		string materialName = ("Overwrite " + pAth + "?");
+		std::wstring stemp = std::wstring(materialName.begin(), materialName.end());
+		LPCWSTR sw = stemp.c_str();
+		if (MessageBox(NULL, sw, TEXT(".mat Already Exists "), MB_YESNO) == IDYES)
 		{
 			outFile = new fstream(this->filePath, std::fstream::out | std::fstream::binary);
 			MainHeader s_Head;

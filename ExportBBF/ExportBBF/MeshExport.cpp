@@ -7,11 +7,6 @@ MeshExport::MeshExport()
 }
 
 
-MeshExport::MeshExport(std::fstream * outFile)
-{
-	this->outFile = outFile;
-	this->jointCount = 0;
-}
 
 bool bbfExists(const std::string& filename)
 {

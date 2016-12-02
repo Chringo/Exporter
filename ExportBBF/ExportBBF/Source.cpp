@@ -26,8 +26,10 @@ void setProcessBarSize(bool mesh, bool skel, bool mats, bool light)
 		progressSize += MeshExport::getProgressBarValue();
 	if (mats)
 		progressSize += 5;
-	if (skel)
+	if (skel && mesh)
 		progressSize += 3;
+	else if (skel)
+		progressSize += 2;
 
 	pBar->setMaximum(progressSize);
 	pBar->setValue(0);
@@ -54,31 +56,39 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 
 		SkelAnimExport cSkelAnim(filePath + "/Skeletons/"); //check this <---------------------------------------------
 
-		if (mesh)
+		
+		if (skel)
 		{
-			if (skel)
+			/*Iterate all skin clusters in scene.*/
+			/*cSkelAnim.IterateSkinClusters();
+			pBar->setValue(pBar->value() + 1);*/
+
+
+			MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
+			for (; !meshIt.isDone(); meshIt.next())
 			{
-				/*Iterate all skin clusters in scene.*/
-				cSkelAnim.IterateSkinClusters();
-				pBar->setValue(pBar->value() + 1);
-
-
-				MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
-				for (; !meshIt.isDone(); meshIt.next())
+				MFnTransform trans = meshIt.currentItem();
+				if (trans.child(0).hasFn(MFn::kMesh))
 				{
-					MFnTransform trans = meshIt.currentItem();
-					if (trans.child(0).hasFn(MFn::kMesh))
+					/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
+					cSkelAnim.setMeshName((string)trans.name().asChar());
+
+					if (mesh)
 					{
-						/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
-						cSkelAnim.setMeshName((string)trans.name().asChar());
-						
+
+						cSkelAnim.IterateSkinClusters();
+						pBar->setValue(pBar->value() + 1);
+
 						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
 						newMesh.exportMesh(meshIt.currentItem());
 					}
-
 				}
+
 			}
-			else
+		}
+		else
+		{
+			if (mesh)
 			{
 				MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
 				for (; !meshIt.isDone(); meshIt.next())
@@ -86,6 +96,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 					MFnTransform trans = meshIt.currentItem();
 					if (trans.child(0).hasFn(MFn::kMesh))
 					{
+
 						//Createmesh(meshIt.currentItem(), cSkelAnim);
 						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"));
 						newMesh.exportMesh(meshIt.currentItem());

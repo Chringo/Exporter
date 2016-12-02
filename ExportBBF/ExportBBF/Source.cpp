@@ -48,11 +48,11 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		/*writing a temporary mainheader*/
 		//MainHeader tempHead{ 1 };
 		//outFile.write((char*)&tempHead, sizeof(MainHeader));
-		size_t f = filePath.rfind("/", filePath.length());
-		string newPath = filePath.substr(0, f + 1);
+		//size_t f = filePath.rfind("/", filePath.length());
+		//string newPath = filePath.substr(0, f + 1);
 		
 
-		SkelAnimExport cSkelAnim(newPath);
+		SkelAnimExport cSkelAnim(filePath + "/Skeletons/"); //check this <---------------------------------------------
 
 		if (mesh)
 		{
@@ -72,7 +72,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 						/*changing the filepath for the skeleton to the same as the mesh*/
 						cSkelAnim.addToFilePath((string)trans.name().asChar());
 						
-						MeshExport newMesh((newPath + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
+						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
 						newMesh.exportMesh(meshIt.currentItem());
 					}
 
@@ -87,7 +87,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 					if (trans.child(0).hasFn(MFn::kMesh))
 					{
 						//Createmesh(meshIt.currentItem(), cSkelAnim);
-						MeshExport newMesh((newPath + (string)trans.name().asChar() + ".bbf"));
+						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"));
 						newMesh.exportMesh(meshIt.currentItem());
 					}
 				}
@@ -109,7 +109,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool light, string filePath)
 		
 		if (mats)
 		{
-			MaterialExport newMat(newPath);
+			MaterialExport newMat(filePath + "/Materials/");
 			newMat.MaterialExtraction();
 
 		}

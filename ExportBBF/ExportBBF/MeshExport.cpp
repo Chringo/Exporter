@@ -29,7 +29,7 @@ MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 
 	if (bbfExists(filePath))
 	{
-		if (MessageBox(NULL, TEXT("Overwrite file?"), TEXT("File already exists"), MB_YESNO) == IDYES)
+		if (MessageBox(NULL, TEXT("Overwrite .bbf file?"), TEXT("File already exists (The model file)"), MB_YESNO) == IDYES)
 		{
 			outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 
@@ -44,6 +44,7 @@ MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 	}
 	else
 	{
+		outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 
 		MainHeader s_Head;
 		s_Head.type = (int)Resources::ResourceType::RES_MESH;
@@ -89,6 +90,7 @@ MeshExport::MeshExport(string & filePath)
 	}
 	else
 	{
+		outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 
 		MainHeader s_Head;
 		s_Head.type = (int)Resources::ResourceType::RES_MESH;
@@ -201,7 +203,7 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 
 		tempVertex.normal.x = normalsPos[normalIdList[offsetIdList[i]] * 3];
 		tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 1];
-		tempVertex.normal.z = normalsPos[normalIdList[offsetIdList[i]] * 3 + 2]*-1;
+		tempVertex.normal.z = (normalsPos[normalIdList[offsetIdList[i]] * 3 + 2] * -1);
 
 		tempVertex.tangent.x = tangents[normalIdList[offsetIdList[i]]].x;
 		tempVertex.tangent.y = tangents[normalIdList[offsetIdList[i]]].y;
@@ -308,7 +310,7 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 
 		tempVertex.normal.x = normalsPos[normalIdList[offsetIdList[i]] * 3];
 		tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 1];
-		tempVertex.normal.z = normalsPos[normalIdList[offsetIdList[i]] * 3 + 2]*-1;
+		tempVertex.normal.z = (normalsPos[normalIdList[offsetIdList[i]] * 3 + 2] * -1);
 
 		tempVertex.tangent.x = tangents[normalIdList[offsetIdList[i]]].x;
 		tempVertex.tangent.y = tangents[normalIdList[offsetIdList[i]]].y;

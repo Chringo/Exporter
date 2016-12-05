@@ -76,7 +76,7 @@ struct LayerIdHeader
 
 struct JointHeader
 {
-	float bindPose[16];
+	float invBindPose[16];
 	int jointIndex;
 	int parentIndex;
 };

@@ -503,13 +503,14 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
            MFnMatrixData bindPoseFn(bpNode, &res);
            
            /*The actual bindpose matrix is obtained here from every joint.*/
-           MMatrix bindPose = bindPoseFn.matrix(&res);
+           MMatrix invBindPose = bindPoseFn.matrix(&res);
+		   invBindPose.inverse();
            if (res == MStatus::kSuccess)
            {
                float inverseBindPose[16];
                /*Convert MMatrix bindpose to a float[16] array.*/
-               ConvertMMatrixToFloatArray(bindPose, inverseBindPose);
-               memcpy(jointData.bindPose, &inverseBindPose, sizeof(float) * 16);
+               ConvertMMatrixToFloatArray(invBindPose, inverseBindPose);
+               memcpy(jointData.invBindPose, &inverseBindPose, sizeof(float) * 16);
 
                /*Assign both current joint ID and it's parent ID.*/
                jointData.parentIndex = parentIndex;

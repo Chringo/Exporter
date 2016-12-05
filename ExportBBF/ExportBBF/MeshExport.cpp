@@ -225,7 +225,7 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 		for (int k = 0; k < 4; ++k)
 		{
 			tempVertex.weights[k] = skinList->at(indexList[i]).weights[k];
-			if (tempVertex.weights[k] < FLT_EPSILON)
+			if (tempVertex.weights[k] < 0.01f)
 			{
 				tempVertex.influence[k] = -1;
 			}

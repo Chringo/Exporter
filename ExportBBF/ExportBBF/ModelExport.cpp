@@ -11,7 +11,7 @@ ModelExport::~ModelExport()
 {
 }
 
-bool bbfExists(const std::string& filename)
+bool modelExists(const std::string& filename)
 {
 	struct stat buf;
 	if (stat(filename.c_str(), &buf) != -1)
@@ -33,7 +33,7 @@ void ModelExport::setUID(std::string & name)
 
 void ModelExport::exportModel()
 {
-	if (bbfExists(m_filePath))
+	if (modelExists(m_filePath))
 	{
 		size_t f = m_filePath.rfind("/", m_filePath.length());
 		std::string pAth = m_filePath.substr(f + 1, m_filePath.length());

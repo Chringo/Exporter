@@ -30,14 +30,14 @@ MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 		string meshName = ("Overwrite " + pAth + "?");
 		std::wstring stemp = std::wstring(meshName.begin(), meshName.end());
 		LPCWSTR sw = stemp.c_str();
+		MainHeader s_Head;
+		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+		m_UID = s_Head.id;
 		if (MessageBox(NULL, sw, TEXT("bbf file already exists"), MB_YESNO) == IDYES)
 		{
 			outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 
-			MainHeader s_Head;
 			s_Head.type = (int)Resources::ResourceType::RES_MESH;
-			s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
-			m_UID = s_Head.id;
 
 			outFile->write((char*)&s_Head, sizeof(MainHeader));
 		}
@@ -84,14 +84,14 @@ MeshExport::MeshExport(string & filePath)
 		string meshName = ("Overwrite " + pAth + "?");
 		std::wstring stemp = std::wstring(meshName.begin(), meshName.end());
 		LPCWSTR sw = stemp.c_str();
+		MainHeader s_Head;
+		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+		m_UID = s_Head.id;
 		if (MessageBox(NULL, sw, TEXT("bbf file already exists"), MB_YESNO) == IDYES)
 		{
 			outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
 
-			MainHeader s_Head;
 			s_Head.type = (int)Resources::ResourceType::RES_MESH;
-			s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
-			m_UID = s_Head.id;
 
 			outFile->write((char*)&s_Head, sizeof(MainHeader));
 		}

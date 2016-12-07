@@ -60,7 +60,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 		SkelAnimExport cSkelAnim(filePath + "/Skeletons/"); //check this <---------------------------------------------
 		ModelExport m_model(filePath + "/Models/");
 		
-		if (skel || anims || model)
+		if (skel || anims)
 		{
 			/*Iterate all skin clusters in scene.*/
 			/*cSkelAnim.IterateSkinClusters();
@@ -101,27 +101,31 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 		}
 		else
 		{
-			if (mesh)
+			
+			MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
+			for (; !meshIt.isDone(); meshIt.next())
 			{
-				MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
-				for (; !meshIt.isDone(); meshIt.next())
+				MFnTransform trans = meshIt.currentItem();
+				if (trans.child(0).hasFn(MFn::kMesh))
 				{
-					MFnTransform trans = meshIt.currentItem();
-					if (trans.child(0).hasFn(MFn::kMesh))
+					if (model)
 					{
-
+						m_model.setUID((string)trans.name().asChar() + ".model");
+						m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
+					}
+					if (mesh)
+					{
 						//Createmesh(meshIt.currentItem(), cSkelAnim);
 						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"));
 						newMesh.exportMesh(meshIt.currentItem());
 						if (model)
 						{
-							m_model.setUID((string)trans.name().asChar() + ".model");
-							m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
 							m_model.setMeshId(newMesh.getUID());
 						}
 					}
 				}
 			}
+			
 		}
 
 		if (skel && !anims)
@@ -170,7 +174,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 			MaterialExport newMat(filePath + "/Materials/");
 			newMat.MaterialExtraction();
 			if (model)
-				m_model.setMeshId(newMat.getUID());
+				m_model.setMatId(newMat.getUID());
 		}
 		if (model)
 		{

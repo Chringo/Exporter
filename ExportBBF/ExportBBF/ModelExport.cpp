@@ -41,16 +41,19 @@ void ModelExport::exportModel()
 		std::string meshName = ("Overwrite " + pAth + "?");
 		std::wstring stemp = std::wstring(meshName.begin(), meshName.end());
 		LPCWSTR sw = stemp.c_str();
-		if (MessageBox(NULL, sw, TEXT("bbf file already exists"), MB_YESNO) == IDYES)
+		if (MessageBox(NULL, sw, TEXT("model file already exists"), MB_YESNO) == IDYES)
 		{
 			std::fstream outFile(m_filePath, std::fstream::out | std::fstream::binary);
 
 			MainHeader s_Head;
 			s_Head.type = (int)Resources::ResourceType::RES_MODEL;
-			s_Head.id = (unsigned int)std::hash<std::string>{}(m_filePath);
-			m_UID = s_Head.id;
+			s_Head.id = this->m_UID;
 
 			outFile.write((char*)&s_Head, sizeof(MainHeader));
+
+			outFile.write((char*)&m_Model, sizeof(modelHeader));
+
+			outFile.close();
 		}
 	}
 	else
@@ -59,9 +62,12 @@ void ModelExport::exportModel()
 
 		MainHeader s_Head;
 		s_Head.type = (int)Resources::ResourceType::RES_MODEL;
-		s_Head.id = (unsigned int)std::hash<std::string>{}(m_filePath);
-		m_UID = s_Head.id;
+		s_Head.id = this->m_UID;
 
 		outFile.write((char*)&s_Head, sizeof(MainHeader));
+
+		outFile.write((char*)&m_Model, sizeof(modelHeader));
+
+		outFile.close();
 	}
 }

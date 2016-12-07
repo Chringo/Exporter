@@ -75,6 +75,11 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 				{
 					/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
 					cSkelAnim.setMeshName((string)trans.name().asChar());
+					if (model)
+					{
+						m_model.setUID((string)trans.name().asChar() + ".model");
+						m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
+					}
 
 					if (mesh && skel)
 					{
@@ -85,7 +90,9 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
 						newMesh.exportMesh(meshIt.currentItem());
 						if (model)
+						{
 							m_model.setMeshId(newMesh.getUID());
+						}
 					}
 				}
 
@@ -106,7 +113,11 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"));
 						newMesh.exportMesh(meshIt.currentItem());
 						if (model)
+						{
+							m_model.setUID((string)trans.name().asChar() + ".model");
+							m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
 							m_model.setMeshId(newMesh.getUID());
+						}
 					}
 				}
 			}
@@ -162,7 +173,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 		}
 		if (model)
 		{
-
+			m_model.exportModel();
 		}
 		/*making the buttons clickable again and closing the file*/
 		//outFile.close();

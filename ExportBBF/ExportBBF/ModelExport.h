@@ -20,6 +20,7 @@ public:
 	void setMeshId(unsigned int UID) { m_Model.meshId = UID; }
 	void setMatId(unsigned int UID) { m_Model.matId = UID; }
 	void setSkelId(unsigned int UID) { m_Model.skelId = UID; }
+	void changeFilePath(std::string &newName) { this->m_filePath = newName; }
 
 	void exportModel();
 };

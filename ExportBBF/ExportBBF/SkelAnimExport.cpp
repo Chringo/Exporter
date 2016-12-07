@@ -564,6 +564,7 @@ void SkelAnimExport::writeJointData()
 			//string tempSendSkelId = m_filePath + ".skel";
 			s_head.type = (int)Resources::ResourceType::RES_SKELETON;
 			s_head.id = (unsigned int)std::hash<std::string>{}((m_filePath + m_meshName + ".skel"));
+			this->m_UID = s_head.id;
 
 			skeletonFile.write((char*)&s_head, sizeof(MainHeader));
 
@@ -587,6 +588,7 @@ void SkelAnimExport::writeJointData()
 		MainHeader s_head;
 		s_head.type = (int)Resources::ResourceType::RES_SKELETON;
 		s_head.id = (unsigned int)std::hash<std::string>{}((m_filePath + m_meshName + ".skel"));
+		this->m_UID = s_head.id;
 
 		skeletonFile.write((char*)&s_head, sizeof(MainHeader));
 

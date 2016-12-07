@@ -236,13 +236,13 @@ void MaterialExport::ExportingMats_Tex()
 		string materialName = ("Overwrite " + pAth + "?");
 		std::wstring stemp = std::wstring(materialName.begin(), materialName.end());
 		LPCWSTR sw = stemp.c_str();
+		MainHeader s_Head;
+		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+		this->m_UID = s_Head.id;
 		if (MessageBox(NULL, sw, TEXT(".mat Already Exists "), MB_YESNO) == IDYES)
 		{
 			outFile = new fstream(this->filePath, std::fstream::out | std::fstream::binary);
-			MainHeader s_Head;
 			s_Head.type = (int)Resources::ResourceType::RES_MATERIAL;
-			s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
-			this->m_UID = s_Head.id;
 
 			outFile->write((char*)&s_Head, sizeof(MainHeader));
 

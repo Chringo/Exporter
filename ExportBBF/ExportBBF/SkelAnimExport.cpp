@@ -552,6 +552,9 @@ void SkelAnimExport::writeJointData()
 		string animName = ("Overwrite " + m_meshName + ".skel?");
 		std::wstring stemp = std::wstring(animName.begin(), animName.end());
 		LPCWSTR sw = stemp.c_str();
+		MainHeader s_head;
+		s_head.id = (unsigned int)std::hash<std::string>{}((m_filePath + m_meshName + ".skel"));
+		this->m_UID = s_head.id;
 		if (MessageBox(NULL, sw, TEXT(".skel file already exists"), MB_YESNO) == IDYES)
 		{
 			fstream skeletonFile((m_filePath + m_meshName + ".skel"), std::fstream::out | std::fstream::binary);
@@ -560,11 +563,8 @@ void SkelAnimExport::writeJointData()
 			skelHeader.jointCount = jointList.size();
 			skelHeader.animLayerCount = nrOfAnimLayers;
 
-			MainHeader s_head;
 			//string tempSendSkelId = m_filePath + ".skel";
 			s_head.type = (int)Resources::ResourceType::RES_SKELETON;
-			s_head.id = (unsigned int)std::hash<std::string>{}((m_filePath + m_meshName + ".skel"));
-			this->m_UID = s_head.id;
 
 			skeletonFile.write((char*)&s_head, sizeof(MainHeader));
 

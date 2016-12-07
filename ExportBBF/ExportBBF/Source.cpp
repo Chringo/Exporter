@@ -157,7 +157,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 		{
 			MaterialExport newMat(filePath + "/Materials/");
 			newMat.MaterialExtraction();
-
+			if (model)
+				m_model.setMeshId(newMat.getUID());
 		}
 		if (model)
 		{

@@ -242,6 +242,7 @@ void MaterialExport::ExportingMats_Tex()
 			MainHeader s_Head;
 			s_Head.type = (int)Resources::ResourceType::RES_MATERIAL;
 			s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+			this->m_UID = s_Head.id;
 
 			outFile->write((char*)&s_Head, sizeof(MainHeader));
 
@@ -266,6 +267,7 @@ void MaterialExport::ExportingMats_Tex()
 		MainHeader s_Head;
 		s_Head.type = (int)Resources::ResourceType::RES_MATERIAL;
 		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+		this->m_UID = s_Head.id;
 
 		outFile->write((char*)&s_Head, sizeof(MainHeader));
 

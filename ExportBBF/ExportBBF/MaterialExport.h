@@ -17,7 +17,11 @@ private:
 	bool overWrite = true;
 	MaterialHeader mHeader;
 	TextureHeader tHeader;
+
+	unsigned int m_UID = 0;
 public:
+
+	unsigned int getUID() { return this->m_UID; }
 
 	void MaterialExtraction();
 	void ExportingMats_Tex();

@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>210</y>
+      <y>220</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -31,7 +31,7 @@
     <property name="geometry">
      <rect>
       <x>300</x>
-      <y>210</y>
+      <y>220</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -44,7 +44,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>160</y>
+      <y>180</y>
       <width>331</width>
       <height>23</height>
      </rect>
@@ -152,6 +152,19 @@
     </property>
     <property name="text">
      <string>Mesh</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="modelBox">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>150</y>
+      <width>70</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Model</string>
     </property>
    </widget>
   </widget>

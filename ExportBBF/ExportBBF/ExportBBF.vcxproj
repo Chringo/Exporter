@@ -156,6 +156,7 @@
   <ItemGroup>
     <ClCompile Include="MaterialExport.cpp" />
     <ClCompile Include="MeshExport.cpp" />
+    <ClCompile Include="ModelExport.cpp" />
     <ClCompile Include="SkelAnimExport.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
@@ -164,6 +165,7 @@
     <ClInclude Include="MaterialExport.h" />
     <ClInclude Include="maya_includes.h" />
     <ClInclude Include="MeshExport.h" />
+    <ClInclude Include="ModelExport.h" />
     <ClInclude Include="SkelAnimExport.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

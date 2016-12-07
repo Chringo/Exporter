@@ -38,7 +38,7 @@ void setProcessBarSize(bool mesh, bool skel, bool mats, bool anims)
 }
 
 /*function that starts exporting everything chosen*/
-void exportStart(bool mesh, bool skel, bool mats, bool anims, string filePath)
+void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string filePath)
 {
 	if (mesh || skel || mats || anims)
 	{
@@ -219,6 +219,9 @@ void exportClicked()
 	control = MQtUtil::findControl("animBox");
 	bool anims = ((QCheckBox*)control)->checkState();
 
+	control = MQtUtil::findControl("modelBox");
+	bool model = ((QCheckBox*)control)->checkState();
+
 	control = MQtUtil::findControl("lineEdit");
 	QString fileName = ((QLineEdit*)control)->text();
 
@@ -230,7 +233,7 @@ void exportClicked()
 		{
 			fName += fileName[i].unicode();
 		}
-		exportStart(mesh, skel, mats, anims, fName);
+		exportStart(mesh, skel, mats, anims, model, fName);
 		//MGlobal::displayInfo("in export");
 	}
 	else

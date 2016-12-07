@@ -151,7 +151,10 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 			newMat.MaterialExtraction();
 
 		}
+		if (model)
+		{
 
+		}
 		/*making the buttons clickable again and closing the file*/
 		//outFile.close();
 		MGlobal::displayInfo("Done with the export!");

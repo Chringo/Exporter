@@ -41,7 +41,7 @@ void setProcessBarSize(bool mesh, bool skel, bool mats, bool anims)
 /*function that starts exporting everything chosen*/
 void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string filePath)
 {
-	if (mesh || skel || mats || anims)
+	if (mesh || skel || mats || anims || model)
 	{
 		MStatus res = MS::kSuccess;
 		QWidget *bar = MQtUtil::findControl("progressBar");
@@ -58,7 +58,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 		
 
 		SkelAnimExport cSkelAnim(filePath + "/Skeletons/"); //check this <---------------------------------------------
-
+		ModelExport m_model(filePath + "/Models/");
 		
 		if (skel || anims)
 		{
@@ -84,6 +84,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 
 						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
 						newMesh.exportMesh(meshIt.currentItem());
+						if (model)
+							m_model.setMeshId(newMesh.getUID());
 					}
 				}
 
@@ -103,6 +105,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 						//Createmesh(meshIt.currentItem(), cSkelAnim);
 						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"));
 						newMesh.exportMesh(meshIt.currentItem());
+						if (model)
+							m_model.setMeshId(newMesh.getUID());
 					}
 				}
 			}

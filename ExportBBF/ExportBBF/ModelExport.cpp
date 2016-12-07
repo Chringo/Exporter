@@ -20,3 +20,7 @@ void ModelExport::setUID(std::string & name)
 {
 	this->m_UID = (unsigned int)std::hash<std::string>{}(name);
 }
+
+void ModelExport::exportModel()
+{
+}

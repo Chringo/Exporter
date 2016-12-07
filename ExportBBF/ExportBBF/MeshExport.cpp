@@ -37,6 +37,7 @@ MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 			MainHeader s_Head;
 			s_Head.type = (int)Resources::ResourceType::RES_MESH;
 			s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+			m_UID = s_Head.id;
 
 			outFile->write((char*)&s_Head, sizeof(MainHeader));
 		}
@@ -50,6 +51,7 @@ MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 		MainHeader s_Head;
 		s_Head.type = (int)Resources::ResourceType::RES_MESH;
 		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+		m_UID = s_Head.id;
 
 		outFile->write((char*)&s_Head, sizeof(MainHeader));
 	}
@@ -89,6 +91,7 @@ MeshExport::MeshExport(string & filePath)
 			MainHeader s_Head;
 			s_Head.type = (int)Resources::ResourceType::RES_MESH;
 			s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+			m_UID = s_Head.id;
 
 			outFile->write((char*)&s_Head, sizeof(MainHeader));
 		}
@@ -102,6 +105,7 @@ MeshExport::MeshExport(string & filePath)
 		MainHeader s_Head;
 		s_Head.type = (int)Resources::ResourceType::RES_MESH;
 		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+		m_UID = s_Head.id;
 
 		outFile->write((char*)&s_Head, sizeof(MainHeader));
 	}

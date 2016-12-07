@@ -34,6 +34,8 @@ public:
 
 	void writeJointData();
 
+	unsigned int getUID() { return this->m_UID; }
+
 private:
 
     /*Function that converts a MMatrix to a float[16] array.*/
@@ -43,7 +45,7 @@ private:
 	std::vector<LayerIdHeader> animIdList;
 	std::vector<JointHeader> jointList;
 
-	//std::fstream* outFile;
+	unsigned int m_UID = 0;
 
 	string m_filePath;
 	string m_meshName;

@@ -20,6 +20,8 @@ public:
 	void setMeshId(unsigned int UID) { m_Model.meshId = UID; }
 	void setMatId(unsigned int UID) { m_Model.matId = UID; }
 	void setSkelId(unsigned int UID) { m_Model.skelId = UID; }
+
+	void exportModel();
 };
 
 #endif // !EXPORTBBF_MODELEXPORT_MODELEXPORT

@@ -12,6 +12,8 @@ private:
 	vector<unsigned int> * newIndex = nullptr;
 	vector<SkinData> * skinList = nullptr;
 
+	unsigned int m_UID = 0;
+
 	unsigned int jointCount;
 	bool overWrite = true;
 
@@ -23,6 +25,8 @@ public:
 	~MeshExport();
 	void exportMesh(MObject & mNode);
 	static int getProgressBarValue();
+
+	unsigned int getUID(){ return this->m_UID; }
 private:
 	/*export a mesh with a skeleton*/
 	void exportDynamic(MFnMesh & mMesh, MFnTransform & mTran);

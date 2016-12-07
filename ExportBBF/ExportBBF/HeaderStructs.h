@@ -48,8 +48,8 @@ struct SkinData
 struct modelHeader
 {
 	unsigned int meshId = 0;
-	unsigned int matId  = 0;
 	unsigned int skelId = 0;
+	unsigned int matId  = 0;
 };
 struct JointAnimHeader
 {

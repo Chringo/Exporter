@@ -60,7 +60,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 		SkelAnimExport cSkelAnim(filePath + "/Skeletons/"); //check this <---------------------------------------------
 		ModelExport m_model(filePath + "/Models/");
 		
-		if (skel || anims)
+		if (skel || anims || model)
 		{
 			/*Iterate all skin clusters in scene.*/
 			/*cSkelAnim.IterateSkinClusters();
@@ -74,7 +74,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 				if (trans.child(0).hasFn(MFn::kMesh))
 				{
 					/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
-					cSkelAnim.setMeshName((string)trans.name().asChar());
+					if (skel)
+						cSkelAnim.setMeshName((string)trans.name().asChar());
 					if (model)
 					{
 						m_model.setUID((string)trans.name().asChar() + ".model");

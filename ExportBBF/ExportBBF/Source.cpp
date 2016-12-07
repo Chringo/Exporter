@@ -167,7 +167,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 			cSkelAnim.writeJointData();
 			pBar->setValue(pBar->value() + 1);
 			if (model)
-				m_model.setMeshId(cSkelAnim.getUID());
+				m_model.setSkelId(cSkelAnim.getUID());
 		}
 		if (mats)
 		{

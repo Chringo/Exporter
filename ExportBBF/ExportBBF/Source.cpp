@@ -11,6 +11,7 @@
 #include <maya/MFnPlugin.h>
 #include <string.h>
 #include "MaterialExport.h"
+#include "ModelExport.h"
 
 
 using namespace std;

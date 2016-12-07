@@ -45,6 +45,12 @@ struct SkinData
 
 #pragma endregion
 #pragma region header structs
+struct modelHeader
+{
+	unsigned int meshId = 0;
+	unsigned int matId  = 0;
+	unsigned int skelId = 0;
+};
 struct JointAnimHeader
 {
 	unsigned int jointCount;

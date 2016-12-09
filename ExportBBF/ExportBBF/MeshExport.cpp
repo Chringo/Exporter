@@ -221,7 +221,7 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 		tempVertex.tangent.z = tangents[normalIdList[offsetIdList[i]]].z;
 
 		tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
-		tempVertex.UV.v = v[uvIds[offsetIdList[i]]];
+		tempVertex.UV.v = 1.0 - v[uvIds[offsetIdList[i]]];
 
 		/*for loop that controls the weight. If the weight is to low,
 		the influence will be set to -1. Which means that the weight will

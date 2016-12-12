@@ -78,7 +78,7 @@ void MaterialExport::MaterialExtraction()
 				/*setting the filename to the material name*/
 				this->filePath += string(MFnDependencyNode(srcNode).name().asChar()) + ".mat";
 
-				mHeader.shaderNameLength = fnSet.name().length();
+				//mHeader.textureIDs[0] = fnSet.name().length();
 #pragma region textureColor
 				MPlug texture = MFnDependencyNode(srcNode).findPlug("TEX_color_map", &stat);
 				MItDependencyGraph dgItt(texture, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
@@ -94,7 +94,8 @@ void MaterialExport::MaterialExtraction()
 
 				filenamePlugn.getValue(texName);
 
-				mHeader.textureNameLength = texName.length();
+			//	mHeader.textureNameLength = texName.length();
+				mHeader.textureIDs[0] = texName.length();
 				int test = 0;
 				string ctex = texName.asChar();
 				if (!ctex.empty())
@@ -117,7 +118,9 @@ void MaterialExport::MaterialExtraction()
 				MString textureName;
 
 				filenameTexPlugn.getValue(textureName);
-				mHeader.normalNameLength = textureName.length();
+	//			mHeader.normalNameLength = textureName.length();
+				mHeader.textureIDs[1] = textureName.length();
+	
 
 				string ntex = textureName.asChar();
 				if (!ntex.empty())
@@ -142,7 +145,8 @@ void MaterialExport::MaterialExtraction()
 
 
 				filenamePlugm.getValue(textureNamem);
-				mHeader.metallicNameLength = textureNamem.length();
+				//mHeader.metallicNameLength = textureNamem.length();
+				mHeader.textureIDs[2] = textureNamem.length();
 				string mtex = textureNamem.asChar();
 				if (!mtex.empty())
 				{
@@ -167,7 +171,9 @@ void MaterialExport::MaterialExtraction()
 
 
 				filenamePlugr.getValue(textureNamer);
-				mHeader.roughNameLength = textureNamer.length();
+				//mHeader.roughNameLength = textureNamer.length();
+				mHeader.textureIDs[3] = textureNamer.length();
+
 				string rtex = textureNamer.asChar();
 				if (!rtex.empty())
 				{
@@ -191,7 +197,7 @@ void MaterialExport::MaterialExtraction()
 				MString textureNamea;
 
 				filenamePluga.getValue(textureNamea);
-				mHeader.aoNameLength = textureNamea.length();
+				mHeader.textureIDs[4] = textureNamea.length();
 
 				//cerr << "5: " << test << endl;
 				pBar->setValue(pBar->value() + 1);
@@ -246,14 +252,22 @@ void MaterialExport::ExportingMats_Tex()
 
 			outFile->write((char*)&s_Head, sizeof(MainHeader));
 
+	/*		outFile->write((char*)&this->tHeader.shaderName, mHeader.textureIDs[0]);
+			outFile->write((char*)&this->tHeader.textureName, mHeader.textureIDs[1]);
+			outFile->write((char*)&this->tHeader.normalName, mHeader.textureIDs[2]);
+			outFile->write((char*)&this->tHeader.metallicName, mHeader.textureIDs[3]);
+			outFile->write((char*)&this->tHeader.roughName, mHeader.textureIDs[4]);
+			outFile->write((char*)&this->tHeader.aoName, mHeader.textureIDs[5]);*/
+			//this->mHeader.textureIDs[0] = (char)this->tHeader.shaderName;
+			this->mHeader.textureIDs[0] = (char)this->tHeader.textureName;
+			this->mHeader.textureIDs[1] = (char)this->tHeader.normalName;
+			this->mHeader.textureIDs[2] = (char)this->tHeader.metallicName;
+			this->mHeader.textureIDs[3] = (char)this->tHeader.roughName;
+			this->mHeader.textureIDs[4] = (char)this->tHeader.aoName;
+
 			outFile->write((char*)&this->mHeader, sizeof(MaterialHeader));
 
-			outFile->write((char*)&this->tHeader.shaderName, mHeader.shaderNameLength);
-			outFile->write((char*)&this->tHeader.textureName, mHeader.textureNameLength);
-			outFile->write((char*)&this->tHeader.normalName, mHeader.normalNameLength);
-			outFile->write((char*)&this->tHeader.metallicName, mHeader.metallicNameLength);
-			outFile->write((char*)&this->tHeader.roughName, mHeader.roughNameLength);
-			outFile->write((char*)&this->tHeader.aoName, mHeader.aoNameLength);
+		
 		}
 		else
 		{
@@ -270,15 +284,22 @@ void MaterialExport::ExportingMats_Tex()
 		this->m_UID = s_Head.id;
 
 		outFile->write((char*)&s_Head, sizeof(MainHeader));
+		//this->mHeader.textureIDs[0] = (char)this->tHeader.shaderName;
+		this->mHeader.textureIDs[0] = (char)this->tHeader.textureName;
+		this->mHeader.textureIDs[1] = (char)this->tHeader.normalName;
+		this->mHeader.textureIDs[2] = (char)this->tHeader.metallicName;
+		this->mHeader.textureIDs[3] = (char)this->tHeader.roughName;
+		this->mHeader.textureIDs[4] = (char)this->tHeader.aoName;
 
 		outFile->write((char*)&this->mHeader, sizeof(MaterialHeader));
 
-		outFile->write((char*)&this->tHeader.shaderName, mHeader.shaderNameLength);
-		outFile->write((char*)&this->tHeader.textureName, mHeader.textureNameLength);
-		outFile->write((char*)&this->tHeader.normalName, mHeader.normalNameLength);
-		outFile->write((char*)&this->tHeader.metallicName, mHeader.metallicNameLength);
-		outFile->write((char*)&this->tHeader.roughName, mHeader.roughNameLength);
-		outFile->write((char*)&this->tHeader.aoName, mHeader.aoNameLength);
+		//outFile->write((char*)&this->tHeader)
+		//outFile->write((char*)&this->tHeader.shaderName, mHeader.shaderNameLength);
+		//outFile->write((char*)&this->tHeader.textureName, mHeader.textureNameLength);
+		//outFile->write((char*)&this->tHeader.normalName, mHeader.normalNameLength);
+		//outFile->write((char*)&this->tHeader.metallicName, mHeader.metallicNameLength);
+		//outFile->write((char*)&this->tHeader.roughName, mHeader.roughNameLength);
+		//outFile->write((char*)&this->tHeader.aoName, mHeader.aoNameLength);
 	}
 	
 

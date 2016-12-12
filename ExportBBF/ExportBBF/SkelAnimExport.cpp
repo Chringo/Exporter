@@ -225,13 +225,19 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											MAnimControl::setCurrentTime(keyTime);
 
 											/*Keyframes transformation values are obtained here: quat, trans and scale.*/
-											double quaternion[4];
-											jointFn.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kTransform);
-											std::copy(quaternion, quaternion + 4, keyData.quaternion);
+											double rotation[3];
+											MTransformationMatrix::RotationOrder rotOrder;
+											rotOrder = MTransformationMatrix::RotationOrder::kXYZ;
+
+											jointFn.getRotation(rotation, rotOrder, MSpace::kTransform);
+											rotation[0] *= -1.0;
+											rotation[1] *= -1.0;
+											std::copy(rotation, rotation + 3, keyData.rotation);
 
 											MVector transVec = jointFn.getTranslation(MSpace::kTransform, &res);
 											double translation[3];
 											transVec.get(translation);
+											translation[2] *= -1.0;
 											std::copy(translation, translation + 3, keyData.translation);
 
 											double scale[3];
@@ -359,10 +365,15 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										/*With the time of the current keyframe, we set where the keyframe is set in timeline.*/
 										MAnimControl::setCurrentTime(keyTime);
 
+										double rotation[3];
+										MTransformationMatrix::RotationOrder rotOrder;
+										rotOrder = MTransformationMatrix::RotationOrder::kXYZ;
+
 										/*Keyframes transformation values are obtained here: quat, trans and scale.*/
-										double quaternion[4];
-										jointFn.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kTransform);
-										std::copy(quaternion, quaternion + 4, keyData.quaternion);
+										jointFn.getRotation(rotation, rotOrder, MSpace::kTransform);
+										rotation[0] *= -1.0;
+										rotation[1] *= -1.0;
+										std::copy(rotation, rotation + 3, keyData.rotation);
 
 										MVector transVec = jointFn.getTranslation(MSpace::kTransform, &res);
 										double translation[3];
@@ -501,15 +512,36 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
 
            /*Retrieve the matrix data from the bindpose MObject.*/
            MFnMatrixData bindPoseFn(bpNode, &res);
+
+		   MMatrix meshTransformation;
+
+		   MItDag meshIt(MItDag::kDepthFirst, MFn::kMesh, &res);
+		   if (res == MStatus::kSuccess)
+		   {
+			   MFnMesh mesh(meshIt.currentItem(&res), &res);
+			   if (res == MStatus::kSuccess)
+			   {
+				   MPlug meshParentPlug = mesh.findPlug("parentMatrix", &res);
+				   MPlug meshParentChildPlug = meshParentPlug.elementByLogicalIndex(0);
+				   MObject obj;
+				   meshParentChildPlug.getValue(obj);
+
+				   MFnMatrixData matrixData(obj);
+
+				  meshTransformation = matrixData.matrix(&res);
+			   }
+		   }
            
            /*The actual bindpose matrix is obtained here from every joint.*/
-           MMatrix invBindPose = bindPoseFn.matrix(&res);
-		   invBindPose.inverse();
+           MMatrix tempInvBindPose = bindPoseFn.matrix(&res);
+
+		   MMatrix mMatrixinverseBindPose = tempInvBindPose.inverse() * meshTransformation;
+
            if (res == MStatus::kSuccess)
            {
                float inverseBindPose[16];
                /*Convert MMatrix bindpose to a float[16] array.*/
-               ConvertMMatrixToFloatArray(invBindPose, inverseBindPose);
+               ConvertMMatrixToFloatArray(mMatrixinverseBindPose, inverseBindPose);
                memcpy(jointData.invBindPose, &inverseBindPose, sizeof(float) * 16);
 
                /*Assign both current joint ID and it's parent ID.*/

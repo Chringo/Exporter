@@ -48,10 +48,10 @@ void BoundingExport::exportOBB(MFnMesh & mMesh, MFnTransform & mTran)
 
 		if (min.x <= m_positions.x)
 			min.x = m_positions.x;
-		if (min.x <= m_positions.x)
-			min.x = m_positions.x;
-		if (min.x <= m_positions.x)
-			min.x = m_positions.x;
+		if (min.y <= m_positions.y)
+			min.y = m_positions.y;
+		if (min.z <= m_positions.z)
+			min.z = m_positions.z;
 		if (max.x <= m_positions.x)
 			max.x = m_positions.x;
 		if (max.y <= m_positions.x)
@@ -65,8 +65,10 @@ void BoundingExport::exportOBB(MFnMesh & mMesh, MFnTransform & mTran)
 	center.z = max.z - min.z;
 
 	center.normalize();
-	obbHead.extensionDir = center;
-	obbHead.extension = center.length();
+	obbHead.extensionDir.x = center.x;
+	obbHead.extensionDir.y = center.y;
+	obbHead.extensionDir.z = center.y;
+	obbHead.extension =	center.length();
 	//obbHead.position = m_positions;
 	obbHead.position.x = m_positions.x;
 	obbHead.position.y = m_positions.y;

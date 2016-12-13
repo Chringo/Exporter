@@ -122,6 +122,20 @@ struct BoundingBoxHeader
 	Vector3 position;
 	//float min, max, centerPoint;
 };
+//AABB
+/*Struct AABB
+{
+float pos[3];
+float ext[3];
+}
+
+struct OBB
+{
+XMVECTOR pos;
+float ext[3];
+XMatrix ort;
+}
+*/
 struct MaterialHeader
 {
 	//int numOfMats;

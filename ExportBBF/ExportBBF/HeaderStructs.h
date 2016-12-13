@@ -115,6 +115,26 @@ struct SkelVertex
 	float weights[4];
 	int influence[4];
 };
+struct BoundingBoxHeader
+{
+	Vector3 position; //positionen på boundingboxen
+	float extension[3]; //skalären
+	Vector3 extensionDir[3]; //Orto
+};
+//AABB
+/*Struct AABB
+{
+float pos[3];
+float ext[3];
+}
+
+struct OBB
+{
+XMVECTOR pos;
+float ext[3];
+XMatrix ort;
+}
+*/
 struct MaterialHeader
 {
 	//int numOfMats;

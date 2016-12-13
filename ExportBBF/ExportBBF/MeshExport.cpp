@@ -154,11 +154,14 @@ void MeshExport::exportMesh(MObject & mNode)
 			/*Checking to see if the mesh has a skeleton*/
 			if (res)
 			{
+				newBox.exportBoundingBox(mNode);
 				exportDynamic(mMesh, mTran);
 			}
 		}
 		else
 		{
+			
+			newBox.exportBoundingBox(mNode);
 			exportStatic(mMesh, mTran);
 		}
 	}
@@ -223,7 +226,7 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 	vector<SkelVertex> * sVertices = new vector<SkelVertex>[indexList.length()];
 	SkelVertex tempVertex;
 	MeshHeader hHead;
-
+	BoundingBoxHeader obbHead;
 	hHead.hasSkeleton = true;
 
 	//Recalculating the vertices using only the unique vertices based on individual normals
@@ -292,10 +295,14 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 	//MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
 	//hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
 
+	obbHead = *newBox.getObbHead();
+
 	/*writing the information to the binary file*/
 	outFile->write((char*)&hHead, sizeof(MeshHeader));
 	outFile->write((char*)sVertices->data(), sizeof(SkelVertex)*sVertices->size());
 	outFile->write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());
+	
+	//outFile->write((char*)&obbHead, sizeof(BoundingBoxHeader));
 
 	/*clearing the variables*/
 	sVertices->clear();
@@ -311,8 +318,10 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 	MFloatArray u, v;
 	MFloatVectorArray tangents;
 	MeshHeader hHead;
+	BoundingBoxHeader obbHead;
 	QWidget *control = MQtUtil::findControl("progressBar");
 	QProgressBar *pBar = (QProgressBar*)control;
+
 
 	/*getting the index list of the vertex positions*/
 	mMesh.getTriangles(offsetIdList, indexList);
@@ -382,10 +391,13 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 	//MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
 	//hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
 
+	obbHead = *newBox.getObbHead();
+
 	/*writing the information to the binary file*/
 	outFile->write((char*)&hHead, sizeof(MeshHeader));
 	outFile->write((char*)vertices->data(), sizeof(Vertex)*hHead.vertices);
 	outFile->write((char*)newIndex->data(), sizeof(unsigned int)*hHead.indexLength);
+	outFile->write((char*)&obbHead, sizeof(BoundingBoxHeader));
 
 	/*deleting allocated variables*/
 	vertices->clear();

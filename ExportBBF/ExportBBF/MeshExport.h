@@ -3,6 +3,7 @@
 #include "HeaderStructs.h"
 #include "maya_includes.h"
 #include <QtWidgets\qprogressbar.h>
+#include "BoundingExport.h"
 
 using namespace std;
 class MeshExport
@@ -11,6 +12,7 @@ private:
 	vector<Vertex> * vertices = nullptr;
 	vector<unsigned int> * newIndex = nullptr;
 	vector<SkinData> * skinList = nullptr;
+	BoundingExport newBox;
 
 	unsigned int m_UID = 0;
 

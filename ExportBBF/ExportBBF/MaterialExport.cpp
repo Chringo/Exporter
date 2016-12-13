@@ -135,7 +135,7 @@ void MaterialExport::MaterialExtraction()
 					
 					memcpy(tHeader.normalName, path.c_str(), path.length());
 					tHeader.normalName[path.length()] = '\0';
-					mHeader.textureIDs[3] = path.length();
+					mHeader.textureIDs[3] = (unsigned int)std::hash<std::string>{}(path);
 				}
 
 				//cerr << "2: " << test << endl;

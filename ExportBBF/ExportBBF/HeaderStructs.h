@@ -117,8 +117,8 @@ struct SkelVertex
 };
 struct BoundingBoxHeader
 {
-	float extension; //skalären
-	Vector3 extensionDir;
+	float extension[3]; //skalären
+	Vector3 extensionDir[3];
 	Vector3 position;
 	//float min, max, centerPoint;
 };

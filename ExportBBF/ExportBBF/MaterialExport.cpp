@@ -133,8 +133,8 @@ void MaterialExport::MaterialExtraction()
 					string path;
 					path = ExportingTex(ntex);
 					
-					memcpy(tHeader.normalName, textureName.asChar(), textureName.length());
-					tHeader.normalName[textureName.length()] = '\0';
+					memcpy(tHeader.normalName, path.c_str(), path.length());
+					tHeader.normalName[path.length()] = '\0';
 					mHeader.textureIDs[3] = path.length();
 				}
 
@@ -160,9 +160,9 @@ void MaterialExport::MaterialExtraction()
 				{
 					string path;
 					path = ExportingTex(mtex);
-					memcpy(tHeader.metallicName, textureNamem.asChar(), textureNamem.length());
-					tHeader.metallicName[textureNamem.length()] = '\0';
-					mHeader.textureIDs[1] = path.length();
+					memcpy(tHeader.metallicName, path.c_str(), path.length());
+					tHeader.metallicName[path.length()] = '\0';
+					mHeader.textureIDs[1] = (unsigned int)std::hash<std::string>{}(path);
 				}
 				//cerr << "3: " << test << endl;
 				pBar->setValue(pBar->value() + 1);
@@ -190,9 +190,9 @@ void MaterialExport::MaterialExtraction()
 					string path;
 					
 					path = ExportingTex(rtex);
-					memcpy(tHeader.roughName, textureNamer.asChar(),textureNamer.length());
-					tHeader.roughName[textureNamer.length()] = '\0';
-					mHeader.textureIDs[2] = path.length();
+					memcpy(tHeader.roughName, path.c_str(), path.length());
+					tHeader.roughName[path.length()] = '\0';
+					mHeader.textureIDs[2] = (unsigned int)std::hash<std::string>{}(path);
 				}
 
 				//cerr << "4: " << test << endl;
@@ -219,9 +219,10 @@ void MaterialExport::MaterialExtraction()
 				{
 					string path;
 					path = ExportingTex(atex);
-					mHeader.textureIDs[4] = path.length();
-					memcpy(tHeader.aoName, textureNamea.asChar(), textureNamea.length());
-					tHeader.aoName[textureNamea.length()] = '\0';
+					
+					memcpy(tHeader.aoName, path.c_str(), path.length());
+					tHeader.aoName[path.length()] = '\0';
+					mHeader.textureIDs[4] = (unsigned int)std::hash<std::string>{}(path);
 					
 				}
 

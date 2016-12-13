@@ -102,9 +102,11 @@ void MaterialExport::MaterialExtraction()
 				{
 					string path;
 					path = ExportingTex(ctex);
-					memcpy(tHeader.textureName, texName.asChar(), texName.length());
-					tHeader.textureName[texName.length()] = '\0';
-					mHeader.textureIDs[0] = path.length();
+					memcpy(tHeader.textureName, path.c_str(), path.length());
+					//tHeader.textureName = path;
+					tHeader.textureName[path.length()] = '\0';
+					//mHeader.textureIDs[0] = path.length();
+					mHeader.textureIDs[0] = (unsigned int)std::hash<std::string>{}(path);
 				}
 				//cerr << "1: " << test<<endl
 				//mHeader.textureIDs[0] = texName.length();

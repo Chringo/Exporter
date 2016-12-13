@@ -37,7 +37,7 @@ void BoundingExport::exportOBB(MFnMesh & mMesh, MFnTransform & mTran)
 	mMesh.getTriangles(offsetIdList, indexList);
 
 	Vector3 m_positions = { 0,0,0 };
-	MVector value;
+	MVector center;
 	//MMatrix m_center;
 	Vector3 min = { 0,0,0 };
 	Vector3 max = { 0,0,0 };

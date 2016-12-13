@@ -95,14 +95,16 @@ void MaterialExport::MaterialExtraction()
 				filenamePlugn.getValue(texName);
 
 			//	mHeader.textureNameLength = texName.length();
-				mHeader.textureIDs[0] = texName.length();
+				
 				int test = 0;
 				string ctex = texName.asChar();
 				if (!ctex.empty())
 				{
-					ExportingTex(ctex);
+					string path;
+					path = ExportingTex(ctex);
 					memcpy(tHeader.textureName, texName.asChar(), texName.length());
 					tHeader.textureName[texName.length()] = '\0';
+					mHeader.textureIDs[0] = path.length();
 				}
 				//cerr << "1: " << test<<endl;
 				pBar->setValue(pBar->value() + 1);
@@ -119,15 +121,18 @@ void MaterialExport::MaterialExtraction()
 
 				filenameTexPlugn.getValue(textureName);
 	//			mHeader.normalNameLength = textureName.length();
-				mHeader.textureIDs[3] = textureName.length();
+				//mHeader.textureIDs[3] = textureName.length();
 	
 
 				string ntex = textureName.asChar();
 				if (!ntex.empty())
 				{
-					ExportingTex(ntex);
+					string path;
+					path = ExportingTex(ntex);
+					
 					memcpy(tHeader.normalName, textureName.asChar(), textureName.length());
 					tHeader.normalName[textureName.length()] = '\0';
+					mHeader.textureIDs[3] = path.length();
 				}
 
 				//cerr << "2: " << test << endl;
@@ -146,13 +151,15 @@ void MaterialExport::MaterialExtraction()
 
 				filenamePlugm.getValue(textureNamem);
 				//mHeader.metallicNameLength = textureNamem.length();
-				mHeader.textureIDs[1] = textureNamem.length();
+				//mHeader.textureIDs[1] = textureNamem.length();
 				string mtex = textureNamem.asChar();
 				if (!mtex.empty())
 				{
-					ExportingTex(mtex);
+					string path;
+					path = ExportingTex(mtex);
 					memcpy(tHeader.metallicName, textureNamem.asChar(), textureNamem.length());
 					tHeader.metallicName[textureNamem.length()] = '\0';
+					mHeader.textureIDs[1] = path.length();
 				}
 				//cerr << "3: " << test << endl;
 				pBar->setValue(pBar->value() + 1);
@@ -172,14 +179,17 @@ void MaterialExport::MaterialExtraction()
 
 				filenamePlugr.getValue(textureNamer);
 				//mHeader.roughNameLength = textureNamer.length();
-				mHeader.textureIDs[2] = textureNamer.length();
+			
 
 				string rtex = textureNamer.asChar();
 				if (!rtex.empty())
 				{
-					ExportingTex(rtex);
+					string path;
+					
+					path = ExportingTex(rtex);
 					memcpy(tHeader.roughName, textureNamer.asChar(),textureNamer.length());
 					tHeader.roughName[textureNamer.length()] = '\0';
+					mHeader.textureIDs[2] = path.length();
 				}
 
 				//cerr << "4: " << test << endl;
@@ -197,16 +207,19 @@ void MaterialExport::MaterialExtraction()
 				MString textureNamea;
 
 				filenamePluga.getValue(textureNamea);
-				mHeader.textureIDs[4] = textureNamea.length();
+				
 
 				//cerr << "5: " << test << endl;
 				pBar->setValue(pBar->value() + 1);
 				string atex = textureNamea.asChar();
 				if (!atex.empty())
 				{
-					ExportingTex(atex);
+					string path;
+					path = ExportingTex(atex);
+					mHeader.textureIDs[4] = path.length();
 					memcpy(tHeader.aoName, textureNamea.asChar(), textureNamea.length());
 					tHeader.aoName[textureNamea.length()] = '\0';
+					
 				}
 
 #pragma endregion 
@@ -259,6 +272,10 @@ void MaterialExport::ExportingMats_Tex()
 			outFile->write((char*)&this->tHeader.roughName, mHeader.textureIDs[4]);
 			outFile->write((char*)&this->tHeader.aoName, mHeader.textureIDs[5]);*/
 			//this->mHeader.textureIDs[0] = (char)this->tHeader.shaderName;
+
+
+
+
 			this->mHeader.textureIDs[0] = (char)this->tHeader.textureName;
 			this->mHeader.textureIDs[3] = (char)this->tHeader.normalName;
 			this->mHeader.textureIDs[1] = (char)this->tHeader.metallicName;
@@ -308,7 +325,7 @@ void MaterialExport::ExportingMats_Tex()
 		outFile->close();
 }
 
-void MaterialExport::ExportingTex(string file)
+string MaterialExport::ExportingTex(string file)
 {
 	int i = 0;
 	int j = 0;
@@ -325,6 +342,8 @@ void MaterialExport::ExportingTex(string file)
 
 	CopyFile(path_wstr.c_str(), newpath_wstr.c_str(), FALSE);
 
+	string path(newpath_wstr.begin(),newpath_wstr.end());
+	return path;
 	//return i;
 
 }

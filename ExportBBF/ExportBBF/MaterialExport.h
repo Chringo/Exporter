@@ -25,7 +25,7 @@ public:
 
 	void MaterialExtraction();
 	void ExportingMats_Tex();
-	void ExportingTex(string file);
+	string ExportingTex(string file);
 	
 };
 

@@ -154,16 +154,16 @@ void MeshExport::exportMesh(MObject & mNode)
 			/*Checking to see if the mesh has a skeleton*/
 			if (res)
 			{
+				//BoundingExport newBox;
+				//newBox.exportBoundingBox(mNode);
 				exportDynamic(mMesh, mTran);
-				BoundingExport newBox;
-				newBox.exportBoundingBox(mNode);
 			}
 		}
 		else
 		{
+			//BoundingExport newBox;
+			//newBox.exportBoundingBox(mNode);
 			exportStatic(mMesh, mTran);
-			BoundingExport newBox;
-			newBox.exportBoundingBox(mNode);
 		}
 	}
 }
@@ -281,7 +281,7 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 	outFile->write((char*)sVertices->data(), sizeof(SkelVertex)*sVertices->size());
 	outFile->write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());
 	
-	outFile->write((char*)&obbHead, sizeof(BoundingBoxHeader));
+	//outFile->write((char*)&obbHead, sizeof(BoundingBoxHeader));
 
 	/*clearing the variables*/
 	sVertices->clear();

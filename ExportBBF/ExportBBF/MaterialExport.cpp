@@ -119,7 +119,7 @@ void MaterialExport::MaterialExtraction()
 
 				filenameTexPlugn.getValue(textureName);
 	//			mHeader.normalNameLength = textureName.length();
-				mHeader.textureIDs[1] = textureName.length();
+				mHeader.textureIDs[3] = textureName.length();
 	
 
 				string ntex = textureName.asChar();
@@ -146,7 +146,7 @@ void MaterialExport::MaterialExtraction()
 
 				filenamePlugm.getValue(textureNamem);
 				//mHeader.metallicNameLength = textureNamem.length();
-				mHeader.textureIDs[2] = textureNamem.length();
+				mHeader.textureIDs[1] = textureNamem.length();
 				string mtex = textureNamem.asChar();
 				if (!mtex.empty())
 				{
@@ -172,7 +172,7 @@ void MaterialExport::MaterialExtraction()
 
 				filenamePlugr.getValue(textureNamer);
 				//mHeader.roughNameLength = textureNamer.length();
-				mHeader.textureIDs[3] = textureNamer.length();
+				mHeader.textureIDs[2] = textureNamer.length();
 
 				string rtex = textureNamer.asChar();
 				if (!rtex.empty())
@@ -260,9 +260,9 @@ void MaterialExport::ExportingMats_Tex()
 			outFile->write((char*)&this->tHeader.aoName, mHeader.textureIDs[5]);*/
 			//this->mHeader.textureIDs[0] = (char)this->tHeader.shaderName;
 			this->mHeader.textureIDs[0] = (char)this->tHeader.textureName;
-			this->mHeader.textureIDs[1] = (char)this->tHeader.normalName;
-			this->mHeader.textureIDs[2] = (char)this->tHeader.metallicName;
-			this->mHeader.textureIDs[3] = (char)this->tHeader.roughName;
+			this->mHeader.textureIDs[3] = (char)this->tHeader.normalName;
+			this->mHeader.textureIDs[1] = (char)this->tHeader.metallicName;
+			this->mHeader.textureIDs[2] = (char)this->tHeader.roughName;
 			this->mHeader.textureIDs[4] = (char)this->tHeader.aoName;
 
 			outFile->write((char*)&this->mHeader, sizeof(MaterialHeader));

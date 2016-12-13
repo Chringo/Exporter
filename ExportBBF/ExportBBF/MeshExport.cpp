@@ -177,6 +177,27 @@ int MeshExport::getProgressBarValue()
 
 void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 {
+	MStatus res;
+
+	MItDependencyNodes layerWeightIter(MFn::kAnimLayer, &res);
+	if (res == MStatus::kSuccess)
+	{
+		while (!layerWeightIter.isDone())
+		{
+			MFnDependencyNode animLayerFn(layerWeightIter.item(), &res);
+
+			MPlug weightLayerPlug = animLayerFn.findPlug("foregroundWeight", &res);
+			MPlug soloPlug = animLayerFn.findPlug("solo", &res);
+			MPlug mutePlug = animLayerFn.findPlug("parentMute", &res);
+
+			weightLayerPlug.setDouble(0);
+			soloPlug.setBool(0);
+			mutePlug.setBool(0);
+
+			layerWeightIter.next();
+		}
+	}
+
 	/*Declaring variables to be used*/
 	MIntArray indexList, offsetIdList, normalCount, uvCount, uvIds, normalIdList;
 	MFloatPointArray points;

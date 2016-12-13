@@ -76,7 +76,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
         {
             MFnDependencyNode animLayerFn(layerWeightIter.item(), &res);
 
-            MPlug weightLayerPlug = animLayerFn.findPlug("weight", &res);
+            MPlug weightLayerPlug = animLayerFn.findPlug("foregroundWeight", &res);
             MPlug soloPlug = animLayerFn.findPlug("solo", &res);
             MPlug mutePlug = animLayerFn.findPlug("parentMute", &res);
 

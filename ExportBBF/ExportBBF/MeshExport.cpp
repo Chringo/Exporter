@@ -274,6 +274,8 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 	//MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
 	//hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
 
+	obbHead = *newBox.getObbHead();
+
 	/*writing the information to the binary file*/
 	outFile->write((char*)&hHead, sizeof(MeshHeader));
 	outFile->write((char*)sVertices->data(), sizeof(SkelVertex)*sVertices->size());

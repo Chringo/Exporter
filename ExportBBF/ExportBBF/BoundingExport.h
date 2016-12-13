@@ -10,10 +10,11 @@ public:
 	void exportBoundingBox(MObject &mNode);
 	static int getProgressBar();
 
-	BoundingBoxHeader obbHead;
 	//test
+	BoundingBoxHeader* getObbHead() { return &obbHead; }
 
 private:
+	BoundingBoxHeader obbHead;
 	std::fstream* outFile;
 	void exportOBB(MFnMesh & mMesh, MFnTransform & mTran);
 public:

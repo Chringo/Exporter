@@ -154,16 +154,16 @@ void MeshExport::exportMesh(MObject & mNode)
 			/*Checking to see if the mesh has a skeleton*/
 			if (res)
 			{
-				exportDynamic(mMesh, mTran);
-				BoundingExport newBox;
+				//BoundingExport newBox;
 				newBox.exportBoundingBox(mNode);
+				exportDynamic(mMesh, mTran);
 			}
 		}
 		else
 		{
-			exportStatic(mMesh, mTran);
-			BoundingExport newBox;
+			
 			newBox.exportBoundingBox(mNode);
+			exportStatic(mMesh, mTran);
 		}
 	}
 }
@@ -207,7 +207,6 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 	SkelVertex tempVertex;
 	MeshHeader hHead;
 	BoundingBoxHeader obbHead;
-
 	hHead.hasSkeleton = true;
 
 	//Recalculating the vertices using only the unique vertices based on individual normals
@@ -301,6 +300,7 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 	QWidget *control = MQtUtil::findControl("progressBar");
 	QProgressBar *pBar = (QProgressBar*)control;
 
+
 	/*getting the index list of the vertex positions*/
 	mMesh.getTriangles(offsetIdList, indexList);
 	mMesh.getTriangleOffsets(uvCount, offsetIdList);
@@ -368,6 +368,8 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 	//MFnDependencyNode depNode = mMesh.parent(0);
 	//MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
 	//hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
+
+	obbHead = *newBox.getObbHead();
 
 	/*writing the information to the binary file*/
 	outFile->write((char*)&hHead, sizeof(MeshHeader));

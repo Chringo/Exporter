@@ -120,7 +120,6 @@ struct BoundingBoxHeader
 	float extension[3]; //skalären
 	Vector3 extensionDir[3]; //Orto
 	Vector3 position; //positionen på boundingboxen
-	//float min, max, centerPoint;
 };
 //AABB
 /*Struct AABB

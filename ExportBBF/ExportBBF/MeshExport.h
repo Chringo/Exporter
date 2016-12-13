@@ -3,6 +3,7 @@
 #include "HeaderStructs.h"
 #include "maya_includes.h"
 #include <QtWidgets\qprogressbar.h>
+#include "BoundingExport.h"
 
 using namespace std;
 class MeshExport

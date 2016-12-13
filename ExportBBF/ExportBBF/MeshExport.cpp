@@ -155,11 +155,15 @@ void MeshExport::exportMesh(MObject & mNode)
 			if (res)
 			{
 				exportDynamic(mMesh, mTran);
+				BoundingExport newBox;
+				newBox.exportBoundingBox(mNode);
 			}
 		}
 		else
 		{
 			exportStatic(mMesh, mTran);
+			BoundingExport newBox;
+			newBox.exportBoundingBox(mNode);
 		}
 	}
 }
@@ -202,6 +206,7 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 	vector<SkelVertex> * sVertices = new vector<SkelVertex>[indexList.length()];
 	SkelVertex tempVertex;
 	MeshHeader hHead;
+	BoundingBoxHeader obbHead;
 
 	hHead.hasSkeleton = true;
 
@@ -275,6 +280,8 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 	outFile->write((char*)&hHead, sizeof(MeshHeader));
 	outFile->write((char*)sVertices->data(), sizeof(SkelVertex)*sVertices->size());
 	outFile->write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());
+	
+	outFile->write((char*)&obbHead, sizeof(BoundingBoxHeader));
 
 	/*clearing the variables*/
 	sVertices->clear();
@@ -290,6 +297,7 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 	MFloatArray u, v;
 	MFloatVectorArray tangents;
 	MeshHeader hHead;
+	BoundingBoxHeader obbHead;
 	QWidget *control = MQtUtil::findControl("progressBar");
 	QProgressBar *pBar = (QProgressBar*)control;
 
@@ -365,6 +373,7 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 	outFile->write((char*)&hHead, sizeof(MeshHeader));
 	outFile->write((char*)vertices->data(), sizeof(Vertex)*hHead.vertices);
 	outFile->write((char*)newIndex->data(), sizeof(unsigned int)*hHead.indexLength);
+	outFile->write((char*)&obbHead, sizeof(BoundingBoxHeader));
 
 	/*deleting allocated variables*/
 	vertices->clear();

@@ -115,6 +115,13 @@ struct SkelVertex
 	float weights[4];
 	int influence[4];
 };
+struct BoundingBoxHeader
+{
+	float extension; //skalären
+	Vector3 extensionDir;
+	Vector3 position;
+	//float min, max, centerPoint;
+};
 struct MaterialHeader
 {
 	//int numOfMats;

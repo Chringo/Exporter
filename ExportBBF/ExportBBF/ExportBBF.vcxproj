@@ -154,6 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BoundingExport.cpp" />
     <ClCompile Include="MaterialExport.cpp" />
     <ClCompile Include="MeshExport.cpp" />
     <ClCompile Include="ModelExport.cpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BoundingExport.h" />
     <ClInclude Include="HeaderStructs.h" />
     <ClInclude Include="MaterialExport.h" />
     <ClInclude Include="maya_includes.h" />

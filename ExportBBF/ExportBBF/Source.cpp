@@ -90,6 +90,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 
 						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
 						newMesh.exportMesh(meshIt.currentItem());
+					/*	BoundingExport newBox;
+						newBox.exportBoundingBox(meshIt.currentItem());*/
 						if (model)
 						{
 							m_model.setMeshId(newMesh.getUID());
@@ -118,6 +120,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 						//Createmesh(meshIt.currentItem(), cSkelAnim);
 						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"));
 						newMesh.exportMesh(meshIt.currentItem());
+						/*BoundingExport newBox;
+						newBox.exportBoundingBox(meshIt.currentItem());*/
 						if (model)
 						{
 							m_model.setMeshId(newMesh.getUID());

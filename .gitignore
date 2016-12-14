@@ -82,3 +82,4 @@ $RECYCLE.BIN/
 *.msp
 #### Windows shortcuts
 *.lnk
+ExportBBF/ExportBBF.VC.db

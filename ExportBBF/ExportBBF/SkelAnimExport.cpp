@@ -237,7 +237,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											MVector transVec = jointFn.getTranslation(MSpace::kTransform, &res);
 											double translation[3];
 											transVec.get(translation);
-											translation[2] *= -1.0;
+											//translation[2] *= -1.0;
 											std::copy(translation, translation + 3, keyData.translation);
 
 											double scale[3];
@@ -378,6 +378,8 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										MVector transVec = jointFn.getTranslation(MSpace::kTransform, &res);
 										double translation[3];
 										transVec.get(translation);
+										translation[2] *= -1.0;
+
 										std::copy(translation, translation + 3, keyData.translation);
 
 										double scale[3];

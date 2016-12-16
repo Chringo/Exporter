@@ -1,6 +1,5 @@
 #include "SkelAnimExport.h"
 
-
 SkelAnimExport::SkelAnimExport()
 {
 }
@@ -17,11 +16,7 @@ bool animExists(const std::string& filename)
 
 SkelAnimExport::SkelAnimExport(string & filePath)
 {
-	//m_filePath = filePath; //<--------------------------------------- kolla in denna senare
-	//size_t f = filePath.rfind(".", filePath.length());
-	//m_filePath = filePath.substr(0, f-1);
 	m_filePath = filePath;
-
 }
 
 SkelAnimExport::~SkelAnimExport()
@@ -119,7 +114,6 @@ void SkelAnimExport::IterateAnimations(bool anims)
 			LayerIdHeader layerId{ s_Head.id };
 			animIdList.push_back(layerId);
 
-			//string layerName = (m_filePath + m_meshName + "_") + string(animLayerFn.name().asChar()) + ".anim";
 			if (anims)
 			{
 				if (animExists(tempAnimId))
@@ -133,26 +127,9 @@ void SkelAnimExport::IterateAnimations(bool anims)
 
 						animationFile.write((char*)&s_Head, sizeof(MainHeader));
 
-						
-
 						JointAnimHeader jointAnimHead;
 						jointAnimHead.jointCount = jointList.size();
 						animationFile.write((char*)&jointAnimHead, sizeof(JointAnimHeader));
-
-						//fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
-
-						/*MainHeader s_Head;
-						string tempAnimId = m_filePath + m_meshName + "_" + string(animLayerFn.name().asChar()) + ".anim";
-						s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
-						s_Head.id	= (unsigned int)std::hash<std::string>{}(tempAnimId);
-						animationFile.write((char*)&s_Head, sizeof(MainHeader));*/
-
-						/*LayerIdHeader layerId{ s_Head.id };
-						animIdList.push_back(layerId);
-
-						JointAnimHeader jointAnimHead;
-						jointAnimHead.jointCount = jointList.size();
-						animationFile.write((char*)&jointAnimHead, sizeof(jointAnimHead));*/
 
 						/*Set weight plug to 1, for the current animation layer that is extracted.*/
 						layerWeights[plugWeightCounter].setDouble(1);
@@ -229,27 +206,30 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											MTransformationMatrix::RotationOrder rotOrder;
 											rotOrder = MTransformationMatrix::RotationOrder::kXYZ;
 
-											jointFn.getRotation(rotation, rotOrder, MSpace::kTransform);
-											rotation[0] *= -1.0;
-											rotation[1] *= -1.0;
-											std::copy(rotation, rotation + 3, keyData.rotation);
+											if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
+											{
+												rotation[0] *= -1.0;
+												rotation[1] *= -1.0;
+												std::copy(rotation, rotation + 3, keyData.rotation);
+											}
 
-											MVector transVec = jointFn.getTranslation(MSpace::kTransform, &res);
-											double translation[3];
-											transVec.get(translation);
-											//translation[2] *= -1.0;
-											std::copy(translation, translation + 3, keyData.translation);
-
+											MVector transVec = jointFn.getTranslation(MSpace::kObject, &res);
+											if (res == MStatus::kSuccess)
+											{
+												double translation[3];
+												transVec.get(translation);
+												translation[2] *= -1.0;
+												std::copy(translation, translation + 3, keyData.translation);
+											}
+											
 											double scale[3];
-											jointFn.getScale(scale);
-											std::copy(scale, scale + 3, keyData.scale);
+											if (jointFn.getScale(scale))
+											{
+												std::copy(scale, scale + 3, keyData.scale);
+											}
 
-											animationFile.write((char*)&keyData, sizeof(KeyframeHeader));
+											animationFile.write((char*)&keyData, sizeof(KeyframeHeader));	
 										}
-
-										//animationFile.write((char*)keyframeList.data(), sizeof(KeyframeHeader) * numKeys);
-
-										//keyframeList.clear();
 
 										jointCounter++;
 									}
@@ -266,34 +246,11 @@ void SkelAnimExport::IterateAnimations(bool anims)
 				{
 					fstream animationFile(tempAnimId.c_str(), std::fstream::out | std::fstream::binary);
 
-					/*MainHeader s_Head;
-					string tempAnimId = m_filePath + m_meshName + "_" + string(animLayerFn.name().asChar()) + ".anim";
-					s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
-					s_Head.id = (unsigned int)std::hash<std::string>{}(tempAnimId);*/
-
 					animationFile.write((char*)&s_Head, sizeof(MainHeader));
-
-					/*LayerIdHeader layerId{ s_Head.id };
-					animIdList.push_back(layerId);*/
 
 					JointAnimHeader jointAnimHead;
 					jointAnimHead.jointCount = jointList.size();
 					animationFile.write((char*)&jointAnimHead, sizeof(JointAnimHeader));
-
-					//fstream animationFile(layerName.c_str(), std::fstream::out | std::fstream::binary);
-
-					/*MainHeader s_Head;
-					string tempAnimId = m_filePath + m_meshName + "_" + string(animLayerFn.name().asChar()) + ".anim";
-					s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
-					s_Head.id	= (unsigned int)std::hash<std::string>{}(tempAnimId);
-					animationFile.write((char*)&s_Head, sizeof(MainHeader));*/
-
-					/*LayerIdHeader layerId{ s_Head.id };
-					animIdList.push_back(layerId);
-
-					JointAnimHeader jointAnimHead;
-					jointAnimHead.jointCount = jointList.size();
-					animationFile.write((char*)&jointAnimHead, sizeof(jointAnimHead));*/
 
 					/*Set weight plug to 1, for the current animation layer that is extracted.*/
 					layerWeights[plugWeightCounter].setDouble(1);
@@ -365,34 +322,35 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										/*With the time of the current keyframe, we set where the keyframe is set in timeline.*/
 										MAnimControl::setCurrentTime(keyTime);
 
+										/*Keyframes transformation values are obtained here: quat, trans and scale.*/
 										double rotation[3];
 										MTransformationMatrix::RotationOrder rotOrder;
 										rotOrder = MTransformationMatrix::RotationOrder::kXYZ;
 
-										/*Keyframes transformation values are obtained here: quat, trans and scale.*/
-										jointFn.getRotation(rotation, rotOrder, MSpace::kTransform);
-										rotation[0] *= -1.0;
-										rotation[1] *= -1.0;
-										std::copy(rotation, rotation + 3, keyData.rotation);
+										if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
+										{
+											rotation[0] *= -1.0;
+											rotation[1] *= -1.0;
+											std::copy(rotation, rotation + 3, keyData.rotation);
+										}
 
-										MVector transVec = jointFn.getTranslation(MSpace::kTransform, &res);
-										double translation[3];
-										transVec.get(translation);
-										translation[2] *= -1.0;
-
-										std::copy(translation, translation + 3, keyData.translation);
+										MVector transVec = jointFn.getTranslation(MSpace::kObject, &res);
+										if (res == MStatus::kSuccess)
+										{
+											double translation[3];
+											transVec.get(translation);
+											translation[2] *= -1.0;
+											std::copy(translation, translation + 3, keyData.translation);
+										}
 
 										double scale[3];
-										jointFn.getScale(scale);
-										std::copy(scale, scale + 3, keyData.scale);
+										if (jointFn.getScale(scale))
+										{
+											std::copy(scale, scale + 3, keyData.scale);
+										}
 
 										animationFile.write((char*)&keyData, sizeof(KeyframeHeader));
 									}
-
-									//animationFile.write((char*)keyframeList.data(), sizeof(KeyframeHeader) * numKeys);
-
-									//keyframeList.clear();
-
 									jointCounter++;
 								}
 							}
@@ -515,37 +473,15 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
            /*Retrieve the matrix data from the bindpose MObject.*/
            MFnMatrixData bindPoseFn(bpNode, &res);
 
-		   MMatrix meshTransformation;
-
-		   MItDag meshIt(MItDag::kDepthFirst, MFn::kMesh, &res);
-		   if (res == MStatus::kSuccess)
-		   {
-			   MFnMesh mesh(meshIt.currentItem(&res), &res);
-			   if (res == MStatus::kSuccess)
-			   {
-				   MPlug meshParentPlug = mesh.findPlug("parentMatrix", &res);
-				   MPlug meshParentChildPlug = meshParentPlug.elementByLogicalIndex(0);
-				   MObject obj;
-				   meshParentChildPlug.getValue(obj);
-
-				   MFnMatrixData matrixData(obj);
-
-				  meshTransformation = matrixData.matrix(&res);
-			   }
-		   }
-           
            /*The actual bindpose matrix is obtained here from every joint.*/
-           MMatrix tempInvBindPose = bindPoseFn.matrix(&res);
-
-		   MMatrix mMatrixinverseBindPose = tempInvBindPose.inverse() * meshTransformation;
+		   MMatrix tempInvBindPose = bindPoseFn.matrix(&res).inverse();
 
            if (res == MStatus::kSuccess)
            {
                float inverseBindPose[16];
                /*Convert MMatrix bindpose to a float[16] array.*/
-               ConvertMMatrixToFloatArray(mMatrixinverseBindPose, inverseBindPose);
+               ConvertMMatrixToFloatArray(tempInvBindPose, inverseBindPose);
                memcpy(jointData.invBindPose, &inverseBindPose, sizeof(float) * 16);
-
                /*Assign both current joint ID and it's parent ID.*/
                jointData.parentIndex = parentIndex;
                jointData.jointIndex = currentIndex;
@@ -597,7 +533,6 @@ void SkelAnimExport::writeJointData()
 			skelHeader.jointCount = jointList.size();
 			skelHeader.animLayerCount = nrOfAnimLayers;
 
-			//string tempSendSkelId = m_filePath + ".skel";
 			s_head.type = (int)Resources::ResourceType::RES_SKELETON;
 
 			skeletonFile.write((char*)&s_head, sizeof(MainHeader));
@@ -634,26 +569,6 @@ void SkelAnimExport::writeJointData()
 
 		skeletonFile.close();
 	}
-	/*fstream skeletonFile((m_filePath + m_meshName + ".skel"), std::fstream::out | std::fstream::binary);
-
-	SkeletonHeader skelHeader;
-	skelHeader.jointCount = jointList.size();
-	skelHeader.animLayerCount = nrOfAnimLayers;
-
-	MainHeader s_head;
-	string tempSendSkelId = m_filePath + ".skel";
-	s_head.type = (int)Resources::ResourceType::RES_SKELETON;
-	s_head.id = (unsigned int)std::hash<std::string>{}(m_filePath);
-
-	skeletonFile.write((char*)&s_head, sizeof(MainHeader));
-
-	skeletonFile.write((char*)&skelHeader, sizeof(SkeletonHeader));
-
-	skeletonFile.write((char*)jointList.data(), sizeof(JointHeader) * skelHeader.jointCount);
-
-	skeletonFile.write((char*)animIdList.data(), sizeof(LayerIdHeader) * nrOfAnimLayers);
-
-	skeletonFile.close();*/
 }
 
 void SkelAnimExport::ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outputMatrix[16])

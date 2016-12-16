@@ -49,8 +49,6 @@ void SkelAnimExport::IterateJoints()
     {
         LoadJointData(jointIter.item(), -1, 0);
     }
-
-	
 }
 
 void SkelAnimExport::IterateAnimations(bool anims)
@@ -225,6 +223,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											double scale[3];
 											if (jointFn.getScale(scale))
 											{
+												scale[2] *= -1.0;
 												std::copy(scale, scale + 3, keyData.scale);
 											}
 
@@ -346,6 +345,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										double scale[3];
 										if (jointFn.getScale(scale))
 										{
+											scale[2] *= -1.0;
 											std::copy(scale, scale + 3, keyData.scale);
 										}
 
@@ -474,17 +474,21 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
            MFnMatrixData bindPoseFn(bpNode, &res);
 
            /*The actual bindpose matrix is obtained here from every joint.*/
-		   MMatrix tempInvBindPose = bindPoseFn.matrix(&res).inverse();
+		   MMatrix tempBindPose = bindPoseFn.matrix(&res);
 
            if (res == MStatus::kSuccess)
            {
-               float inverseBindPose[16];
-               /*Convert MMatrix bindpose to a float[16] array.*/
-               ConvertMMatrixToFloatArray(tempInvBindPose, inverseBindPose);
-               memcpy(jointData.invBindPose, &inverseBindPose, sizeof(float) * 16);
-               /*Assign both current joint ID and it's parent ID.*/
-               jointData.parentIndex = parentIndex;
-               jointData.jointIndex = currentIndex;
+				MMatrix tempInvBindPose = tempBindPose.inverse();
+				float inverseBindPose[16];
+				/*Convert MMatrix bindpose to a float[16] array.*/
+				ConvertMMatrixToFloatArray(tempInvBindPose, inverseBindPose);
+				memcpy(jointData.invBindPose, &inverseBindPose, sizeof(float) * 16);
+
+				bindPoseList.push_back(tempBindPose);
+
+			   /*Assign both current joint ID and it's parent ID.*/
+			   jointData.parentIndex = parentIndex;
+			   jointData.jointIndex = currentIndex;
 
                currentIndex++;
 

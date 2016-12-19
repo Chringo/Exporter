@@ -201,14 +201,21 @@ void SkelAnimExport::IterateAnimations(bool anims)
 
 											/*Keyframes transformation values are obtained here: quat, trans and scale.*/
 											double rotation[3];
-											MTransformationMatrix::RotationOrder rotOrder;
-											rotOrder = MTransformationMatrix::RotationOrder::kXYZ;
+											MTransformationMatrix::RotationOrder rotOrder = jointFn.rotationOrder(&res);
+											//rotOrder = MTransformationMatrix::RotationOrder::kXYZ;
 
 											if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
 											{
 												rotation[0] *= -1.0;
 												rotation[1] *= -1.0;
+												//rotation[2] *= -1.0;
 												std::copy(rotation, rotation + 3, keyData.rotation);
+											}
+
+											double quaternion[4];
+											if (jointFn.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kObject))
+											{
+												std::copy(quaternion, quaternion + 4, keyData.quaternion);
 											}
 
 											MVector transVec = jointFn.getTranslation(MSpace::kObject, &res);
@@ -216,14 +223,16 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											{
 												double translation[3];
 												transVec.get(translation);
-												translation[2] *= -1.0;
+												//translation[0] *= -1.0;
+												//translation[1] *= -1.0;
+												//translation[2] *= -1.0;
 												std::copy(translation, translation + 3, keyData.translation);
 											}
 											
 											double scale[3];
 											if (jointFn.getScale(scale))
 											{
-												scale[2] *= -1.0;
+												//scale[2] *= -1.0;
 												std::copy(scale, scale + 3, keyData.scale);
 											}
 
@@ -323,14 +332,21 @@ void SkelAnimExport::IterateAnimations(bool anims)
 
 										/*Keyframes transformation values are obtained here: quat, trans and scale.*/
 										double rotation[3];
-										MTransformationMatrix::RotationOrder rotOrder;
-										rotOrder = MTransformationMatrix::RotationOrder::kXYZ;
+										MTransformationMatrix::RotationOrder rotOrder = jointFn.rotationOrder(&res);
+										//rotOrder = MTransformationMatrix::RotationOrder::kXYZ;
 
 										if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
 										{
 											rotation[0] *= -1.0;
 											rotation[1] *= -1.0;
+											//rotation[2] *= -1.0;
 											std::copy(rotation, rotation + 3, keyData.rotation);
+										}
+
+										double quaternion[4];
+										if (jointFn.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kObject))
+										{
+											std::copy(quaternion, quaternion + 4, keyData.quaternion);
 										}
 
 										MVector transVec = jointFn.getTranslation(MSpace::kObject, &res);
@@ -338,14 +354,16 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										{
 											double translation[3];
 											transVec.get(translation);
-											translation[2] *= -1.0;
+											//translation[0] *= -1.0;
+											//translation[1] *= -1.0;
+											//translation[2] *= -1.0;
 											std::copy(translation, translation + 3, keyData.translation);
 										}
 
 										double scale[3];
 										if (jointFn.getScale(scale))
 										{
-											scale[2] *= -1.0;
+											//scale[2] *= -1.0;
 											std::copy(scale, scale + 3, keyData.scale);
 										}
 
@@ -483,8 +501,6 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
 				/*Convert MMatrix bindpose to a float[16] array.*/
 				ConvertMMatrixToFloatArray(tempInvBindPose, inverseBindPose);
 				memcpy(jointData.invBindPose, &inverseBindPose, sizeof(float) * 16);
-
-				bindPoseList.push_back(tempBindPose);
 
 			   /*Assign both current joint ID and it's parent ID.*/
 			   jointData.parentIndex = parentIndex;

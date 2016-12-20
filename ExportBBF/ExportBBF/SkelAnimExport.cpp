@@ -199,26 +199,47 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											/*With the time of the current keyframe, we set where the keyframe is set in timeline.*/
 											MAnimControl::setCurrentTime(keyTime);
 
+											MTransformationMatrix localMatrix;
+
+											MDagPath jointPath;
+											if (jointFn.getPath(jointPath))
+											{
+												localMatrix = jointPath.inclusiveMatrix() * jointPath.exclusiveMatrixInverse();
+											}
+
 											/*Keyframes transformation values are obtained here: quat, trans and scale.*/
 											double rotation[3];
 											MTransformationMatrix::RotationOrder rotOrder = jointFn.rotationOrder(&res);
 											//rotOrder = MTransformationMatrix::RotationOrder::kXYZ;
 
-											if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
+											if (localMatrix.getRotation(rotation, rotOrder, MSpace::kObject))
 											{
 												rotation[0] *= -1.0;
 												rotation[1] *= -1.0;
 												//rotation[2] *= -1.0;
+
 												std::copy(rotation, rotation + 3, keyData.rotation);
+
+												MEulerRotation euler(rotation);
+												MQuaternion quaternion = euler.asQuaternion();
+
+												double quat[4];
+												quaternion.get(quat);
+												std::copy(quat, quat + 4, keyData.quaternion);
 											}
 
-											double quaternion[4];
-											if (jointFn.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kObject))
-											{
-												std::copy(quaternion, quaternion + 4, keyData.quaternion);
-											}
+											//MQuaternion quaternion;
+											//if (localMatrix.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kObject))
+											//{
+											//	//quaternion.inverse();
+											//	double quat[4];
+											//	quaternion.get(quat);
+											//	//quat[1] *= -1.0;
+											//	//quat[2] *= -1.0;
+											//	std::copy(quat, quat + 4, keyData.quaternion);
+											//}
 
-											MVector transVec = jointFn.getTranslation(MSpace::kObject, &res);
+											MVector transVec = localMatrix.getTranslation(MSpace::kObject, &res);
 											if (res == MStatus::kSuccess)
 											{
 												double translation[3];
@@ -230,8 +251,9 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											}
 											
 											double scale[3];
-											if (jointFn.getScale(scale))
+											if (localMatrix.getScale(scale, MSpace::kObject))
 											{
+												//scale[0] *= -1.0;
 												//scale[2] *= -1.0;
 												std::copy(scale, scale + 3, keyData.scale);
 											}
@@ -330,26 +352,49 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										/*With the time of the current keyframe, we set where the keyframe is set in timeline.*/
 										MAnimControl::setCurrentTime(keyTime);
 
+										MTransformationMatrix localMatrix;
+
+										MDagPath jointPath;
+										if (jointFn.getPath(jointPath))
+										{
+											localMatrix = jointPath.inclusiveMatrix() * jointPath.exclusiveMatrixInverse();
+										}
+
 										/*Keyframes transformation values are obtained here: quat, trans and scale.*/
 										double rotation[3];
 										MTransformationMatrix::RotationOrder rotOrder = jointFn.rotationOrder(&res);
 										//rotOrder = MTransformationMatrix::RotationOrder::kXYZ;
 
-										if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
+										MEulerRotation euler(rotation);
+
+										if (localMatrix.getRotation(rotation, rotOrder, MSpace::kObject))
 										{
 											rotation[0] *= -1.0;
 											rotation[1] *= -1.0;
 											//rotation[2] *= -1.0;
+
 											std::copy(rotation, rotation + 3, keyData.rotation);
+
+											MEulerRotation euler(rotation);
+											MQuaternion quaternion = euler.asQuaternion();
+
+											double quat[4];
+											quaternion.get(quat);
+											std::copy(quat, quat + 4, keyData.quaternion);
 										}
 
-										double quaternion[4];
-										if (jointFn.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kObject))
-										{
-											std::copy(quaternion, quaternion + 4, keyData.quaternion);
-										}
+										//MQuaternion quaternion;
+										//if (localMatrix.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kObject))
+										//{
+										//	//quaternion.inverse();
+										//	double quat[4];
+										//	quaternion.get(quat);
+										//	//quat[1] *= -1.0;
+										//	//quat[2] *= -1.0;
+										//	std::copy(quat, quat + 4, keyData.quaternion);
+										//}
 
-										MVector transVec = jointFn.getTranslation(MSpace::kObject, &res);
+										MVector transVec = localMatrix.getTranslation(MSpace::kObject, &res);
 										if (res == MStatus::kSuccess)
 										{
 											double translation[3];
@@ -361,8 +406,9 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										}
 
 										double scale[3];
-										if (jointFn.getScale(scale))
+										if (localMatrix.getScale(scale, MSpace::kObject))
 										{
+											//scale[0] *= -1.0;
 											//scale[2] *= -1.0;
 											std::copy(scale, scale + 3, keyData.scale);
 										}
@@ -496,7 +542,7 @@ void SkelAnimExport::LoadJointData(MObject jointNode, int parentIndex, int curre
 
            if (res == MStatus::kSuccess)
            {
-				MMatrix tempInvBindPose = tempBindPose.inverse();
+			    MMatrix tempInvBindPose = tempBindPose.inverse();
 				float inverseBindPose[16];
 				/*Convert MMatrix bindpose to a float[16] array.*/
 				ConvertMMatrixToFloatArray(tempInvBindPose, inverseBindPose);

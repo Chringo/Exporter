@@ -57,7 +57,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 
     MFnIkJoint jointFn;
 
-	MPlugArray layerWeights;
+	MPlugArray soloArray;
 
 	/*Iterates all animation layers and setting their weight value to 0.
 	Later we want this because processing every layer requires all others
@@ -69,21 +69,17 @@ void SkelAnimExport::IterateAnimations(bool anims)
         {
             MFnDependencyNode animLayerFn(layerWeightIter.item(), &res);
 
-            MPlug weightLayerPlug = animLayerFn.findPlug("foregroundWeight", &res);
             MPlug soloPlug = animLayerFn.findPlug("solo", &res);
-            MPlug mutePlug = animLayerFn.findPlug("parentMute", &res);
 
-            weightLayerPlug.setDouble(0);
-            soloPlug.setBool(0);
-            mutePlug.setBool(0);
+            soloPlug.setBool(false);
 
-            layerWeights.append(weightLayerPlug);
+			soloArray.append(soloPlug);
 
             layerWeightIter.next();
         }
     }
 
-    int plugWeightCounter = 0;
+    int soloCounter = 0;
 	/*Iterates every animation layer for the joints of the skeleton.*/
     MItDependencyNodes animLayerIter(MFn::kAnimLayer, &res);
     if (res == MStatus::kSuccess)
@@ -96,8 +92,8 @@ void SkelAnimExport::IterateAnimations(bool anims)
             if (animLayerFn.name() == "BaseAnimation")
             {
                 animLayerIter.next();
-                layerWeights[plugWeightCounter].setDouble(1);
-                plugWeightCounter++;
+				soloArray[soloCounter].setDouble(false);
+				soloCounter++;
                 continue;
             }
 
@@ -130,7 +126,10 @@ void SkelAnimExport::IterateAnimations(bool anims)
 						animationFile.write((char*)&jointAnimHead, sizeof(JointAnimHeader));
 
 						/*Set weight plug to 1, for the current animation layer that is extracted.*/
-						layerWeights[plugWeightCounter].setDouble(1);
+						soloArray[soloCounter].setDouble(true);
+
+						/*Set zero to the previous animation layer being extracted.*/
+						soloArray[soloCounter - 1].setDouble(false);
 
 						/*Iterate all blend nodes, which are the joints connected to each animation layer.*/
 						MPlug blendNodePlug = animLayerFn.findPlug("blendNodes", &res);
@@ -151,6 +150,8 @@ void SkelAnimExport::IterateAnimations(bool anims)
 
 								MFnDependencyNode blendFn(blendIter.currentItem(), &res);
 
+								MString jointName;
+
 								/*Find the connection plug from the blend node to find the "REAL joint" node.*/
 								MPlug outputPlug = MFnDependencyNode(blendIter.currentItem()).findPlug("rotateOrder", &res);
 								if (res == MStatus::kSuccess)
@@ -161,6 +162,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 									{
 										/*Set the joint Fn from the node of the connection plug.*/
 										jointFn.setObject(outputConnection[0].node());
+										jointName = jointFn.name();
 									}
 								}
 								/*Find the plug that is connected to the animation curve.*/
@@ -199,20 +201,11 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											/*With the time of the current keyframe, we set where the keyframe is set in timeline.*/
 											MAnimControl::setCurrentTime(keyTime);
 
-											MTransformationMatrix localMatrix;
-
-											MDagPath jointPath;
-											if (jointFn.getPath(jointPath))
-											{
-												localMatrix = jointPath.inclusiveMatrix() * jointPath.exclusiveMatrixInverse();
-											}
-
 											/*Keyframes transformation values are obtained here: quat, trans and scale.*/
 											double rotation[3];
 											MTransformationMatrix::RotationOrder rotOrder = jointFn.rotationOrder(&res);
-											//rotOrder = MTransformationMatrix::RotationOrder::kXYZ;
 
-											if (localMatrix.getRotation(rotation, rotOrder, MSpace::kObject))
+											if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
 											{
 												rotation[0] *= -1.0;
 												rotation[1] *= -1.0;
@@ -239,7 +232,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											//	std::copy(quat, quat + 4, keyData.quaternion);
 											//}
 
-											MVector transVec = localMatrix.getTranslation(MSpace::kObject, &res);
+											MVector transVec = jointFn.getTranslation(MSpace::kObject, &res);
 											if (res == MStatus::kSuccess)
 											{
 												double translation[3];
@@ -251,7 +244,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											}
 											
 											double scale[3];
-											if (localMatrix.getScale(scale, MSpace::kObject))
+											if (jointFn.getScale(scale))
 											{
 												//scale[0] *= -1.0;
 												//scale[2] *= -1.0;
@@ -268,7 +261,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 							}
 						}
 
-						plugWeightCounter++;
+						soloCounter++;
 						animationFile.close();
 					}
 				}
@@ -283,7 +276,10 @@ void SkelAnimExport::IterateAnimations(bool anims)
 					animationFile.write((char*)&jointAnimHead, sizeof(JointAnimHeader));
 
 					/*Set weight plug to 1, for the current animation layer that is extracted.*/
-					layerWeights[plugWeightCounter].setDouble(1);
+					soloArray[soloCounter].setDouble(true);
+
+					/*Set zero to the previous animation layer being extracted.*/
+					soloArray[soloCounter - 1].setDouble(false);
 
 					/*Iterate all blend nodes, which are the joints connected to each animation layer.*/
 					MPlug blendNodePlug = animLayerFn.findPlug("blendNodes", &res);
@@ -304,6 +300,8 @@ void SkelAnimExport::IterateAnimations(bool anims)
 
 							MFnDependencyNode blendFn(blendIter.currentItem(), &res);
 
+							MString jointName;
+
 							/*Find the connection plug from the blend node to find the "REAL joint" node.*/
 							MPlug outputPlug = MFnDependencyNode(blendIter.currentItem()).findPlug("rotateOrder", &res);
 							if (res == MStatus::kSuccess)
@@ -314,6 +312,8 @@ void SkelAnimExport::IterateAnimations(bool anims)
 								{
 									/*Set the joint Fn from the node of the connection plug.*/
 									jointFn.setObject(outputConnection[0].node());
+
+									jointName = jointFn.name();
 								}
 							}
 							/*Find the plug that is connected to the animation curve.*/
@@ -351,23 +351,13 @@ void SkelAnimExport::IterateAnimations(bool anims)
 
 										/*With the time of the current keyframe, we set where the keyframe is set in timeline.*/
 										MAnimControl::setCurrentTime(keyTime);
-
-										MTransformationMatrix localMatrix;
-
-										MDagPath jointPath;
-										if (jointFn.getPath(jointPath))
-										{
-											localMatrix = jointPath.inclusiveMatrix() * jointPath.exclusiveMatrixInverse();
-										}
-
+			
 										/*Keyframes transformation values are obtained here: quat, trans and scale.*/
 										double rotation[3];
 										MTransformationMatrix::RotationOrder rotOrder = jointFn.rotationOrder(&res);
 										//rotOrder = MTransformationMatrix::RotationOrder::kXYZ;
 
-										MEulerRotation euler(rotation);
-
-										if (localMatrix.getRotation(rotation, rotOrder, MSpace::kObject))
+										if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
 										{
 											rotation[0] *= -1.0;
 											rotation[1] *= -1.0;
@@ -394,7 +384,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										//	std::copy(quat, quat + 4, keyData.quaternion);
 										//}
 
-										MVector transVec = localMatrix.getTranslation(MSpace::kObject, &res);
+										MVector transVec = jointFn.getTranslation(MSpace::kObject, &res);
 										if (res == MStatus::kSuccess)
 										{
 											double translation[3];
@@ -406,7 +396,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										}
 
 										double scale[3];
-										if (localMatrix.getScale(scale, MSpace::kObject))
+										if (jointFn.getScale(scale))
 										{
 											//scale[0] *= -1.0;
 											//scale[2] *= -1.0;
@@ -422,7 +412,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 						}
 					}
 
-					plugWeightCounter++;
+					soloCounter++;
 					animationFile.close();
 				}
 			}

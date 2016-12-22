@@ -205,32 +205,32 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											double rotation[3];
 											MTransformationMatrix::RotationOrder rotOrder = jointFn.rotationOrder(&res);
 
-											if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
-											{
-												rotation[0] *= -1.0;
-												rotation[1] *= -1.0;
-												//rotation[2] *= -1.0;
-
-												std::copy(rotation, rotation + 3, keyData.rotation);
-
-												MEulerRotation euler(rotation);
-												MQuaternion quaternion = euler.asQuaternion();
-
-												double quat[4];
-												quaternion.get(quat);
-												std::copy(quat, quat + 4, keyData.quaternion);
-											}
-
-											//MQuaternion quaternion;
-											//if (localMatrix.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kObject))
+											//if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
 											//{
-											//	//quaternion.inverse();
+											//	rotation[0] *= -1.0;
+											//	rotation[1] *= -1.0;
+											//	//rotation[2] *= -1.0;
+
+											//	std::copy(rotation, rotation + 3, keyData.rotation);
+
+											//	MEulerRotation euler(rotation);
+											//	MQuaternion quaternion = euler.asQuaternion();
+
 											//	double quat[4];
 											//	quaternion.get(quat);
-											//	//quat[1] *= -1.0;
-											//	//quat[2] *= -1.0;
 											//	std::copy(quat, quat + 4, keyData.quaternion);
 											//}
+
+											MQuaternion quaternion;
+											if (jointFn.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kObject))
+											{
+												//quaternion.inverse();
+												double quat[4];
+												quaternion.get(quat);
+												//quat[1] *= -1.0;
+												//quat[2] *= -1.0;
+												std::copy(quat, quat + 4, keyData.quaternion);
+											}
 
 											MVector transVec = jointFn.getTranslation(MSpace::kObject, &res);
 											if (res == MStatus::kSuccess)
@@ -357,32 +357,32 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										MTransformationMatrix::RotationOrder rotOrder = jointFn.rotationOrder(&res);
 										//rotOrder = MTransformationMatrix::RotationOrder::kXYZ;
 
-										if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
-										{
-											rotation[0] *= -1.0;
-											rotation[1] *= -1.0;
-											//rotation[2] *= -1.0;
-
-											std::copy(rotation, rotation + 3, keyData.rotation);
-
-											MEulerRotation euler(rotation);
-											MQuaternion quaternion = euler.asQuaternion();
-
-											double quat[4];
-											quaternion.get(quat);
-											std::copy(quat, quat + 4, keyData.quaternion);
-										}
-
-										//MQuaternion quaternion;
-										//if (localMatrix.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kObject))
+										//if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
 										//{
-										//	//quaternion.inverse();
+										//	rotation[0] *= -1.0;
+										//	rotation[1] *= -1.0;
+										//	//rotation[2] *= -1.0;
+
+										//	std::copy(rotation, rotation + 3, keyData.rotation);
+
+										//	MEulerRotation euler(rotation);
+										//	MQuaternion quaternion = euler.asQuaternion();
+
 										//	double quat[4];
 										//	quaternion.get(quat);
-										//	//quat[1] *= -1.0;
-										//	//quat[2] *= -1.0;
 										//	std::copy(quat, quat + 4, keyData.quaternion);
 										//}
+
+										MQuaternion quaternion;
+										if (jointFn.getRotationQuaternion(quaternion[0], quaternion[1], quaternion[2], quaternion[3], MSpace::kObject))
+										{
+											//quaternion.inverse();
+											double quat[4];
+											quaternion.get(quat);
+											//quat[1] *= -1.0;
+											//quat[2] *= -1.0;
+											std::copy(quat, quat + 4, keyData.quaternion);
+										}
 
 										MVector transVec = jointFn.getTranslation(MSpace::kObject, &res);
 										if (res == MStatus::kSuccess)

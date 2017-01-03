@@ -189,13 +189,10 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 		{
 			MFnDependencyNode animLayerFn(layerWeightIter.item(), &res);
 
-			MPlug weightLayerPlug = animLayerFn.findPlug("foregroundWeight", &res);
 			MPlug soloPlug = animLayerFn.findPlug("solo", &res);
-			MPlug mutePlug = animLayerFn.findPlug("parentMute", &res);
+			MPlug mutePlug = animLayerFn.findPlug("mute", &res);
 
-			weightLayerPlug.setDouble(0);
-			soloPlug.setBool(0);
-			mutePlug.setBool(0);
+			mutePlug.setBool(true);
 
 			layerWeightIter.next();
 		}

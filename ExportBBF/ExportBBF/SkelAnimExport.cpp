@@ -619,4 +619,7 @@ void SkelAnimExport::ConvertMMatrixToFloatArray(MMatrix inputMatrix, float outpu
             matrixCounter++;
         }
     }
+
+	/*Flip the Z-value of translation in each bindpose matrix, for conversion to DirectX.*/
+	outputMatrix[14] *= -1;
 }

@@ -344,7 +344,7 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 	{
 		tempVertex.position.x = postitions[indexList[i] * 3];
 		tempVertex.position.y = postitions[indexList[i] * 3 + 1];
-		tempVertex.position.z = (postitions[indexList[i] * 3 + 2] * -1);
+		tempVertex.position.z = postitions[indexList[i] * 3 + 2];
 
 		tempVertex.normal.x = normalsPos[normalIdList[offsetIdList[i]] * 3];
 		tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 1];

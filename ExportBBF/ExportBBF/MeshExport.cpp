@@ -239,7 +239,7 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 
 		tempVertex.tangent.x = tangents[normalIdList[offsetIdList[i]]].x;
 		tempVertex.tangent.y = tangents[normalIdList[offsetIdList[i]]].y;
-		tempVertex.tangent.z = tangents[normalIdList[offsetIdList[i]]].z;
+		tempVertex.tangent.z = (tangents[normalIdList[offsetIdList[i]]].z * -1);
 
 		tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
 		tempVertex.UV.v = 1.0 - v[uvIds[offsetIdList[i]]];
@@ -352,7 +352,7 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran)
 
 		tempVertex.tangent.x = tangents[normalIdList[offsetIdList[i]]].x;
 		tempVertex.tangent.y = tangents[normalIdList[offsetIdList[i]]].y;
-		tempVertex.tangent.z = tangents[normalIdList[offsetIdList[i]]].z;
+		tempVertex.tangent.z = (tangents[normalIdList[offsetIdList[i]]].z * -1);
 
 		tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
 		tempVertex.UV.v = 1.0 - v[uvIds[offsetIdList[i]]];

@@ -211,7 +211,6 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											{
 												rotation[0] *= -1.0;
 												rotation[1] *= -1.0;
-												//rotation[2] *= -1.0;
 
 												std::copy(rotation, rotation + 3, keyData.rotation);
 
@@ -228,17 +227,15 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											{
 												double translation[3];
 												transVec.get(translation);
-												//translation[0] *= -1.0;
-												//translation[1] *= -1.0;
-												//translation[2] *= -1.0;
+											
+												translation[2] *= -1.0;
+
 												std::copy(translation, translation + 3, keyData.translation);
 											}
 											
 											double scale[3];
 											if (jointFn.getScale(scale))
 											{
-												//scale[0] *= -1.0;
-												//scale[2] *= -1.0;
 												std::copy(scale, scale + 3, keyData.scale);
 											}
 
@@ -351,8 +348,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										{
 											rotation[0] *= -1.0;
 											rotation[1] *= -1.0;
-											//rotation[2] *= -1.0;
-
+					
 											std::copy(rotation, rotation + 3, keyData.rotation);
 
 											MEulerRotation euler(rotation);
@@ -368,17 +364,15 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										{
 											double translation[3];
 											transVec.get(translation);
-											//translation[0] *= -1.0;
-											//translation[1] *= -1.0;
-											//translation[2] *= -1.0;
+			
+											translation[2] *= -1.0;
+
 											std::copy(translation, translation + 3, keyData.translation);
 										}
 
 										double scale[3];
 										if (jointFn.getScale(scale))
 										{
-											//scale[0] *= -1.0;
-											//scale[2] *= -1.0;
 											std::copy(scale, scale + 3, keyData.scale);
 										}
 

@@ -105,8 +105,8 @@ void MaterialExport::MaterialExtraction()
 					memcpy(tHeader.textureName, path.c_str(), path.length());
 					//tHeader.textureName = path;
 					tHeader.textureName[path.length()] = '\0';
-					//mHeader.textureIDs[0] = path.length();
-					mHeader.textureIDs[0] = path.length()+1;
+					mHeader.textureIDs[0] = (unsigned int)std::hash<std::string>{}(filePath);
+					mHeader.textureNameLength[0] = path.length()+1;
 				}
 				//cerr << "1: " << test<<endl
 				//mHeader.textureIDs[0] = texName.length();
@@ -124,7 +124,7 @@ void MaterialExport::MaterialExtraction()
 
 				filenameTexPlugn.getValue(textureName);
 	//			mHeader.normalNameLength = textureName.length();
-				//mHeader.textureIDs[3] = textureName.length();
+				//mHeader.textureNameLength[3] = textureName.length();
 	
 
 				string ntex = textureName.asChar();
@@ -135,7 +135,8 @@ void MaterialExport::MaterialExtraction()
 					
 					memcpy(tHeader.normalName, path.c_str(), path.length());
 					tHeader.normalName[path.length()] = '\0';
-					mHeader.textureIDs[3] = path.length()+1;
+					mHeader.textureNameLength[3] = path.length()+1;
+					mHeader.textureIDs[3] = (unsigned int)std::hash<std::string>{}(filePath);
 				}
 
 				//cerr << "2: " << test << endl;
@@ -162,7 +163,8 @@ void MaterialExport::MaterialExtraction()
 					path = ExportingTex(mtex);
 					memcpy(tHeader.metallicName, path.c_str(), path.length());
 					tHeader.metallicName[path.length()] = '\0';
-					mHeader.textureIDs[1] = path.length()+1;
+					mHeader.textureNameLength[1] = path.length()+1;
+					mHeader.textureIDs[1] = (unsigned int)std::hash<std::string>{}(filePath);
 				}
 				//cerr << "3: " << test << endl;
 				pBar->setValue(pBar->value() + 1);
@@ -192,7 +194,8 @@ void MaterialExport::MaterialExtraction()
 					path = ExportingTex(rtex);
 					memcpy(tHeader.roughName, path.c_str(), path.length());
 					tHeader.roughName[path.length()] = '\0';
-					mHeader.textureIDs[2] = path.length()+1;
+					mHeader.textureNameLength[2] = path.length()+1;
+					mHeader.textureIDs[2] = (unsigned int)std::hash<std::string>{}(filePath);
 				}
 
 				//cerr << "4: " << test << endl;
@@ -222,8 +225,8 @@ void MaterialExport::MaterialExtraction()
 					
 					memcpy(tHeader.aoName, path.c_str(), path.length());
 					tHeader.aoName[path.length()] = '\0';
-					mHeader.textureIDs[4] = path.length()+1;
-					
+					mHeader.textureNameLength[4] = path.length()+1;
+					mHeader.textureIDs[4] = (unsigned int)std::hash<std::string>{}(filePath);
 				}
 
 #pragma endregion 
@@ -284,11 +287,11 @@ void MaterialExport::ExportingMats_Tex()
 
 			outFile->write((char*)&this->mHeader, sizeof(MaterialHeader));
 
-			outFile->write((char*)&this->tHeader.textureName, this->mHeader.textureIDs[0]);
-			outFile->write((char*)&this->tHeader.metallicName, this->mHeader.textureIDs[1]);
-			outFile->write((char*)&this->tHeader.roughName, this->mHeader.textureIDs[2]);
-			outFile->write((char*)&this->tHeader.normalName, this->mHeader.textureIDs[3]);
-			outFile->write((char*)&this->tHeader.aoName, this->mHeader.textureIDs[4]);
+			outFile->write((char*)&this->tHeader.textureName, this->mHeader.textureNameLength[0]);
+			outFile->write((char*)&this->tHeader.metallicName, this->mHeader.textureNameLength[1]);
+			outFile->write((char*)&this->tHeader.roughName, this->mHeader.textureNameLength[2]);
+			outFile->write((char*)&this->tHeader.normalName, this->mHeader.textureNameLength[3]);
+			outFile->write((char*)&this->tHeader.aoName, this->mHeader.textureNameLength[4]);
 		
 		}
 		else
@@ -322,11 +325,11 @@ void MaterialExport::ExportingMats_Tex()
 		//outFile->write((char*)&this->tHeader.metallicName, mHeader.metallicNameLength);
 		//outFile->write((char*)&this->tHeader.roughName, mHeader.roughNameLength);
 		//outFile->write((char*)&this->tHeader.aoName, mHeader.aoNameLength);
-		outFile->write((char*)&this->tHeader.textureName, this->mHeader.textureIDs[0]);
-		outFile->write((char*)&this->tHeader.metallicName, this->mHeader.textureIDs[1]);
-		outFile->write((char*)&this->tHeader.roughName, this->mHeader.textureIDs[2]);
-		outFile->write((char*)&this->tHeader.normalName, this->mHeader.textureIDs[3]);
-		outFile->write((char*)&this->tHeader.aoName, this->mHeader.textureIDs[4]);
+		outFile->write((char*)&this->tHeader.textureName, this->mHeader.textureNameLength[0]);
+		outFile->write((char*)&this->tHeader.metallicName, this->mHeader.textureNameLength[1]);
+		outFile->write((char*)&this->tHeader.roughName, this->mHeader.textureNameLength[2]);
+		outFile->write((char*)&this->tHeader.normalName, this->mHeader.textureNameLength[3]);
+		outFile->write((char*)&this->tHeader.aoName, this->mHeader.textureNameLength[4]);
 	}
 	
 

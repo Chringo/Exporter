@@ -141,6 +141,7 @@ struct MaterialHeader
 	//int numOfMats;
 	//char shaderName[256];
 	unsigned int textureIDs[5]{ 0,0,0,0,0 };
+	unsigned int textureNameLength[5]{ 0,0,0,0,0 };
 	float roughness;
 	float metallness;
 	float emissive;

@@ -17,6 +17,7 @@ private:
 	bool overWrite = true;
 	MaterialHeader mHeader;
 	TextureHeader tHeader;
+	unsigned int textureNameLength[5] = { 0,0,0,0,0 };
 
 	unsigned int m_UID = 0;
 public:

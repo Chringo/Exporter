@@ -63,7 +63,9 @@ void BoundingExport::exportOBB(MFnMesh & mMesh, MFnTransform & mTran)
 			max.z = m_positions.z;
 	
 	}
-
+	MVector pivPos = mTran.rotatePivot(MSpace::kTransform, NULL);
+	//MVector piver = mTran.rotatePivotTranslation(MSpace::kWorld, NULL);
+	obbHead.position = pivPos;
 	center.x = max.x - min.x;
 	center.y = max.y - min.y;
 	center.z = max.z - min.z;
@@ -90,7 +92,7 @@ void BoundingExport::exportOBB(MFnMesh & mMesh, MFnTransform & mTran)
 	obbHead.extensionDir.z = center.y;
 	obbHead.extension =	center.length();*/
 	//obbHead.position = m_positions;
-	obbHead.position = center;
+	//obbHead.position = center;
 	/*obbHead.position.y = m_positions.y;
 	obbHead.position.z = m_positions.z;*/
 

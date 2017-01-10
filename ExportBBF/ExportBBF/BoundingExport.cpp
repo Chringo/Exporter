@@ -48,21 +48,24 @@ void BoundingExport::exportOBB(MFnMesh & mMesh, MFnTransform & mTran)
 		m_positions.y = positions[indexList[i] * 3 + 1];
 		m_positions.z = positions[indexList[i] * 3 + 2];
 
-		if (min.x <= m_positions.x)
+		if (min.x > m_positions.x)
 			min.x = m_positions.x;
-		if (min.y <= m_positions.y)
+		if (min.y > m_positions.y)
 			min.y = m_positions.y;
-		if (min.z <= m_positions.z)
+		if (min.z > m_positions.z)
 			min.z = m_positions.z;
-		if (max.x <= m_positions.x)
+
+		if (max.x < m_positions.x)
 			max.x = m_positions.x;
-		if (max.y <= m_positions.x)
-			max.y = m_positions.x;
-		if (max.z <= m_positions.x)
-			max.z = m_positions.x;
+		if (max.y < m_positions.y)
+			max.y = m_positions.y;
+		if (max.z < m_positions.z)
+			max.z = m_positions.z;
 	
 	}
-
+	MVector pivPos = mTran.rotatePivot(MSpace::kTransform, NULL);
+	//MVector piver = mTran.rotatePivotTranslation(MSpace::kWorld, NULL);
+	obbHead.position = pivPos;
 	center.x = max.x - min.x;
 	center.y = max.y - min.y;
 	center.z = max.z - min.z;
@@ -89,7 +92,7 @@ void BoundingExport::exportOBB(MFnMesh & mMesh, MFnTransform & mTran)
 	obbHead.extensionDir.z = center.y;
 	obbHead.extension =	center.length();*/
 	//obbHead.position = m_positions;
-	obbHead.position = center;
+	//obbHead.position = center;
 	/*obbHead.position.y = m_positions.y;
 	obbHead.position.z = m_positions.z;*/
 

@@ -28,21 +28,6 @@ struct SkinData
 	unsigned int boneInfluences[4];
 };
 
-
-
-
-
-//struct KeyframeHolder
-//{
-//	std::vector<KeyframeHeader> keyframes;
-//};
-//
-//struct AnimationJointHeader
-//{
-//	std::vector<KeyframeHolder> animationData;
-//	std::vector<AnimationStateHeader> animationCount;
-//};
-
 #pragma endregion
 #pragma region header structs
 struct modelHeader
@@ -66,6 +51,7 @@ struct KeyframeHeader
 	float timeValue;
 	float translation[3];
 	float rotation[3];
+	float quaternion[4];
 	float scale[3];
 };
 struct SkeletonHeader
@@ -95,8 +81,6 @@ struct MeshHeader
 {
 	unsigned int vertices;
 	unsigned int indexLength;
-	//MMatrix transMatrix;
-	//unsigned int jointCount;
 	bool hasSkeleton;
 };
 struct Vertex
@@ -140,6 +124,7 @@ struct MaterialHeader
 	//int numOfMats;
 	//char shaderName[256];
 	unsigned int textureIDs[5]{ 0,0,0,0,0 };
+	//unsigned int textureNameLength[5]{ 0,0,0,0,0 };
 	float roughness;
 	float metallness;
 	float emissive;

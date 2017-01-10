@@ -105,7 +105,8 @@ void MaterialExport::MaterialExtraction()
 					memcpy(tHeader.textureName, path.c_str(), path.length());
 					//tHeader.textureName = path;
 					tHeader.textureName[path.length()] = '\0';
-					mHeader.textureIDs[0] = (unsigned int)std::hash<std::string>{}(filePath);
+					std::string hashId = filePath + path;
+					mHeader.textureIDs[0] = (unsigned int)std::hash<std::string>{}(hashId);
 					textureNameLength[0] = path.length()+1;
 				}
 				//cerr << "1: " << test<<endl
@@ -136,7 +137,8 @@ void MaterialExport::MaterialExtraction()
 					memcpy(tHeader.normalName, path.c_str(), path.length());
 					tHeader.normalName[path.length()] = '\0';
 					textureNameLength[3] = path.length()+1;
-					mHeader.textureIDs[3] = (unsigned int)std::hash<std::string>{}(filePath);
+					std::string hashId = filePath + path;
+					mHeader.textureIDs[3] = (unsigned int)std::hash<std::string>{}(hashId);
 				}
 
 				//cerr << "2: " << test << endl;
@@ -164,7 +166,8 @@ void MaterialExport::MaterialExtraction()
 					memcpy(tHeader.metallicName, path.c_str(), path.length());
 					tHeader.metallicName[path.length()] = '\0';
 					textureNameLength[1] = path.length()+1;
-					mHeader.textureIDs[1] = (unsigned int)std::hash<std::string>{}(filePath);
+					std::string hashId = filePath + path;
+					mHeader.textureIDs[1] = (unsigned int)std::hash<std::string>{}(hashId);
 				}
 				//cerr << "3: " << test << endl;
 				pBar->setValue(pBar->value() + 1);
@@ -195,7 +198,8 @@ void MaterialExport::MaterialExtraction()
 					memcpy(tHeader.roughName, path.c_str(), path.length());
 					tHeader.roughName[path.length()] = '\0';
 					textureNameLength[2] = path.length()+1;
-					mHeader.textureIDs[2] = (unsigned int)std::hash<std::string>{}(filePath);
+					std::string hashId = filePath + path;
+					mHeader.textureIDs[2] = (unsigned int)std::hash<std::string>{}(hashId);
 				}
 
 				//cerr << "4: " << test << endl;
@@ -226,7 +230,8 @@ void MaterialExport::MaterialExtraction()
 					memcpy(tHeader.aoName, path.c_str(), path.length());
 					tHeader.aoName[path.length()] = '\0';
 					textureNameLength[4] = path.length()+1;
-					mHeader.textureIDs[4] = (unsigned int)std::hash<std::string>{}(filePath);
+					std::string hashId = filePath + path;
+					mHeader.textureIDs[4] = (unsigned int)std::hash<std::string>{}(hashId);
 				}
 
 #pragma endregion 

@@ -69,23 +69,23 @@ void BoundingExport::exportOBB(MFnMesh & mMesh, MFnTransform & mTran)
 	center.x = max.x - min.x;
 	center.y = max.y - min.y;
 	center.z = max.z - min.z;
-	center.normalize();
+	//center.normalize();
 
-	obbHead.extension[0] = max.x;
-	obbHead.extension[1] = max.y;
-	obbHead.extension[2] = max.z;
+	obbHead.extension[0] = center.x;//max.x;
+	obbHead.extension[1] = center.y;
+	obbHead.extension[2] = center.z;
 	
-	obbHead.extensionDir[0].x = 1;
+	obbHead.extensionDir[0].x = 0.5;
 	obbHead.extensionDir[0].y = 0;
 	obbHead.extensionDir[0].z = 0;
 
 	obbHead.extensionDir[1].x = 0;
-	obbHead.extensionDir[1].y = 1;
+	obbHead.extensionDir[1].y = 0.5;
 	obbHead.extensionDir[1].z = 0;
 
 	obbHead.extensionDir[2].x = 0;
 	obbHead.extensionDir[2].y = 0;
-	obbHead.extensionDir[2].z = 1;
+	obbHead.extensionDir[2].z = 0.5;
 
 	/*obbHead.extensionDir.x = center.x;
 	obbHead.extensionDir.y = center.y;

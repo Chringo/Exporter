@@ -237,6 +237,14 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 		tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 1];
 		tempVertex.normal.z = normalsPos[normalIdList[offsetIdList[i]] * 3 + 2];
 
+		/*tempVertex.position.x = postitions[indexList[i] * 3];
+		tempVertex.position.y = postitions[indexList[i] * 3 + 2];
+		tempVertex.position.z = (postitions[indexList[i] * 3 + 1] * -1);
+
+		tempVertex.normal.x = normalsPos[normalIdList[offsetIdList[i]] * 3];
+		tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 2];
+		tempVertex.normal.z = (normalsPos[normalIdList[offsetIdList[i]] * 3 + 1] * -1);*/
+
 		tempVertex.tangent.x = tangents[normalIdList[offsetIdList[i]]].x;
 		tempVertex.tangent.y = tangents[normalIdList[offsetIdList[i]]].y;
 		tempVertex.tangent.z = tangents[normalIdList[offsetIdList[i]]].z;
@@ -280,6 +288,12 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 	}
 	//sVertices->shrink_to_fit(); //kanske sedundant
 	//newIndex->shrink_to_fit();
+	for (int i = 1; i < newIndex->size(); i += 3)
+	{
+		unsigned int tempIndex = newIndex->at(i);
+		newIndex->at(i) = newIndex->at(i + 1);
+		newIndex->at(i + 1) = tempIndex;
+	}
 
 	/*creating the mesh header and setting the length of the vertices and indices*/
 

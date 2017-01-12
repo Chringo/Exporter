@@ -43,149 +43,160 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 {
 	if (mesh || skel || mats || anims || model)
 	{
-		MStatus res = MS::kSuccess;
-		QWidget *bar = MQtUtil::findControl("progressBar");
-		QProgressBar *pBar = (QProgressBar*)bar;
-		setProcessBarSize(mesh, skel, mats, anims);
-
-		//fstream outFile;
-
-		/*writing a temporary mainheader*/
-		//MainHeader tempHead{ 1 };
-		//outFile.write((char*)&tempHead, sizeof(MainHeader));
-		//size_t f = filePath.rfind("/", filePath.length());
-		//string newPath = filePath.substr(0, f + 1);
-		
-
-		SkelAnimExport cSkelAnim(filePath + "/Skeletons/"); //check this <---------------------------------------------
-		ModelExport m_model(filePath + "/Models/");
-		
-		if (skel || anims)
+		MItDag meshIt(MItDag::kBreadthFirst, MFn::kMesh, NULL);
+		for (; !meshIt.isDone(); meshIt.next())
 		{
-			/*Iterate all skin clusters in scene.*/
-			/*cSkelAnim.IterateSkinClusters();
-			pBar->setValue(pBar->value() + 1);*/
+			MStatus res = MS::kSuccess;
+			QWidget *bar = MQtUtil::findControl("progressBar");
+			QProgressBar *pBar = (QProgressBar*)bar;
+			setProcessBarSize(mesh, skel, mats, anims);
+
+			//fstream outFile;
+
+			/*writing a temporary mainheader*/
+			//MainHeader tempHead{ 1 };
+			//outFile.write((char*)&tempHead, sizeof(MainHeader));
+			//size_t f = filePath.rfind("/", filePath.length());
+			//string newPath = filePath.substr(0, f + 1);
 
 
-			MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
-			for (; !meshIt.isDone(); meshIt.next())
+			SkelAnimExport cSkelAnim(filePath + "/Skeletons/"); //check this <---------------------------------------------
+			ModelExport m_model(filePath + "/Models/");
+
+			if (skel || anims)
 			{
-				MFnTransform trans = meshIt.currentItem();
-				if (trans.child(0).hasFn(MFn::kMesh))
-				{
-					/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
-					if (skel)
-						cSkelAnim.setMeshName((string)trans.name().asChar());
-					if (model)
+				/*Iterate all skin clusters in scene.*/
+				/*cSkelAnim.IterateSkinClusters();
+				pBar->setValue(pBar->value() + 1);*/
+
+
+				//MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
+				//for (; !meshIt.isDone(); meshIt.next())
+				//{
+					MFnTransform trans = meshIt.currentItem();
+					if (trans.child(0).hasFn(MFn::kMesh))
 					{
-						m_model.setUID((string)trans.name().asChar() + ".model");
-						m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
-					}
-
-					if (mesh && skel)
-					{
-
-						cSkelAnim.IterateSkinClusters();
-						pBar->setValue(pBar->value() + 1);
-
-						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
-						newMesh.exportMesh(meshIt.currentItem());
-					/*	BoundingExport newBox;
-						newBox.exportBoundingBox(meshIt.currentItem());*/
+						/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
+						if (skel)
+							cSkelAnim.setMeshName((string)trans.name().asChar());
 						if (model)
 						{
-							m_model.setMeshId(newMesh.getUID());
+							m_model.setUID((string)trans.name().asChar() + ".model");
+							m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
 						}
-					}
-				}
 
+						if (mesh && skel)
+						{
+
+							cSkelAnim.IterateSkinClusters();
+							pBar->setValue(pBar->value() + 1);
+
+							MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
+							newMesh.exportMesh(meshIt.currentItem());
+							/*	BoundingExport newBox;
+								newBox.exportBoundingBox(meshIt.currentItem());*/
+							if (model)
+							{
+								m_model.setMeshId(newMesh.getUID());
+							}
+						}
+					//}
+
+				}
 			}
-		}
-		else
-		{
-			
-			MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
-			for (; !meshIt.isDone(); meshIt.next())
+			else
 			{
-				MFnTransform trans = meshIt.currentItem();
-				if (trans.child(0).hasFn(MFn::kMesh))
-				{
-					if (model)
+
+				//MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
+				//for (; !meshIt.isDone(); meshIt.next())
+				//{
+					MFnTransform trans = meshIt.currentItem();
+					if (trans.child(0).hasFn(MFn::kMesh))
 					{
-						m_model.setUID((string)trans.name().asChar() + ".model");
-						m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
-					}
-					if (mesh)
-					{
-						//Createmesh(meshIt.currentItem(), cSkelAnim);
-						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"));
-						newMesh.exportMesh(meshIt.currentItem());
-						/*BoundingExport newBox;
-						newBox.exportBoundingBox(meshIt.currentItem());*/
 						if (model)
 						{
-							m_model.setMeshId(newMesh.getUID());
+							m_model.setUID((string)trans.name().asChar() + ".model");
+							m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
+						}
+						if (mesh)
+						{
+							//Createmesh(meshIt.currentItem(), cSkelAnim);
+							MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"));
+							newMesh.exportMesh(meshIt.currentItem());
+							/*BoundingExport newBox;
+							newBox.exportBoundingBox(meshIt.currentItem());*/
+							if (model)
+							{
+								m_model.setMeshId(newMesh.getUID());
+							}
 						}
 					}
+				//}
+
+			}
+#pragma region skeleton & anims
+			if (skel && !anims)
+			{
+				/*Iterate all joints in scene.*/
+				cSkelAnim.IterateJoints();
+				pBar->setValue(pBar->value() + 1);
+
+				/*Iterate all animations in the skeleton.*/
+				//cSkelAnim.setFilePath(filePath + "/Animations/");
+				cSkelAnim.IterateAnimations(anims);
+				//pBar->setValue(pBar->value() + 1);
+
+				cSkelAnim.setFilePath(filePath + "/Skeletons/");
+				cSkelAnim.writeJointData();
+				pBar->setValue(pBar->value() + 1);
+				if (model)
+					m_model.setSkelId(cSkelAnim.getUID());
+
+			}
+			else if (!skel && anims)
+			{
+				cSkelAnim.setFilePath(filePath + "/Animations/");
+				cSkelAnim.IterateAnimations(anims);
+				pBar->setValue(pBar->value() + 1);
+			}
+			else if (skel && anims)
+			{
+				/*Iterate all joints in scene.*/
+				cSkelAnim.IterateJoints();
+				pBar->setValue(pBar->value() + 1);
+
+				/*Iterate all animations in the skeleton.*/
+				cSkelAnim.setFilePath(filePath + "/Animations/");
+				cSkelAnim.IterateAnimations(anims);
+				pBar->setValue(pBar->value() + 1);
+
+				cSkelAnim.setFilePath(filePath + "/Skeletons/");
+				cSkelAnim.writeJointData();
+				pBar->setValue(pBar->value() + 1);
+				if (model)
+					m_model.setSkelId(cSkelAnim.getUID());
+			}
+
+#pragma endregion
+
+			if (mats)
+			{
+				MFnTransform trans = meshIt.currentItem();
+				MaterialExport newMat(filePath + "/Materials/");
+				if (trans.child(0).hasFn(MFn::kMesh))
+				{
+					newMat.MaterialExtraction((MFnMesh)trans.child(0));
+					if (model)
+						m_model.setMatId(newMat.getUID());
 				}
 			}
-			
-		}
-
-		if (skel && !anims)
-		{
-			/*Iterate all joints in scene.*/
-			cSkelAnim.IterateJoints();
-			pBar->setValue(pBar->value() + 1);
-
-			/*Iterate all animations in the skeleton.*/
-			//cSkelAnim.setFilePath(filePath + "/Animations/");
-			cSkelAnim.IterateAnimations(anims);
-			//pBar->setValue(pBar->value() + 1);
-
-			cSkelAnim.setFilePath(filePath + "/Skeletons/");
-			cSkelAnim.writeJointData();
-			pBar->setValue(pBar->value() + 1);
 			if (model)
-				m_model.setSkelId(cSkelAnim.getUID());
-
+			{
+				m_model.exportModel();
+			}
+			/*making the buttons clickable again and closing the file*/
+			//outFile.close();
 		}
-		else if (!skel && anims)
-		{
-			cSkelAnim.setFilePath(filePath + "/Animations/");
-			cSkelAnim.IterateAnimations(anims);
-			pBar->setValue(pBar->value() + 1);
-		}
-		else if (skel && anims)
-		{
-			/*Iterate all joints in scene.*/
-			cSkelAnim.IterateJoints();
-			pBar->setValue(pBar->value() + 1);
-
-			/*Iterate all animations in the skeleton.*/
-			cSkelAnim.setFilePath(filePath + "/Animations/");
-			cSkelAnim.IterateAnimations(anims);
-			pBar->setValue(pBar->value() + 1);
-
-			cSkelAnim.setFilePath(filePath + "/Skeletons/");
-			cSkelAnim.writeJointData();
-			pBar->setValue(pBar->value() + 1);
-			if (model)
-				m_model.setSkelId(cSkelAnim.getUID());
-		}
-		if (mats)
-		{
-			MaterialExport newMat(filePath + "/Materials/");
-			newMat.MaterialExtraction();
-			if (model)
-				m_model.setMatId(newMat.getUID());
-		}
-		if (model)
-		{
-			m_model.exportModel();
-		}
-		/*making the buttons clickable again and closing the file*/
-		//outFile.close();
 		MGlobal::displayInfo("Done with the export!");
 		QWidget * control = MQtUtil::findControl("exportButton");
 		QPushButton *cb = (QPushButton*)control;

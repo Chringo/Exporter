@@ -29,13 +29,13 @@ MaterialExport::~MaterialExport()
 	delete outFile;
 }
 
-void MaterialExport::MaterialExtraction()
+void MaterialExport::MaterialExtraction(MFnMesh &fnMesh)
 {
 	QWidget *control = MQtUtil::findControl("progressBar");
 	QProgressBar *pBar = (QProgressBar*)control;
 
 	MStatus stat;
-	MItDag dagIter(MItDag::kBreadthFirst, MFn::kInvalid, &stat);
+	/*MItDag dagIter(MItDag::kBreadthFirst, MFn::kInvalid, &stat);
 	for (; !dagIter.isDone(); dagIter.next())
 	{
 		MDagPath dagPath;
@@ -49,6 +49,10 @@ void MaterialExport::MaterialExtraction()
 			if (dagPath.hasFn(MFn::kTransform))continue;
 
 			MFnMesh fnMesh(dagPath);
+*/
+			MDagPath dagPath;
+			dagPath = fnMesh.dagPath();
+
 
 			unsigned instanceNumber = dagPath.instanceNumber();
 			MObjectArray sets;
@@ -252,8 +256,8 @@ void MaterialExport::MaterialExtraction()
 				mHeader.emissive = emissiveValue;
 #pragma endregion
 			}
-		}
-	}
+		//}
+	//}
 	ExportingMats_Tex();
 }
 

@@ -24,7 +24,7 @@ public:
 
 	unsigned int getUID() { return this->m_UID; }
 
-	void MaterialExtraction();
+	void MaterialExtraction(MFnMesh &fnMesh);
 	void ExportingMats_Tex();
 	string ExportingTex(string file);
 	

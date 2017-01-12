@@ -43,14 +43,19 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 {
 	if (mesh || skel || mats || anims || model)
 	{
-		MItDag meshIt(MItDag::kBreadthFirst, MFn::kMesh, NULL);
-		for (; !meshIt.isDone(); meshIt.next())
+		//MItDag meshIt(MItDag::kBreadthFirst, MFn::kMesh, NULL);
+		MSelectionList currentSelection;
+		MGlobal::getActiveSelectionList(currentSelection);
+		MItSelectionList listIter(currentSelection);
+
+		for (; !listIter.isDone(); listIter.next())
 		{
 			MStatus res = MS::kSuccess;
 			QWidget *bar = MQtUtil::findControl("progressBar");
 			QProgressBar *pBar = (QProgressBar*)bar;
 			setProcessBarSize(mesh, skel, mats, anims);
 
+			MObject mNode;
 			//fstream outFile;
 
 			/*writing a temporary mainheader*/
@@ -73,7 +78,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 				//MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
 				//for (; !meshIt.isDone(); meshIt.next())
 				//{
-					MFnTransform trans = meshIt.currentItem();
+				listIter.getDependNode(mNode);
+				MFnTransform trans = mNode;
 					if (trans.child(0).hasFn(MFn::kMesh))
 					{
 						/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
@@ -92,7 +98,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 							pBar->setValue(pBar->value() + 1);
 
 							MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
-							newMesh.exportMesh(meshIt.currentItem());
+							newMesh.exportMesh(trans.object());
 							/*	BoundingExport newBox;
 								newBox.exportBoundingBox(meshIt.currentItem());*/
 							if (model)
@@ -110,7 +116,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 				//MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
 				//for (; !meshIt.isDone(); meshIt.next())
 				//{
-					MFnTransform trans = meshIt.currentItem();
+				listIter.getDependNode(mNode);
+				MFnTransform trans = mNode;
 					if (trans.child(0).hasFn(MFn::kMesh))
 					{
 						if (model)
@@ -122,7 +129,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 						{
 							//Createmesh(meshIt.currentItem(), cSkelAnim);
 							MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"));
-							newMesh.exportMesh(meshIt.currentItem());
+							newMesh.exportMesh(trans.object());
 							/*BoundingExport newBox;
 							newBox.exportBoundingBox(meshIt.currentItem());*/
 							if (model)
@@ -181,7 +188,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 
 			if (mats)
 			{
-				MFnTransform trans = meshIt.currentItem();
+				listIter.getDependNode(mNode);
+				MFnTransform trans = mNode;
 				MaterialExport newMat(filePath + "/Materials/");
 				if (trans.child(0).hasFn(MFn::kMesh))
 				{
@@ -192,7 +200,12 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 			}
 			if (model)
 			{
-				m_model.exportModel();
+				listIter.getDependNode(mNode);
+				MFnTransform trans = mNode;
+				if (trans.child(0).hasFn(MFn::kMesh))
+				{
+					m_model.exportModel();
+				}
 			}
 			/*making the buttons clickable again and closing the file*/
 			//outFile.close();

@@ -139,6 +139,7 @@ void MeshExport::exportMesh(MObject & mNode)
 		m_UID = s_Head.id;
 
 		outFile->write((char*)&s_Head, sizeof(MainHeader));
+		overWrite = true;
 	}
 	if (overWrite)
 	{

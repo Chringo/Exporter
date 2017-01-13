@@ -135,9 +135,9 @@ void MaterialExport::MaterialExtraction()
 
 				/*setting the filename to the material name*/
 				/*a check to see if the filename has already been made*/
-				std::string tempFilePath = this->filePath.substr(filePath.rfind("."));
-				if (tempFilePath != ".mat")
-					this->filePath += string(MFnDependencyNode(srcNode).name().asChar()) + ".mat";
+				//std::string tempFilePath = this->filePath.substr(filePath.rfind("."));
+				//if (tempFilePath != ".mat")
+				this->filePath += string(MFnDependencyNode(srcNode).name().asChar()) + ".mat";
 
 				//mHeader.textureIDs[0] = fnSet.name().length();
 #pragma region textureColor

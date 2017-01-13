@@ -20,6 +20,10 @@ MaterialExport::MaterialExport(string &filePath)
 	//this->filePath = filePath.substr(0, f - 1);
 	//this->filePath += ".mat";
 	this->filePath = filePath;
+
+	//s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+	//this->m_UID = s_Head.id;
+
 }
 
 

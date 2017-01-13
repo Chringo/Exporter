@@ -78,13 +78,14 @@ void MaterialExport::generateID(string * filePath)
 
 				/*setting the filename to the material name*/
 				if (filePath == nullptr)
-					this->m_UID = (unsigned int)std::hash<std::string>{}(string(MFnDependencyNode(srcNode).name().asChar()) + ".mat");
+					this->m_UID = (unsigned int)std::hash<std::string>{}(this->filePath + string(MFnDependencyNode(srcNode).name().asChar()) + ".mat");
 				else
 					this->m_UID = (unsigned int)std::hash<std::string>{}(*filePath + string(MFnDependencyNode(srcNode).name().asChar()) + ".mat");
 				/*setting the new id*/
 			}
 		}
 	}
+	dagIter.reset();
 }
 
 void MaterialExport::MaterialExtraction()

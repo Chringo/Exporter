@@ -173,12 +173,16 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 			if (model)
 				m_model.setSkelId(cSkelAnim.getUID());
 		}
+
+		
+		MaterialExport newMat(filePath + "/Materials/");
+		newMat.generateID();
+		m_model.setMatId(newMat.getUID());
 		if (mats)
 		{
-			MaterialExport newMat(filePath + "/Materials/");
 			newMat.MaterialExtraction();
-			if (model)
-				m_model.setMatId(newMat.getUID());
+			//if (model)
+				//m_model.setMatId(newMat.getUID());
 		}
 		if (model)
 		{

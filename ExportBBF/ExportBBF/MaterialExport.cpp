@@ -81,6 +81,9 @@ void MaterialExport::generateID(string * filePath)
 					this->filePath += string(MFnDependencyNode(srcNode).name().asChar()) + ".mat";
 				else
 					this->filePath = *filePath + string(MFnDependencyNode(srcNode).name().asChar()) + ".mat";
+
+				/*setting the new id*/
+				this->m_UID = (unsigned int)std::hash<std::string>{}(this->filePath);
 			}
 		}
 	}
@@ -133,7 +136,10 @@ void MaterialExport::MaterialExtraction()
 				MObject srcNode = srcplugarray[0].node();
 
 				/*setting the filename to the material name*/
-				this->filePath += string(MFnDependencyNode(srcNode).name().asChar()) + ".mat";
+				/*a check to see if the filename has already been made*/
+				std::string tempFilePath = this->filePath.substr(filePath.rfind("."));
+				if (tempFilePath != ".mat")
+					this->filePath += string(MFnDependencyNode(srcNode).name().asChar()) + ".mat";
 
 				//mHeader.textureIDs[0] = fnSet.name().length();
 #pragma region textureColor

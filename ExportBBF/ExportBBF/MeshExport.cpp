@@ -178,6 +178,12 @@ int MeshExport::getProgressBarValue()
 	return indexList.length();
 }
 
+void MeshExport::GenerateID(std::string *filePath = nullptr)
+{
+	if(filePath != nullptr)
+		this->m_UID = 
+}
+
 void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
 {
 	MStatus res;

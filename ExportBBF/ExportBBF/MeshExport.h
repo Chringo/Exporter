@@ -27,6 +27,7 @@ public:
 	~MeshExport();
 	void exportMesh(MObject & mNode);
 	static int getProgressBarValue();
+	void GenerateID(std::string *filePath = nullptr);
 
 	unsigned int getUID(){ return this->m_UID; }
 private:

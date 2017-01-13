@@ -110,15 +110,17 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 				MFnTransform trans = meshIt.currentItem();
 				if (trans.child(0).hasFn(MFn::kMesh))
 				{
+					MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"));
 					if (model)
 					{
 						m_model.setUID((string)trans.name().asChar() + ".model");
 						m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
+						newMesh.GenerateID();
+						m_model.setMeshId(newMesh.getUID());
 					}
 					if (mesh)
 					{
 						//Createmesh(meshIt.currentItem(), cSkelAnim);
-						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"));
 						newMesh.exportMesh(meshIt.currentItem());
 						/*BoundingExport newBox;
 						newBox.exportBoundingBox(meshIt.currentItem());*/

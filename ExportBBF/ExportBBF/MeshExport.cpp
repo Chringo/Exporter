@@ -189,12 +189,12 @@ int MeshExport::getProgressBarValue()
 	return indexList.length();
 }
 
-void MeshExport::GenerateID(std::string *filePath = nullptr)
+void MeshExport::GenerateID(std::string *filePath)
 {
 	if(filePath != nullptr)
 		this->m_UID = (unsigned int)std::hash<std::string>{}(*filePath);
 	else
-
+		this->m_UID = (unsigned int)std::hash<std::string>{}(this->filePath);
 }
 
 void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)

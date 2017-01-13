@@ -21,8 +21,9 @@ bool bbfExists(const std::string& filename)
 MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 {
 	this->skinList = skinList;
+	this->filePath = filePath;
 
-	if (bbfExists(filePath))
+	/*if (bbfExists(filePath))
 	{
 		size_t f = filePath.rfind("/", filePath.length());
 		string pAth = filePath.substr(f + 1, filePath.length());
@@ -54,29 +55,13 @@ MeshExport::MeshExport(string & filePath, vector<SkinData>* skinList)
 		m_UID = s_Head.id;
 
 		outFile->write((char*)&s_Head, sizeof(MainHeader));
-	}
-	/*outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
-
-	MainHeader s_Head;
-	s_Head.type = (int)Resources::ResourceType::RES_MESH;
-	s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
-
-	outFile->write((char*)&s_Head, sizeof(MainHeader));*/
+	}*/
 }
 
 MeshExport::MeshExport(string & filePath)
 {
-	//outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
-
-	//MainHeader s_Head;
-	//s_Head.type = (int)Resources::ResourceType::RES_MESH;
-	//s_Head.id	= (unsigned int)std::hash<std::string>{}(filePath);
-
-	///*std::string str = "Meet the new boss...";
-	//std::size_t str_hash = std::hash<std::string>{}(str); */
-
-	//outFile->write((char*)&s_Head, sizeof(MainHeader));
-	if (bbfExists(filePath))
+	this->filePath = filePath;
+	/*if (bbfExists(filePath))
 	{
 		size_t f = filePath.rfind("/", filePath.length());
 		string pAth = filePath.substr(f + 1, filePath.length());
@@ -108,14 +93,7 @@ MeshExport::MeshExport(string & filePath)
 		m_UID = s_Head.id;
 
 		outFile->write((char*)&s_Head, sizeof(MainHeader));
-	}
-	/*outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
-
-	MainHeader s_Head;
-	s_Head.type = (int)Resources::ResourceType::RES_MESH;
-	s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
-
-	outFile->write((char*)&s_Head, sizeof(MainHeader));*/
+	}*/
 }
 
 MeshExport::~MeshExport()
@@ -129,6 +107,39 @@ MeshExport::~MeshExport()
 
 void MeshExport::exportMesh(MObject & mNode)
 {
+	if (bbfExists(filePath))
+	{
+		size_t f = filePath.rfind("/", filePath.length());
+		string pAth = filePath.substr(f + 1, filePath.length());
+
+		string meshName = ("Overwrite " + pAth + "?");
+		std::wstring stemp = std::wstring(meshName.begin(), meshName.end());
+		LPCWSTR sw = stemp.c_str();
+		MainHeader s_Head;
+		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+		m_UID = s_Head.id;
+		if (MessageBox(NULL, sw, TEXT("bbf file already exists"), MB_YESNO) == IDYES)
+		{
+			outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
+
+			s_Head.type = (int)Resources::ResourceType::RES_MESH;
+
+			outFile->write((char*)&s_Head, sizeof(MainHeader));
+		}
+		else
+			overWrite = false;
+	}
+	else
+	{
+		outFile = new fstream(filePath, std::fstream::out | std::fstream::binary);
+
+		MainHeader s_Head;
+		s_Head.type = (int)Resources::ResourceType::RES_MESH;
+		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+		m_UID = s_Head.id;
+
+		outFile->write((char*)&s_Head, sizeof(MainHeader));
+	}
 	if (overWrite)
 	{
 		/*extracting the nodes from the MObject*/
@@ -176,6 +187,14 @@ int MeshExport::getProgressBarValue()
 		MFnMesh(meshIt.currentItem()).getTriangles(offset, indexList);
 	}
 	return indexList.length();
+}
+
+void MeshExport::GenerateID(std::string *filePath)
+{
+	if(filePath != nullptr)
+		this->m_UID = (unsigned int)std::hash<std::string>{}(*filePath);
+	else
+		this->m_UID = (unsigned int)std::hash<std::string>{}(this->filePath);
 }
 
 void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)

@@ -10,6 +10,8 @@ public:
 	MaterialExport();
 	MaterialExport(string &filePath);
 	~MaterialExport();
+
+	void generateID(string *filePath = nullptr);
 	//MaterialHeader mHeader;
 private:
 	string filePath;

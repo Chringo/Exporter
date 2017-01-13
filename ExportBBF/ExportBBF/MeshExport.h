@@ -16,6 +16,7 @@ private:
 
 	unsigned int m_UID = 0;
 
+	std::string filePath;
 	unsigned int jointCount;
 	bool overWrite = true;
 

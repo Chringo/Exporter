@@ -20,6 +20,10 @@ MaterialExport::MaterialExport(string &filePath)
 	//this->filePath = filePath.substr(0, f - 1);
 	//this->filePath += ".mat";
 	this->filePath = filePath;
+
+	//s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+	//this->m_UID = s_Head.id;
+
 }
 
 
@@ -27,6 +31,61 @@ MaterialExport::MaterialExport(string &filePath)
 MaterialExport::~MaterialExport()
 {
 	delete outFile;
+}
+
+void MaterialExport::generateID(string * filePath)
+{
+	MStatus stat;
+	MItDag dagIter(MItDag::kBreadthFirst, MFn::kInvalid, &stat);
+	for (; !dagIter.isDone(); dagIter.next())
+	{
+		MDagPath dagPath;
+		stat = dagIter.getPath(dagPath);
+		if (stat)
+		{
+			MFnDagNode dagNode(dagPath, &stat);
+
+			if (dagNode.isIntermediateObject())continue;
+			if (!dagPath.hasFn(MFn::kMesh))continue;
+			if (dagPath.hasFn(MFn::kTransform))continue;
+
+			MFnMesh fnMesh(dagPath);
+
+			unsigned instanceNumber = dagPath.instanceNumber();
+			MObjectArray sets;
+			MObjectArray comps;
+			fnMesh.getConnectedSetsAndMembers(instanceNumber, sets, comps, true);
+
+			for (unsigned i = 0; i < sets.length(); i++)
+			{
+				MObject set = sets[i];
+				MObject comp = comps[i];
+
+				MFnSet fnSet(set);
+
+				MFnDependencyNode dnSet(set);
+				MObject ssattr = dnSet.attribute(MString("surfaceShader"));
+
+				MPlug sPlug(set, ssattr);
+
+				MPlugArray srcplugarray;
+
+				sPlug.connectedTo(srcplugarray, true, false);
+
+				if (srcplugarray.length() == 0) continue;
+
+				MObject srcNode = srcplugarray[0].node();
+
+				/*setting the filename to the material name*/
+				if (filePath == nullptr)
+					this->m_UID = (unsigned int)std::hash<std::string>{}(this->filePath + string(MFnDependencyNode(srcNode).name().asChar()) + ".mat");
+				else
+					this->m_UID = (unsigned int)std::hash<std::string>{}(*filePath + string(MFnDependencyNode(srcNode).name().asChar()) + ".mat");
+				/*setting the new id*/
+			}
+		}
+	}
+	dagIter.reset();
 }
 
 void MaterialExport::MaterialExtraction()
@@ -76,6 +135,9 @@ void MaterialExport::MaterialExtraction()
 				MObject srcNode = srcplugarray[0].node();
 
 				/*setting the filename to the material name*/
+				/*a check to see if the filename has already been made*/
+				//std::string tempFilePath = this->filePath.substr(filePath.rfind("."));
+				//if (tempFilePath != ".mat")
 				this->filePath += string(MFnDependencyNode(srcNode).name().asChar()) + ".mat";
 
 				//mHeader.textureIDs[0] = fnSet.name().length();

@@ -16,6 +16,7 @@ private:
 
 	unsigned int m_UID = 0;
 
+	std::string filePath;
 	unsigned int jointCount;
 	bool overWrite = true;
 
@@ -27,6 +28,7 @@ public:
 	~MeshExport();
 	void exportMesh(MObject & mNode);
 	static int getProgressBarValue();
+	void GenerateID(std::string *filePath = nullptr);
 
 	unsigned int getUID(){ return this->m_UID; }
 private:

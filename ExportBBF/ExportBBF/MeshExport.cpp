@@ -234,29 +234,64 @@ void MeshExport::exportCustomObb(MStatus &res)
 						if (attrName[3] == 'X')
 						{
 							MFnMesh mMesh(trans.child(0), NULL);
+							
 							//ta med rotation
 							// translation
 							//skala
 							//AAOOB
+							MFloatPointArray vertexArray,arraypositions;
 							MIntArray indexList, offsetList;
 
-							const float* position = mMesh.getRawPoints(NULL);
+							mMesh.getPoints(vertexArray, MSpace::kTransform);
+							
+						
+							//mMesh.getPoints(vertexArray, MSpace::kTransform);
+
+						//	const float* position = mMesh.getRawPoints(NULL);
 							mMesh.getTriangles(offsetList, indexList);
 
 							MDGModifier Modifier;
 
 							MVector center;
+							MPoint _position;
+							MPoint _positions;
+						
 							Vector3 m_rotation = { 0,0,0 };
 							Vector3 m_position = { 0,0,0 };
 							Vector3 min = { 0,0,0 };
-							Vector3 max = { 0,0,0 };
+							Vector3 max = { 0,0,0 }; 
 
 							for (unsigned int i = 0; i < indexList.length(); i++)
+							{
+								_position.x =  vertexArray[indexList[i]*3].x;
+								_position.y = vertexArray[indexList[i] * 3+1].y;
+								_position.z = vertexArray[indexList[i] * 3 + 1].z;
+								
+
+								if (min.x > _position.x)
+									min.x = _position.x;
+								if (min.y > _position.y)
+									min.y = _position.y;
+								if (min.z > _position.z)
+									min.z = _position.z;
+
+								if (max.x > _position.x)
+									max.x = _position.x;
+								if (max.y > _position.y)
+									max.y = _position.y;
+								if (max.z > _position.z)
+									max.z = _position.z;
+								
+							}
+
+							/*for (unsigned int i = 0; i < indexList.length(); i++)
 							{
 								m_position.x = position[indexList[i] * 3];
 								m_position.y = position[indexList[i] * 3 + 1];
 								m_position.z = position[indexList[i] * 3 + 2];
 
+								
+								
 								if (min.x > m_position.x)
 									min.x = m_position.x;
 								if (min.y > m_position.y)
@@ -271,19 +306,26 @@ void MeshExport::exportCustomObb(MStatus &res)
 								if (max.z < m_position.z)
 									max.z = m_position.z;
 							}
+							*/
 							//MVector pivPos = trans.rotatePivot(MSpace::kObject, NULL);
+							MObject corner1;
+							MObject corner2;
+							
+
 
 							obbHead.pivotPosition = trans.rotatePivot(MSpace::kObject, NULL);
 
 							center.x = (max.x + min.x) / 2;
 							center.y = (max.y + min.y) / 2;
 							center.z = (max.z + min.z) / 2;
+
 							//center.normalize();
 							obbHead.position = center;
 
 							MVector vectorX = MVector(max.x, 0.0f, 0.0f) - MVector(center.x, 0.0f, 0.0f);
 							MVector vectorY = MVector(0.0f, max.y, 0.0f) - MVector(0.0f, center.y, 0.0f);
 							MVector vectorZ = MVector(0.0f, 0.0f, max.z) - MVector(0.0f, 0.0f, center.z);
+
 
 							Vector3* temp = nullptr;
 
@@ -293,35 +335,47 @@ void MeshExport::exportCustomObb(MStatus &res)
 
 							double rotation[3];
 							MTransformationMatrix::RotationOrder rotationOrder = MTransformationMatrix::RotationOrder::kXYZ;
-							trans.getRotation(rotation, rotationOrder);
-							
+							trans.getRotation(rotation, rotationOrder, MSpace::kObject);
 
-							//obbHead.extensionDir[0].x
+							DirectX::XMVECTOR rot;
+
+							rot.m128_f32[0] = rotation[0];
+							rot.m128_f32[1] = rotation[1];
+							rot.m128_f32[2] = rotation[2];
+							rot.m128_f32[3] = 0.0f;
+
+							DirectX::XMMATRIX test = DirectX::XMMatrixRotationRollPitchYawFromVector(rot);
+
+							DirectX::XMMATRIX containerMatrix = DirectX::XMMatrixIdentity();
+							
 
 							MFloatMatrix IdMatrix;
 							IdMatrix.setToIdentity();
 
 							MTransformationMatrix RotationMatrix;
-							RotationMatrix.addRotation(rotation, rotationOrder, MSpace::kTransform);
-							MVector extensionDirections = { 1,1,1 };
+							RotationMatrix.addRotation(rotation, rotationOrder, MSpace::kObject);
+							DirectX::XMVECTOR extensionDirections = { 1,1,1 };
+							
+							//extensionDirections.rotateBy(rotation, rotationOrder);
 
 
-							extensionDirections.rotateBy(rotation, rotationOrder);
-
+							containerMatrix = DirectX::XMMatrixMultiply(containerMatrix, test);
+							containerMatrix = DirectX::XMMatrixMultiply(containerMatrix, DirectX::XMMatrixTranslationFromVector(extensionDirections));
 							//MFloatMatrix m_Matrix(testMatrix);
+							obbHead.extensionDir[0] = containerMatrix.r[0].m128_f32;
+							obbHead.extensionDir[1] = containerMatrix.r[1].m128_f32;
+							obbHead.extensionDir[2] = containerMatrix.r[2].m128_f32;
+							//obbHead.extensionDir[0].x = rotation[0];
+							//obbHead.extensionDir[0].y = 0;
+							//obbHead.extensionDir[0].z = 0;
 
+//							obbHead.extensionDir[1].x = 0;
+//							obbHead.extensionDir[1].y = rotation[1];
+//							obbHead.extensionDir[1].z = 0;
 
-							obbHead.extensionDir[0].x = extensionDirections[0];
-							obbHead.extensionDir[0].y = 0;
-							obbHead.extensionDir[0].z = 0;
-
-							obbHead.extensionDir[1].x = 0;
-							obbHead.extensionDir[1].y = extensionDirections[1];
-							obbHead.extensionDir[1].z = 0;
-
-							obbHead.extensionDir[2].x = 0;
-							obbHead.extensionDir[2].y = 0;
-							obbHead.extensionDir[2].z = extensionDirections[2];
+//							obbHead.extensionDir[2].x = 0;
+//							obbHead.extensionDir[2].y = 0;
+//							obbHead.extensionDir[2].z = rotation[2];
 
 
 
@@ -570,10 +624,11 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran,bool customO
 		//MFnDependencyNode depNode = mMesh.parent(0);
 		//MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
 		//hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
-	//	if (!customObb)
-		//{
-		
-		//obbHead = newBox.getObbHead();
+		if (!customObb)
+		{
+
+			obbHeads = *newBox.getObbHead();
+		}
 		obbHeads = this->obbHead;
 		
 		//}

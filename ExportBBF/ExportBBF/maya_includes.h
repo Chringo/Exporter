@@ -81,7 +81,7 @@
 #include <maya/MDagMessage.h>
 #include <maya/MUiMessage.h>
 #include <maya/MModelMessage.h>
-
+#include <maya/MBoundingBox.h>
 // Commands
 #include <maya/MPxCommand.h>
 

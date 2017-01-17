@@ -271,64 +271,57 @@ void MeshExport::exportCustomObb(MStatus &res)
 								if (max.z < m_position.z)
 									max.z = m_position.z;
 							}
-							MVector pivPos = trans.rotatePivot(MSpace::kObject, NULL);
+							//MVector pivPos = trans.rotatePivot(MSpace::kObject, NULL);
 
-							obbHead.position = pivPos;
-							center.x = max.x - min.x;
-							center.y = max.y - min.y;
-							center.z = max.z - min.z;
+							obbHead.pivotPosition = trans.rotatePivot(MSpace::kObject, NULL);
 
-							obbHead.extension[0] = max.x;
-							obbHead.extension[1] = max.y;
-							obbHead.extension[2] = max.z;
+							center.x = (max.x + min.x) / 2;
+							center.y = (max.y + min.y) / 2;
+							center.z = (max.z + min.z) / 2;
+							//center.normalize();
+							obbHead.position = center;
+
+							MVector vectorX = MVector(max.x, 0.0f, 0.0f) - MVector(center.x, 0.0f, 0.0f);
+							MVector vectorY = MVector(0.0f, max.y, 0.0f) - MVector(0.0f, center.y, 0.0f);
+							MVector vectorZ = MVector(0.0f, 0.0f, max.z) - MVector(0.0f, 0.0f, center.z);
 
 							Vector3* temp = nullptr;
 
-							double x, y, z, w;
+							obbHead.extension[0] = vectorX.length();
+							obbHead.extension[1] = vectorY.length();
+							obbHead.extension[2] = vectorZ.length();
+
 							double rotation[3];
-							//trans.getRotation()
-						//	trans.getRotationQuaternion(x, y, z, w,MSpace::kObject);
-							trans.getRotation(rotation,MTransformationMatrix::RotationOrder::kXYZ,MSpace::kTransform);
+							MTransformationMatrix::RotationOrder rotationOrder = MTransformationMatrix::RotationOrder::kXYZ;
+							trans.getRotation(rotation, rotationOrder);
+							
 
 							//obbHead.extensionDir[0].x
 
 							MFloatMatrix IdMatrix;
 							IdMatrix.setToIdentity();
 
+							MTransformationMatrix RotationMatrix;
+							RotationMatrix.addRotation(rotation, rotationOrder, MSpace::kTransform);
+							MVector extensionDirections = { 1,1,1 };
 
 
-							double testMatrix[4][4] =
-							{ x,0,0,0,
-								0,y,0,0,
-								0,0,z,0,
-								0,0,0,w };
+							extensionDirections.rotateBy(rotation, rotationOrder);
+
+							//MFloatMatrix m_Matrix(testMatrix);
 
 
-
-							MFloatMatrix m_Matrix(testMatrix);
-
-							MFloatMatrix resultMatrix = IdMatrix * m_Matrix;
-
-							obbHead.extensionDir[0].x = resultMatrix.matrix[0][0];
+							obbHead.extensionDir[0].x = extensionDirections[0];
 							obbHead.extensionDir[0].y = 0;
 							obbHead.extensionDir[0].z = 0;
 
 							obbHead.extensionDir[1].x = 0;
-							obbHead.extensionDir[1].y = resultMatrix.matrix[1][1];
+							obbHead.extensionDir[1].y = extensionDirections[1];
 							obbHead.extensionDir[1].z = 0;
 
 							obbHead.extensionDir[2].x = 0;
 							obbHead.extensionDir[2].y = 0;
-							obbHead.extensionDir[2].z = resultMatrix.matrix[2][2];
-
-							DirectX::XMMATRIX RotationMatrix = DirectX::XMMatrixIdentity();
-
-							for (int i = 0; i < 3; i++)
-							{
-								temp = &obbHead.extensionDir[i];
-								RotationMatrix.r[i] = DirectX::XMVectorSet(temp->x, temp->y, temp->z, 0);
-								temp = nullptr;
-							}
+							obbHead.extensionDir[2].z = extensionDirections[2];
 
 
 

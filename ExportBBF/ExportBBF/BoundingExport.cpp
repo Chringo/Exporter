@@ -65,15 +65,24 @@ void BoundingExport::exportOBB(MFnMesh & mMesh, MFnTransform & mTran)
 	}
 	MVector pivPos = mTran.rotatePivot(MSpace::kTransform, NULL);
 	//MVector piver = mTran.rotatePivotTranslation(MSpace::kWorld, NULL);
-	obbHead.position = pivPos;
-	center.x = max.x - min.x;
-	center.y = max.y - min.y;
-	center.z = max.z - min.z;
+	obbHead.pivotPosition = pivPos;
+	
+	center.x = (max.x + min.x)/2;
+	center.y = (max.y + min.y)/2;
+	center.z = (max.z + min.z)/2;
 	//center.normalize();
+	obbHead.position = center;
+	
+	MVector vectorX = MVector(max.x, 0.0f, 0.0f) - MVector(center.x, 0.0f, 0.0f);
+	MVector vectorY = MVector(0.0f, max.y, 0.0f) - MVector(0.0f, center.y, 0.0f);
+	MVector vectorZ = MVector(0.0f, 0.0f, max.z) - MVector(0.0f, 0.0f, center.z);
 
-	obbHead.extension[0] = max.x;
+	/*obbHead.extension[0] = max.x;
 	obbHead.extension[1] = max.y;
-	obbHead.extension[2] = max.z;
+	obbHead.extension[2] = max.z;*/
+	obbHead.extension[0] = vectorX.length();
+	obbHead.extension[1] = vectorY.length();
+	obbHead.extension[2] = vectorZ.length();
 
 	obbHead.extensionDir[0].x = 1;
 	obbHead.extensionDir[0].y = 0;

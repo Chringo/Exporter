@@ -114,218 +114,223 @@ void MaterialExport::MaterialExtraction(bool customObb)
 			MObjectArray sets;
 			MObjectArray comps;
 			fnMesh.getConnectedSetsAndMembers(instanceNumber, sets, comps, true);
+			string controlName = ((MFnTransform)fnMesh.parent(0)).name().asChar();
+			//((MFnTransform)fnMesh.parent(0)).name().asChar()
 
-			for (unsigned i = 0; i < sets.length(); i++)
+			if (controlName != "BBOX")
 			{
-				MObject set = sets[i];
-				MObject comp = comps[i];
-
-				MFnSet fnSet(set);
-
-				MFnDependencyNode dnSet(set);
-				MObject ssattr = dnSet.attribute(MString("surfaceShader"));
-
-				MPlug sPlug(set, ssattr);
-
-				MPlugArray srcplugarray;
-
-				sPlug.connectedTo(srcplugarray, true, false);
-
-				if (srcplugarray.length() == 0) continue;
-
-				MObject srcNode = srcplugarray[0].node();
-
-				/*setting the filename to the material name*/
-				/*a check to see if the filename has already been made*/
-				//std::string tempFilePath = this->filePath.substr(filePath.rfind("."));
-				//if (tempFilePath != ".mat")
-				if (this->matname1 != "")
+				for (unsigned i = 0; i < sets.length(); i++)
 				{
-					if (this->matname1 == string(MFnDependencyNode(srcNode).name().asChar()) + ".mat")
-						return;
-				}
-				else 
-				{
-					this->filePath += string(MFnDependencyNode(srcNode).name().asChar()) + ".mat";
-					this->matname1 = string(MFnDependencyNode(srcNode).name().asChar()) + ".mat";
-				}
+					MObject set = sets[i];
+					MObject comp = comps[i];
 
-				//mHeader.textureIDs[0] = fnSet.name().length();
+					MFnSet fnSet(set);
+
+					MFnDependencyNode dnSet(set);
+					MObject ssattr = dnSet.attribute(MString("surfaceShader"));
+
+					MPlug sPlug(set, ssattr);
+
+					MPlugArray srcplugarray;
+
+					sPlug.connectedTo(srcplugarray, true, false);
+
+					if (srcplugarray.length() == 0) continue;
+
+					MObject srcNode = srcplugarray[0].node();
+
+					/*setting the filename to the material name*/
+					/*a check to see if the filename has already been made*/
+					//std::string tempFilePath = this->filePath.substr(filePath.rfind("."));
+					//if (tempFilePath != ".mat")
+					if (this->matname1 != "")
+					{
+						if (this->matname1 == string(MFnDependencyNode(srcNode).name().asChar()) + ".mat")
+							return;
+					}
+					else
+					{
+						this->filePath += string(MFnDependencyNode(srcNode).name().asChar()) + ".mat";
+						this->matname1 = string(MFnDependencyNode(srcNode).name().asChar()) + ".mat";
+					}
+
+					//mHeader.textureIDs[0] = fnSet.name().length();
 #pragma region textureColor
-				MPlug texture = MFnDependencyNode(srcNode).findPlug("TEX_color_map", &stat);
-				MItDependencyGraph dgItt(texture, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
-				dgItt.disablePruningOnFilter();
+					MPlug texture = MFnDependencyNode(srcNode).findPlug("TEX_color_map", &stat);
+					MItDependencyGraph dgItt(texture, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
+					dgItt.disablePruningOnFilter();
 
-				memcpy(tHeader.shaderName, fnSet.name().asChar(), fnSet.name().length());
-				tHeader.shaderName[fnSet.name().length()] = '\0';
+					memcpy(tHeader.shaderName, fnSet.name().asChar(), fnSet.name().length());
+					tHeader.shaderName[fnSet.name().length()] = '\0';
 
 
-				MObject textureNode = dgItt.thisNode();
-				MPlug filenamePlugn = MFnDependencyNode(textureNode).findPlug("fileTextureName");
-				MString texName;
+					MObject textureNode = dgItt.thisNode();
+					MPlug filenamePlugn = MFnDependencyNode(textureNode).findPlug("fileTextureName");
+					MString texName;
 
-				filenamePlugn.getValue(texName);
+					filenamePlugn.getValue(texName);
 
-				//	mHeader.textureNameLength = texName.length();
+					//	mHeader.textureNameLength = texName.length();
 
-				int test = 0;
-				string ctex = texName.asChar();
-				if (!ctex.empty())
-				{
-					string path;
-					path = ExportingTex(ctex);
-					memcpy(tHeader.textureName, path.c_str(), path.length());
-					//tHeader.textureName = path;
-					tHeader.textureName[path.length()] = '\0';
-					std::string hashId = filePath + path;
-					mHeader.textureIDs[0] = (unsigned int)std::hash<std::string>{}(hashId);
-					textureNameLength[0] = path.length() + 1;
-				}
-				//cerr << "1: " << test<<endl
-				//mHeader.textureIDs[0] = texName.length();
-				pBar->setValue(pBar->value() + 1);
+					int test = 0;
+					string ctex = texName.asChar();
+					if (!ctex.empty())
+					{
+						string path;
+						path = ExportingTex(ctex);
+						memcpy(tHeader.textureName, path.c_str(), path.length());
+						//tHeader.textureName = path;
+						tHeader.textureName[path.length()] = '\0';
+						std::string hashId = filePath + path;
+						mHeader.textureIDs[0] = (unsigned int)std::hash<std::string>{}(hashId);
+						textureNameLength[0] = path.length() + 1;
+					}
+					//cerr << "1: " << test<<endl
+					//mHeader.textureIDs[0] = texName.length();
+					pBar->setValue(pBar->value() + 1);
 
 #pragma endregion
 #pragma region Normal
-				MPlug texNormal = MFnDependencyNode(srcNode).findPlug("TEX_normal_map", &stat);
-				MItDependencyGraph dgItn(texNormal, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
-				dgItn.disablePruningOnFilter();
+					MPlug texNormal = MFnDependencyNode(srcNode).findPlug("TEX_normal_map", &stat);
+					MItDependencyGraph dgItn(texNormal, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
+					dgItn.disablePruningOnFilter();
 
-				MObject normalNode = dgItn.thisNode();
-				MPlug filenameTexPlugn = MFnDependencyNode(normalNode).findPlug("fileTextureName");
-				MString textureName;
+					MObject normalNode = dgItn.thisNode();
+					MPlug filenameTexPlugn = MFnDependencyNode(normalNode).findPlug("fileTextureName");
+					MString textureName;
 
-				filenameTexPlugn.getValue(textureName);
-				//			mHeader.normalNameLength = textureName.length();
-							//mHeader.textureNameLength[3] = textureName.length();
+					filenameTexPlugn.getValue(textureName);
+					//			mHeader.normalNameLength = textureName.length();
+								//mHeader.textureNameLength[3] = textureName.length();
 
 
-				string ntex = textureName.asChar();
-				if (!ntex.empty())
-				{
-					string path;
-					path = ExportingTex(ntex);
+					string ntex = textureName.asChar();
+					if (!ntex.empty())
+					{
+						string path;
+						path = ExportingTex(ntex);
 
-					memcpy(tHeader.normalName, path.c_str(), path.length());
-					tHeader.normalName[path.length()] = '\0';
-					textureNameLength[3] = path.length() + 1;
-					std::string hashId = filePath + path;
-					mHeader.textureIDs[3] = (unsigned int)std::hash<std::string>{}(hashId);
-				}
+						memcpy(tHeader.normalName, path.c_str(), path.length());
+						tHeader.normalName[path.length()] = '\0';
+						textureNameLength[3] = path.length() + 1;
+						std::string hashId = filePath + path;
+						mHeader.textureIDs[3] = (unsigned int)std::hash<std::string>{}(hashId);
+					}
 
-				//cerr << "2: " << test << endl;
-				pBar->setValue(pBar->value() + 1);
+					//cerr << "2: " << test << endl;
+					pBar->setValue(pBar->value() + 1);
 #pragma endregion
 
 #pragma region Metallic
-				MPlug texmetall = MFnDependencyNode(srcNode).findPlug("TEX_metallic_map", &stat);
-				MItDependencyGraph dgIt(texmetall, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
-				dgIt.disablePruningOnFilter();
+					MPlug texmetall = MFnDependencyNode(srcNode).findPlug("TEX_metallic_map", &stat);
+					MItDependencyGraph dgIt(texmetall, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
+					dgIt.disablePruningOnFilter();
 
-				MObject metallNode = dgIt.thisNode();
-				MPlug filenamePlugm = MFnDependencyNode(metallNode).findPlug("fileTextureName");
-				MString textureNamem;
+					MObject metallNode = dgIt.thisNode();
+					MPlug filenamePlugm = MFnDependencyNode(metallNode).findPlug("fileTextureName");
+					MString textureNamem;
 
 
-				filenamePlugm.getValue(textureNamem);
-				//mHeader.metallicNameLength = textureNamem.length();
-				//mHeader.textureIDs[1] = textureNamem.length();
-				string mtex = textureNamem.asChar();
-				if (!mtex.empty())
-				{
-					string path;
-					path = ExportingTex(mtex);
-					memcpy(tHeader.metallicName, path.c_str(), path.length());
-					tHeader.metallicName[path.length()] = '\0';
-					textureNameLength[1] = path.length() + 1;
-					std::string hashId = filePath + path;
-					mHeader.textureIDs[1] = (unsigned int)std::hash<std::string>{}(hashId);
-				}
-				//cerr << "3: " << test << endl;
-				pBar->setValue(pBar->value() + 1);
+					filenamePlugm.getValue(textureNamem);
+					//mHeader.metallicNameLength = textureNamem.length();
+					//mHeader.textureIDs[1] = textureNamem.length();
+					string mtex = textureNamem.asChar();
+					if (!mtex.empty())
+					{
+						string path;
+						path = ExportingTex(mtex);
+						memcpy(tHeader.metallicName, path.c_str(), path.length());
+						tHeader.metallicName[path.length()] = '\0';
+						textureNameLength[1] = path.length() + 1;
+						std::string hashId = filePath + path;
+						mHeader.textureIDs[1] = (unsigned int)std::hash<std::string>{}(hashId);
+					}
+					//cerr << "3: " << test << endl;
+					pBar->setValue(pBar->value() + 1);
 
 
 #pragma endregion
 #pragma region Roughness
-				MPlug texRogugh = MFnDependencyNode(srcNode).findPlug("TEX_roughness_map", &stat);
-				MItDependencyGraph dgItr(texRogugh, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
-				dgItr.disablePruningOnFilter();
+					MPlug texRogugh = MFnDependencyNode(srcNode).findPlug("TEX_roughness_map", &stat);
+					MItDependencyGraph dgItr(texRogugh, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
+					dgItr.disablePruningOnFilter();
 
-				MObject roughNode = dgItr.thisNode();
-				MPlug filenamePlugr = MFnDependencyNode(roughNode).findPlug("fileTextureName");
-				MString textureNamer;
-
-
-
-				filenamePlugr.getValue(textureNamer);
-				//mHeader.roughNameLength = textureNamer.length();
+					MObject roughNode = dgItr.thisNode();
+					MPlug filenamePlugr = MFnDependencyNode(roughNode).findPlug("fileTextureName");
+					MString textureNamer;
 
 
-				string rtex = textureNamer.asChar();
-				if (!rtex.empty())
-				{
-					string path;
 
-					path = ExportingTex(rtex);
-					memcpy(tHeader.roughName, path.c_str(), path.length());
-					tHeader.roughName[path.length()] = '\0';
-					textureNameLength[2] = path.length() + 1;
-					std::string hashId = filePath + path;
-					mHeader.textureIDs[2] = (unsigned int)std::hash<std::string>{}(hashId);
-				}
+					filenamePlugr.getValue(textureNamer);
+					//mHeader.roughNameLength = textureNamer.length();
 
-				//cerr << "4: " << test << endl;
-				pBar->setValue(pBar->value() + 1);
+
+					string rtex = textureNamer.asChar();
+					if (!rtex.empty())
+					{
+						string path;
+
+						path = ExportingTex(rtex);
+						memcpy(tHeader.roughName, path.c_str(), path.length());
+						tHeader.roughName[path.length()] = '\0';
+						textureNameLength[2] = path.length() + 1;
+						std::string hashId = filePath + path;
+						mHeader.textureIDs[2] = (unsigned int)std::hash<std::string>{}(hashId);
+					}
+
+					//cerr << "4: " << test << endl;
+					pBar->setValue(pBar->value() + 1);
 
 #pragma endregion 
 
 #pragma region AO
-				MPlug texAo = MFnDependencyNode(srcNode).findPlug("TEX_ao_map", &stat);
-				MItDependencyGraph dgIta(texAo, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
-				dgIta.disablePruningOnFilter();
+					MPlug texAo = MFnDependencyNode(srcNode).findPlug("TEX_ao_map", &stat);
+					MItDependencyGraph dgIta(texAo, MFn::kFileTexture, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel, &stat);
+					dgIta.disablePruningOnFilter();
 
-				MObject aoNode = dgIta.thisNode();
-				MPlug filenamePluga = MFnDependencyNode(aoNode).findPlug("fileTextureName");
-				MString textureNamea;
+					MObject aoNode = dgIta.thisNode();
+					MPlug filenamePluga = MFnDependencyNode(aoNode).findPlug("fileTextureName");
+					MString textureNamea;
 
-				filenamePluga.getValue(textureNamea);
+					filenamePluga.getValue(textureNamea);
 
 
-				//cerr << "5: " << test << endl;
-				pBar->setValue(pBar->value() + 1);
-				string atex = textureNamea.asChar();
-				if (!atex.empty())
-				{
-					string path;
-					path = ExportingTex(atex);
+					//cerr << "5: " << test << endl;
+					pBar->setValue(pBar->value() + 1);
+					string atex = textureNamea.asChar();
+					if (!atex.empty())
+					{
+						string path;
+						path = ExportingTex(atex);
 
-					memcpy(tHeader.aoName, path.c_str(), path.length());
-					tHeader.aoName[path.length()] = '\0';
-					textureNameLength[4] = path.length() + 1;
-					std::string hashId = filePath + path;
-					mHeader.textureIDs[4] = (unsigned int)std::hash<std::string>{}(hashId);
-				}
+						memcpy(tHeader.aoName, path.c_str(), path.length());
+						tHeader.aoName[path.length()] = '\0';
+						textureNameLength[4] = path.length() + 1;
+						std::string hashId = filePath + path;
+						mHeader.textureIDs[4] = (unsigned int)std::hash<std::string>{}(hashId);
+					}
 
 #pragma endregion 
 #pragma region Attributes
-				MPlug metalness = MFnDependencyNode(srcNode).findPlug("metallic", &stat);
-				float value;
-				metalness.getValue(value);
-				mHeader.metallness = value;
+					MPlug metalness = MFnDependencyNode(srcNode).findPlug("metallic", &stat);
+					float value;
+					metalness.getValue(value);
+					mHeader.metallness = value;
 
-				MPlug roughness = MFnDependencyNode(srcNode).findPlug("roughness", &stat);
-				float roughValue;
-				roughness.getValue(roughValue);
-				mHeader.roughness = roughValue;
+					MPlug roughness = MFnDependencyNode(srcNode).findPlug("roughness", &stat);
+					float roughValue;
+					roughness.getValue(roughValue);
+					mHeader.roughness = roughValue;
 
-				MPlug Emissive = MFnDependencyNode(srcNode).findPlug("emissive", &stat);
-				float emissiveValue;
-				Emissive.getValue(emissiveValue);
-				mHeader.emissive = emissiveValue;
+					MPlug Emissive = MFnDependencyNode(srcNode).findPlug("emissive", &stat);
+					float emissiveValue;
+					Emissive.getValue(emissiveValue);
+					mHeader.emissive = emissiveValue;
 #pragma endregion
+				}
+				ExportingMats_Tex();
 			}
 		}
-		ExportingMats_Tex();
 	}
 	
 }
@@ -342,6 +347,8 @@ void MaterialExport::ExportingMats_Tex()
 		LPCWSTR sw = stemp.c_str();
 		MainHeader s_Head;
 		s_Head.id = (unsigned int)std::hash<std::string>{}(filePath);
+		
+
 		this->m_UID = s_Head.id;
 		if (MessageBox(NULL, sw, TEXT(".mat Already Exists "), MB_YESNO) == IDYES)
 		{

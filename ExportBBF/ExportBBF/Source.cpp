@@ -19,7 +19,7 @@ using namespace std;
 
 MCallbackIdArray myCallbackArray;
 
-void setProcessBarSize(bool mesh, bool skel, bool mats, bool anims,bool customObb)
+void setProcessBarSize(bool mesh, bool skel, bool mats, bool anims)
 {
 	QWidget *control = MQtUtil::findControl("progressBar");
 	QProgressBar *pBar = (QProgressBar*)control;
@@ -42,12 +42,12 @@ void setProcessBarSize(bool mesh, bool skel, bool mats, bool anims,bool customOb
 /*function that starts exporting everything chosen*/
 void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model,bool customObb, string filePath)
 {
-	if (mesh || skel || mats || anims || model,customObb)
+	if (mesh || skel || mats || anims || model)
 	{
 		MStatus res = MS::kSuccess;
 		QWidget *bar = MQtUtil::findControl("progressBar");
 		QProgressBar *pBar = (QProgressBar*)bar;
-		setProcessBarSize(mesh, skel, mats, anims,customObb);
+		setProcessBarSize(mesh, skel, mats, anims);
 		string bbox = "BBOX";
 		//fstream outFile;
 
@@ -214,6 +214,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model,bool cu
 					if (attrName != "BBOX")
 					{
 						newMat.MaterialExtraction(customObb);
+						m_model.setMatId(newMat.getUID());
 					}
 
 				}

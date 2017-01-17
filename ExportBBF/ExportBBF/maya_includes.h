@@ -39,6 +39,7 @@
 #include <maya/MSelectionList.h>
 #include <maya/MItDependencyNodes.h>
 #include <maya/MIteratorType.h>
+#include <maya/MFloatMatrix.h>
 
 // Includes for openMayaAnim
 #include <maya/MFnAnimCurve.h>
@@ -90,6 +91,8 @@
 //#pragma comment(lib,"OpenMaya.lib")
 //#pragma comment(lib,"OpenMayaUI.lib")
 //#pragma comment(lib, "OpenMayaAnim.lib")
+
+#include <DirectXMath.h>
 
 #endif
 

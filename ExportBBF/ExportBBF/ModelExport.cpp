@@ -38,6 +38,7 @@ void ModelExport::exportModel()
 		size_t f = m_filePath.rfind("/", m_filePath.length());
 		std::string pAth = m_filePath.substr(f + 1, m_filePath.length());
 
+		
 		std::string meshName = ("Overwrite " + pAth + "?");
 		std::wstring stemp = std::wstring(meshName.begin(), meshName.end());
 		LPCWSTR sw = stemp.c_str();

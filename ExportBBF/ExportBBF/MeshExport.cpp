@@ -291,7 +291,7 @@ void MeshExport::exportCustomObb()
 				{
 					m_position.x = position[indexList[i] * 3];
 					m_position.y = position[indexList[i] * 3 + 1];
-					m_position.z = (position[indexList[i] * 3 + 2]*-1);
+					m_position.z = (position[indexList[i] * 3 + 2]);
 
 
 					if (min.x > m_position.x)
@@ -312,7 +312,7 @@ void MeshExport::exportCustomObb()
 				//MVector pivPos = trans.rotatePivot(MSpace::kObject, NULL);
 
 
-				obbHead.pivotPosition = trans.rotatePivot(MSpace::kObject, NULL);
+				obbHead.pivotPosition = trans.rotatePivot(MSpace::kWorld, NULL);
 
 				center.x = (max.x + min.x) / 2;
 				center.y = (max.y + min.y) / 2;
@@ -334,7 +334,7 @@ void MeshExport::exportCustomObb()
 
 				double rotation[3];
 				MTransformationMatrix::RotationOrder rotationOrder = MTransformationMatrix::RotationOrder::kXYZ;
-				trans.getRotation(rotation, rotationOrder, MSpace::kObject);
+				trans.getRotation(rotation, rotationOrder, MSpace::kTransform);
 
 				DirectX::XMVECTOR rot;
 
@@ -352,7 +352,7 @@ void MeshExport::exportCustomObb()
 				IdMatrix.setToIdentity();
 
 				MTransformationMatrix RotationMatrix;
-				RotationMatrix.addRotation(rotation, rotationOrder, MSpace::kObject);
+				RotationMatrix.addRotation(rotation, rotationOrder, MSpace::kTransform);
 				DirectX::XMVECTOR extensionDirections = { 1,1,1 };
 
 				//extensionDirections.rotateBy(rotation, rotationOrder);
@@ -362,9 +362,9 @@ void MeshExport::exportCustomObb()
 				containerMatrix = DirectX::XMMatrixMultiply(containerMatrix, DirectX::XMMatrixTranslationFromVector(extensionDirections));
 				//MFloatMatrix m_Matrix(testMatrix);
 				obbHead.extensionDir[0] = containerMatrix.r[0].m128_f32;
-				obbHead.extensionDir[0].x = obbHead.extensionDir[0].x*-1;
-				obbHead.extensionDir[0].y = obbHead.extensionDir[0].y*-1;
-				obbHead.extensionDir[0].z = obbHead.extensionDir[0].z*-1;
+		//		obbHead.extensionDir[0].x = obbHead.extensionDir[0].x*-1;
+		//		obbHead.extensionDir[0].y = obbHead.extensionDir[0].y*-1;
+			//	obbHead.extensionDir[0].z = obbHead.extensionDir[0].z*-1;
 
 				obbHead.extensionDir[1] = containerMatrix.r[1].m128_f32;
 				obbHead.extensionDir[2] = containerMatrix.r[2].m128_f32;
@@ -628,7 +628,7 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran,bool customO
 		if (!customObb)
 		{
 
-			obbHeads = *newBox.getObbHead();
+			obbHead = *newBox.getObbHead();
 		}
 		obbHeads = this->obbHead;
 		

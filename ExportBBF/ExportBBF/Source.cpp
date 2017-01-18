@@ -127,22 +127,13 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model,bool cu
 					}
 					if (mesh && customObb)
 					{
-						//Createmesh(meshIt.currentItem(), cSkelAnim);
 						string attrName = trans.name().asChar();
-
-					//	if (attrName == "BBOX")
-					//	{
-							newMesh.exportCustomObb(res);
-							newMesh.exportMesh(meshIt.currentItem(), customObb);
-					//	}
-						
-						
-						/*BoundingExport newBox;
-						newBox.exportBoundingBox(meshIt.currentItem());*/
-						/*if (model)
+/*
+						if (attrName == "BBOX")
 						{
-							m_model.setMeshId(newMesh.getUID());
+							newMesh.exportCustomObb(res, (MFnMesh)trans.child(0));
 						}*/
+						newMesh.exportMesh(meshIt.currentItem(), customObb);
 					}
 					else if (mesh)
 					{

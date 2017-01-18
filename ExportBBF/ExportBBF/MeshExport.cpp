@@ -187,9 +187,9 @@ void MeshExport::exportMesh(MObject & mNode,bool customObb)
 			{
 
 				if (!customObb)
-				{
 					newBox.exportBoundingBox(mNode);
-				}
+				else
+					this->exportCustomObb();
 				exportStatic(mMesh, mTran, customObb);
 			}
 		}
@@ -216,11 +216,11 @@ void MeshExport::GenerateID(std::string *filePath)
 }
 
 
-void MeshExport::exportCustomObb(MStatus &res)
+void MeshExport::exportCustomObb()
 {
 
 
-	MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
+	MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform);
 	for (; !meshIt.isDone(); meshIt.next())
 	{
 		MFnTransform trans = meshIt.currentItem();
@@ -362,6 +362,9 @@ void MeshExport::exportCustomObb(MStatus &res)
 				containerMatrix = DirectX::XMMatrixMultiply(containerMatrix, DirectX::XMMatrixTranslationFromVector(extensionDirections));
 				//MFloatMatrix m_Matrix(testMatrix);
 				obbHead.extensionDir[0] = containerMatrix.r[0].m128_f32;
+				obbHead.extensionDir[0].x = -obbHead.extensionDir[0].x;
+				obbHead.extensionDir[0].y = -obbHead.extensionDir[0].y;
+				obbHead.extensionDir[0].z = -obbHead.extensionDir[0].z;
 				obbHead.extensionDir[1] = containerMatrix.r[1].m128_f32;
 				obbHead.extensionDir[2] = containerMatrix.r[2].m128_f32;
 				//obbHead.extensionDir[0].x = rotation[0];
@@ -380,13 +383,11 @@ void MeshExport::exportCustomObb(MStatus &res)
 
 							//	Modifier.deleteNode(meshIt.currentItem());
 							//	Modifier.doIt();
-				break;
-			}
-			else
 				return;
+			}
 		}
 	}
-
+	
 }
 
 void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)

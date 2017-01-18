@@ -35,7 +35,7 @@ public:
 
 	unsigned int getUID(){ return this->m_UID; }
 
-	void exportCustomObb(MStatus &res);
+	void exportCustomObb();
 private:
 	/*export a mesh with a skeleton*/
 	void exportDynamic(MFnMesh & mMesh, MFnTransform & mTran);

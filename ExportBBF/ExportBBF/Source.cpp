@@ -12,6 +12,7 @@
 #include <string.h>
 #include "MaterialExport.h"
 #include "ModelExport.h"
+#include "BoundingExport.h"
 
 
 using namespace std;
@@ -39,7 +40,7 @@ void setProcessBarSize(bool mesh, bool skel, bool mats, bool anims)
 }
 
 /*function that starts exporting everything chosen*/
-void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string filePath)
+void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model,bool customObb, string filePath)
 {
 	if (mesh || skel || mats || anims || model)
 	{
@@ -47,7 +48,7 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 		QWidget *bar = MQtUtil::findControl("progressBar");
 		QProgressBar *pBar = (QProgressBar*)bar;
 		setProcessBarSize(mesh, skel, mats, anims);
-
+		string bbox = "BBOX";
 		//fstream outFile;
 
 		/*writing a temporary mainheader*/
@@ -73,6 +74,8 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 				MFnTransform trans = meshIt.currentItem();
 				if (trans.child(0).hasFn(MFn::kMesh))
 				{
+					cSkelAnim.IterateSkinClusters();
+					MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
 					/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
 					if (skel)
 						cSkelAnim.setMeshName((string)trans.name().asChar());
@@ -80,22 +83,22 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 					{
 						m_model.setUID((string)trans.name().asChar() + ".model");
 						m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
+						newMesh.GenerateID();
+						m_model.setMeshId(newMesh.getUID());
 					}
 
 					if (mesh && skel)
 					{
 
-						cSkelAnim.IterateSkinClusters();
 						pBar->setValue(pBar->value() + 1);
 
-						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
-						newMesh.exportMesh(meshIt.currentItem());
+						newMesh.exportMesh(meshIt.currentItem(),customObb);
 					/*	BoundingExport newBox;
 						newBox.exportBoundingBox(meshIt.currentItem());*/
-						if (model)
+						/*if (model)
 						{
 							m_model.setMeshId(newMesh.getUID());
-						}
+						}*/
 					}
 				}
 
@@ -110,22 +113,34 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 				MFnTransform trans = meshIt.currentItem();
 				if (trans.child(0).hasFn(MFn::kMesh))
 				{
+					MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"));
 					if (model)
 					{
-						m_model.setUID((string)trans.name().asChar() + ".model");
-						m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
-					}
-					if (mesh)
-					{
-						//Createmesh(meshIt.currentItem(), cSkelAnim);
-						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"));
-						newMesh.exportMesh(meshIt.currentItem());
-						/*BoundingExport newBox;
-						newBox.exportBoundingBox(meshIt.currentItem());*/
-						if (model)
+						string attrName = trans.name().asChar();
+						if (attrName != "BBOX")
 						{
+							m_model.setUID((string)trans.name().asChar() + ".model");
+							m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
+							newMesh.GenerateID();
 							m_model.setMeshId(newMesh.getUID());
 						}
+					}
+					if (mesh && customObb)
+					{
+						string attrName = trans.name().asChar();
+/*
+						if (attrName == "BBOX")
+						{
+							newMesh.exportCustomObb(res, (MFnMesh)trans.child(0));
+						}*/
+						newMesh.exportMesh(meshIt.currentItem(), customObb);
+					}
+					else if (mesh)
+					{
+						
+						newMesh.exportMesh(meshIt.currentItem(),customObb);
+						
+
 					}
 				}
 			}
@@ -173,17 +188,38 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model, string
 			if (model)
 				m_model.setSkelId(cSkelAnim.getUID());
 		}
+
+		
+		MaterialExport newMat(filePath + "/Materials/");
+		newMat.generateID();
+		m_model.setMatId(newMat.getUID());
 		if (mats)
 		{
-			MaterialExport newMat(filePath + "/Materials/");
-			newMat.MaterialExtraction();
-			if (model)
-				m_model.setMatId(newMat.getUID());
+			MItDag meshIt(MItDag::kBreadthFirst, MFn::kTransform, &res);
+			for (; !meshIt.isDone(); meshIt.next())
+			{
+				MFnTransform trans = meshIt.currentItem();
+				if (trans.child(0).hasFn(MFn::kMesh))
+				{
+					string attrName = trans.name().asChar();
+					if (attrName != "BBOX")
+					{
+						newMat.MaterialExtraction(customObb);
+						m_model.setMatId(newMat.getUID());
+					}
+
+				}
+			}
 		}
 		if (model)
 		{
+			
 			m_model.exportModel();
+					
+				
+			
 		}
+		
 		/*making the buttons clickable again and closing the file*/
 		//outFile.close();
 		MGlobal::displayInfo("Done with the export!");
@@ -258,6 +294,9 @@ void exportClicked()
 	control = MQtUtil::findControl("lineEdit");
 	QString fileName = ((QLineEdit*)control)->text();
 
+	control = MQtUtil::findControl("CustomObb");
+	bool customObb = ((QCheckBox*)control)->checkState();
+
 	/*if there's a file path chosen, the program will start exporting*/
 	if (!fileName.isEmpty())
 	{
@@ -266,7 +305,7 @@ void exportClicked()
 		{
 			fName += fileName[i].unicode();
 		}
-		exportStart(mesh, skel, mats, anims, model, fName);
+		exportStart(mesh, skel, mats, anims, model,customObb, fName);
 		//MGlobal::displayInfo("in export");
 	}
 	else

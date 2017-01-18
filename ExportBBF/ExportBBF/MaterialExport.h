@@ -10,9 +10,12 @@ public:
 	MaterialExport();
 	MaterialExport(string &filePath);
 	~MaterialExport();
+
+	void generateID(string *filePath = nullptr);
 	//MaterialHeader mHeader;
 private:
 	string filePath;
+	string matname1;
 	fstream * outFile;
 	bool overWrite = true;
 	MaterialHeader mHeader;
@@ -24,7 +27,7 @@ public:
 
 	unsigned int getUID() { return this->m_UID; }
 
-	void MaterialExtraction();
+	void MaterialExtraction(bool customObb);
 	void ExportingMats_Tex();
 	string ExportingTex(string file);
 	

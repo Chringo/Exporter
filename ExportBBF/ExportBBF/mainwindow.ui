@@ -167,6 +167,19 @@
      <string>Model</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="CustomObb">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>150</y>
+      <width>81</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Custom Obb</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">

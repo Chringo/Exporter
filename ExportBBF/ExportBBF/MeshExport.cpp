@@ -291,7 +291,7 @@ void MeshExport::exportCustomObb()
 				{
 					m_position.x = position[indexList[i] * 3];
 					m_position.y = position[indexList[i] * 3 + 1];
-					m_position.z = position[indexList[i] * 3 + 2];
+					m_position.z = (position[indexList[i] * 3 + 2]*-1);
 
 
 					if (min.x > m_position.x)
@@ -318,7 +318,7 @@ void MeshExport::exportCustomObb()
 				center.y = (max.y + min.y) / 2;
 				center.z = (max.z + min.z) / 2;
 
-				//center.normalize();
+				center.normalize();
 				obbHead.position = center;
 
 				MVector vectorX = MVector(max.x, 0.0f, 0.0f) - MVector(center.x, 0.0f, 0.0f);
@@ -362,9 +362,10 @@ void MeshExport::exportCustomObb()
 				containerMatrix = DirectX::XMMatrixMultiply(containerMatrix, DirectX::XMMatrixTranslationFromVector(extensionDirections));
 				//MFloatMatrix m_Matrix(testMatrix);
 				obbHead.extensionDir[0] = containerMatrix.r[0].m128_f32;
-				obbHead.extensionDir[0].x = -obbHead.extensionDir[0].x;
-				obbHead.extensionDir[0].y = -obbHead.extensionDir[0].y;
-				obbHead.extensionDir[0].z = -obbHead.extensionDir[0].z;
+				obbHead.extensionDir[0].x = obbHead.extensionDir[0].x*-1;
+				obbHead.extensionDir[0].y = obbHead.extensionDir[0].y*-1;
+				obbHead.extensionDir[0].z = obbHead.extensionDir[0].z*-1;
+
 				obbHead.extensionDir[1] = containerMatrix.r[1].m128_f32;
 				obbHead.extensionDir[2] = containerMatrix.r[2].m128_f32;
 				//obbHead.extensionDir[0].x = rotation[0];

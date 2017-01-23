@@ -291,7 +291,7 @@ void MeshExport::exportCustomObb()
 				{
 					m_position.x = position[indexList[i] * 3];
 					m_position.y = position[indexList[i] * 3 + 1];
-					m_position.z = (position[indexList[i] * 3 + 2]);
+					m_position.z = (position[indexList[i] * 3 + 2]*-1);
 
 
 					if (min.x > m_position.x)

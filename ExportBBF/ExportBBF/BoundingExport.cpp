@@ -46,7 +46,7 @@ void BoundingExport::exportOBB(MFnMesh & mMesh, MFnTransform & mTran)
 	{
 		m_positions.x = positions[indexList[i] * 3];
 		m_positions.y = positions[indexList[i] * 3 + 1];
-		m_positions.z = positions[indexList[i] * 3 + 2];
+		m_positions.z = (positions[indexList[i] * 3 + 2]*-1);
 
 		if (min.x > m_positions.x)
 			min.x = m_positions.x;

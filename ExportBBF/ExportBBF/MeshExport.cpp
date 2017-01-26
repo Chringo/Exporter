@@ -179,7 +179,7 @@ void MeshExport::exportMesh(MObject & mNode,bool customObb)
 				/*Checking to see if the mesh has a skeleton*/
 				if (res)
 				{
-					//newBox.exportBoundingBox(mNode);
+					newBox.exportBoundingBox(mNode);
 					exportDynamic(mMesh, mTran);
 				}
 			}

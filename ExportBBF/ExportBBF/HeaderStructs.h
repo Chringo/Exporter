@@ -50,7 +50,6 @@ struct KeyframeHeader
 {
 	float timeValue;
 	float translation[3];
-	//float rotation[3];
 	float quaternion[4];
 	float scale[3];
 };
@@ -58,7 +57,6 @@ struct SkeletonHeader
 {
 	unsigned int jointCount;
 	unsigned int animLayerCount;
-	//int skeletonId;
 };
 
 struct LayerIdHeader

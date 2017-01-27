@@ -207,21 +207,6 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											double rotation[3];
 											MTransformationMatrix::RotationOrder rotOrder;
 
-											//if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
-											//{
-											//	rotation[0] *= -1.0;
-											//	rotation[1] *= -1.0;
-
-											//	//std::copy(rotation, rotation + 3, keyData.rotation);
-
-											//	MEulerRotation euler(rotation);
-											//	MQuaternion quaternion = euler.asQuaternion();
-
-											//	double quat[4];
-											//	quaternion.get(quat);
-											//	std::copy(quat, quat + 4, keyData.quaternion);
-											//}
-
 											MQuaternion quaternion;
 
 											if (jointFn.getRotation(quaternion, MSpace::kObject))
@@ -356,21 +341,6 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										/*Keyframes transformation values are obtained here: quat, trans and scale.*/
 										double rotation[3];
 										MTransformationMatrix::RotationOrder rotOrder;
-
-										//if (jointFn.getRotation(rotation, rotOrder, MSpace::kObject))
-										//{
-										//	rotation[0] *= -1.0;
-										//	rotation[1] *= -1.0;
-					
-										//	//std::copy(rotation, rotation + 3, keyData.rotation);
-
-										//	MEulerRotation euler(rotation);
-										//	MQuaternion quaternion = euler.asQuaternion();
-
-										//	double quat[4];
-										//	quaternion.get(quat);
-										//	std::copy(quat, quat + 4, keyData.quaternion);
-										//}
 
 										MQuaternion quaternion;
 

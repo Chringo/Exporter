@@ -179,8 +179,12 @@ void MeshExport::exportMesh(MObject & mNode,bool customObb)
 				/*Checking to see if the mesh has a skeleton*/
 				if (res)
 				{
-					newBox.exportBoundingBox(mNode);
-					exportDynamic(mMesh, mTran);
+					if (!customObb)
+						newBox.exportBoundingBox(mNode);
+					else
+						this->exportCustomObb();
+					exportDynamic(mMesh, mTran, customObb);
+					
 				}
 			}
 			else
@@ -391,147 +395,161 @@ void MeshExport::exportCustomObb()
 	
 }
 
-void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran)
+void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran, bool customObb)
 {
 	MStatus res;
 
-	MItDependencyNodes layerWeightIter(MFn::kAnimLayer, &res);
-	if (res == MStatus::kSuccess)
+	string attrName = mTran.name().asChar();
+
+	if (attrName != "BBOX")
 	{
-		while (!layerWeightIter.isDone())
+		MItDependencyNodes layerWeightIter(MFn::kAnimLayer, &res);
+		if (res == MStatus::kSuccess)
 		{
-			MFnDependencyNode animLayerFn(layerWeightIter.item(), &res);
-
-			MPlug soloPlug = animLayerFn.findPlug("solo", &res);
-			MPlug mutePlug = animLayerFn.findPlug("mute", &res);
-
-			mutePlug.setBool(true);
-
-			layerWeightIter.next();
-		}
-	}
-
-	/*Declaring variables to be used*/
-	MIntArray indexList, offsetIdList, normalCount, uvCount, uvIds, normalIdList;
-	MFloatPointArray points;
-	MFloatArray u, v;
-	MFloatVectorArray tangents;
-	QWidget *control = MQtUtil::findControl("progressBar");
-	QProgressBar *pBar = (QProgressBar*)control;
-
-	/*getting the index list of the vertex positions*/
-	mMesh.getTriangles(offsetIdList, indexList);
-	mMesh.getTriangleOffsets(uvCount, offsetIdList);
-	mMesh.getAssignedUVs(uvCount, uvIds);
-	mMesh.getNormalIds(normalCount, normalIdList);
-	mMesh.getTangents(tangents, MSpace::kObject);
-
-	/*getting the data for the vertices*/
-	const float * postitions = mMesh.getRawPoints(NULL);
-	const float * normalsPos = mMesh.getRawNormals(NULL);
-	mMesh.getUVs(u, v);
-
-	/*extracting all the information from maya and putting them in a array of vertices*/
-	vector<unsigned int> * newIndex = new vector<unsigned int>[indexList.length()];
-	vector<SkelVertex> * sVertices = new vector<SkelVertex>[indexList.length()];
-	SkelVertex tempVertex;
-	MeshHeader hHead;
-	BoundingBoxHeader obbHead;
-	hHead.hasSkeleton = true;
-
-	//Recalculating the vertices using only the unique vertices based on individual normals
-	for (unsigned int i = 0; i < indexList.length(); ++i)
-	{
-		tempVertex.position.x = postitions[indexList[i] * 3];
-		tempVertex.position.y = postitions[indexList[i] * 3 + 1];
-		tempVertex.position.z = (postitions[indexList[i] * 3 + 2] * -1);
-
-		tempVertex.normal.x = normalsPos[normalIdList[offsetIdList[i]] * 3];
-		tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 1];
-		tempVertex.normal.z = (normalsPos[normalIdList[offsetIdList[i]] * 3 + 2]*-1);
-
-		/*tempVertex.position.x = postitions[indexList[i] * 3];
-		tempVertex.position.y = postitions[indexList[i] * 3 + 2];
-		tempVertex.position.z = (postitions[indexList[i] * 3 + 1] * -1);
-
-		tempVertex.normal.x = normalsPos[normalIdList[offsetIdList[i]] * 3];
-		tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 2];
-		tempVertex.normal.z = (normalsPos[normalIdList[offsetIdList[i]] * 3 + 1] * -1);*/
-
-		tempVertex.tangent.x = tangents[normalIdList[offsetIdList[i]]].x;
-		tempVertex.tangent.y = tangents[normalIdList[offsetIdList[i]]].y;
-		tempVertex.tangent.z = tangents[normalIdList[offsetIdList[i]]].z;
-
-		tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
-		tempVertex.UV.v = 1.0 - v[uvIds[offsetIdList[i]]];
-
-		/*for loop that controls the weight. If the weight is to low,
-		the influence will be set to -1. Which means that the weight will
-		not be calculated in the engine.*/
-		for (int k = 0; k < 4; ++k)
-		{
-			tempVertex.weights[k] = skinList->at(indexList[i]).weights[k];
-			if (tempVertex.weights[k] < 0.01f)
+			while (!layerWeightIter.isDone())
 			{
-				tempVertex.influence[k] = -1;
-			}
-			else
-			{
-				tempVertex.influence[k] = skinList->at(indexList[i]).boneInfluences[k];
+				MFnDependencyNode animLayerFn(layerWeightIter.item(), &res);
+
+				MPlug soloPlug = animLayerFn.findPlug("solo", &res);
+				MPlug mutePlug = animLayerFn.findPlug("mute", &res);
+
+				mutePlug.setBool(true);
+
+				layerWeightIter.next();
 			}
 		}
 
-		bool exists = false;
+		/*Declaring variables to be used*/
+		MIntArray indexList, offsetIdList, normalCount, uvCount, uvIds, normalIdList;
+		MFloatPointArray points;
+		MFloatArray u, v;
+		MFloatVectorArray tangents;
+		QWidget *control = MQtUtil::findControl("progressBar");
+		QProgressBar *pBar = (QProgressBar*)control;
 
-		for (int j = 0; j < sVertices->size(); ++j)
+		/*getting the index list of the vertex positions*/
+		mMesh.getTriangles(offsetIdList, indexList);
+		mMesh.getTriangleOffsets(uvCount, offsetIdList);
+		mMesh.getAssignedUVs(uvCount, uvIds);
+		mMesh.getNormalIds(normalCount, normalIdList);
+		mMesh.getTangents(tangents, MSpace::kObject);
+
+		/*getting the data for the vertices*/
+		const float * postitions = mMesh.getRawPoints(NULL);
+		const float * normalsPos = mMesh.getRawNormals(NULL);
+		mMesh.getUVs(u, v);
+
+		/*extracting all the information from maya and putting them in a array of vertices*/
+		vector<unsigned int> * newIndex = new vector<unsigned int>[indexList.length()];
+		vector<SkelVertex> * sVertices = new vector<SkelVertex>[indexList.length()];
+		SkelVertex tempVertex;
+		MeshHeader hHead;
+		//BoundingBoxHeader obbHead;
+		hHead.hasSkeleton = true;
+
+		//Recalculating the vertices using only the unique vertices based on individual normals
+		for (unsigned int i = 0; i < indexList.length(); ++i)
 		{
-			if (memcmp(&tempVertex, &sVertices->at(j), sizeof(Vertex)) == 0)
+			tempVertex.position.x = postitions[indexList[i] * 3];
+			tempVertex.position.y = postitions[indexList[i] * 3 + 1];
+			tempVertex.position.z = (postitions[indexList[i] * 3 + 2] * -1);
+
+			tempVertex.normal.x = normalsPos[normalIdList[offsetIdList[i]] * 3];
+			tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 1];
+			tempVertex.normal.z = (normalsPos[normalIdList[offsetIdList[i]] * 3 + 2] * -1);
+
+			/*tempVertex.position.x = postitions[indexList[i] * 3];
+			tempVertex.position.y = postitions[indexList[i] * 3 + 2];
+			tempVertex.position.z = (postitions[indexList[i] * 3 + 1] * -1);
+
+			tempVertex.normal.x = normalsPos[normalIdList[offsetIdList[i]] * 3];
+			tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 2];
+			tempVertex.normal.z = (normalsPos[normalIdList[offsetIdList[i]] * 3 + 1] * -1);*/
+
+			tempVertex.tangent.x = tangents[normalIdList[offsetIdList[i]]].x;
+			tempVertex.tangent.y = tangents[normalIdList[offsetIdList[i]]].y;
+			tempVertex.tangent.z = tangents[normalIdList[offsetIdList[i]]].z;
+
+			tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
+			tempVertex.UV.v = 1.0 - v[uvIds[offsetIdList[i]]];
+
+			/*for loop that controls the weight. If the weight is to low,
+			the influence will be set to -1. Which means that the weight will
+			not be calculated in the engine.*/
+			for (int k = 0; k < 4; ++k)
 			{
-				exists = true;
-				newIndex->push_back(j);
-				break;
+				tempVertex.weights[k] = skinList->at(indexList[i]).weights[k];
+				if (tempVertex.weights[k] < 0.01f)
+				{
+					tempVertex.influence[k] = -1;
+				}
+				else
+				{
+					tempVertex.influence[k] = skinList->at(indexList[i]).boneInfluences[k];
+				}
 			}
+
+			bool exists = false;
+
+			for (int j = 0; j < sVertices->size(); ++j)
+			{
+				if (memcmp(&tempVertex, &sVertices->at(j), sizeof(Vertex)) == 0)
+				{
+					exists = true;
+					newIndex->push_back(j);
+					break;
+				}
+			}
+			if (!exists)
+			{
+				newIndex->push_back((unsigned int)sVertices->size());
+				sVertices->push_back(tempVertex);
+			}
+			pBar->setValue(pBar->value() + 1);
 		}
-		if (!exists)
+		//sVertices->shrink_to_fit(); //kanske sedundant
+		//newIndex->shrink_to_fit();
+		for (int i = 1; i < newIndex->size(); i += 3)
 		{
-			newIndex->push_back((unsigned int)sVertices->size());
-			sVertices->push_back(tempVertex);
+			unsigned int tempIndex = newIndex->at(i);
+			newIndex->at(i) = newIndex->at(i + 1);
+			newIndex->at(i + 1) = tempIndex;
 		}
-		pBar->setValue(pBar->value() + 1);
+
+		/*creating the mesh header and setting the length of the vertices and indices*/
+
+		hHead.indexLength = (unsigned int)newIndex->size();
+		hHead.vertices = (unsigned int)sVertices->size();
+		//hHead.jointCount = jointCount;
+
+		/*Getting the transformation matrix*/
+		//MFnDependencyNode depNode = mMesh.parent(0);
+		//MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
+		//hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
+
+
+		if (!customObb)
+		{
+
+			this->obbHead = *newBox.getObbHead();
+		}
+
+
+
+		//obbHead = *newBox.getObbHead();
+
+		/*writing the information to the binary file*/
+		outFile->write((char*)&hHead, sizeof(MeshHeader));
+		outFile->write((char*)sVertices->data(), sizeof(SkelVertex)*sVertices->size());
+		outFile->write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());
+
+		outFile->write((char*)&obbHead, sizeof(BoundingBoxHeader));
+
+		/*clearing the variables*/
+		sVertices->clear();
+		newIndex->clear();
+		outFile->close();
 	}
-	//sVertices->shrink_to_fit(); //kanske sedundant
-	//newIndex->shrink_to_fit();
-	for (int i = 1; i < newIndex->size(); i += 3)
-	{
-		unsigned int tempIndex = newIndex->at(i);
-		newIndex->at(i) = newIndex->at(i + 1);
-		newIndex->at(i + 1) = tempIndex;
-	}
-
-	/*creating the mesh header and setting the length of the vertices and indices*/
-
-	hHead.indexLength = (unsigned int)newIndex->size();
-	hHead.vertices = (unsigned int)sVertices->size();
-	//hHead.jointCount = jointCount;
-
-	/*Getting the transformation matrix*/
-	//MFnDependencyNode depNode = mMesh.parent(0);
-	//MFnMatrixData parentMatrix = depNode.findPlug("pm").elementByLogicalIndex(0).asMObject();
-	//hHead.transMatrix = mTran.transformationMatrix()*parentMatrix.matrix();
-
-	obbHead = *newBox.getObbHead();
-
-	/*writing the information to the binary file*/
-	outFile->write((char*)&hHead, sizeof(MeshHeader));
-	outFile->write((char*)sVertices->data(), sizeof(SkelVertex)*sVertices->size());
-	outFile->write((char*)newIndex->data(), sizeof(unsigned int)*newIndex->size());
-	
-	outFile->write((char*)&obbHead, sizeof(BoundingBoxHeader));
-
-	/*clearing the variables*/
-	sVertices->clear();
-	newIndex->clear();
-	outFile->close();
 }
 
 void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran,bool customObb)

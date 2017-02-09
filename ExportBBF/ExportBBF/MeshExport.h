@@ -38,7 +38,7 @@ public:
 	void exportCustomObb();
 private:
 	/*export a mesh with a skeleton*/
-	void exportDynamic(MFnMesh & mMesh, MFnTransform & mTran);
+	void exportDynamic(MFnMesh & mMesh, MFnTransform & mTran,bool customObb);
 
 	/*ecport a mesh without any skeleton*/
 	void exportStatic(MFnMesh & mMesh, MFnTransform & mTran,bool customObb);

@@ -74,26 +74,23 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model,bool cu
 				MFnTransform trans = meshIt.currentItem();
 				if (trans.child(0).hasFn(MFn::kMesh))
 				{
-					
 					string attrName = trans.name().asChar();
 					if (attrName != "BBOX")
 					{
-						cSkelAnim.IterateSkinClusters();
-						MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
-						/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
-					
-				
+					/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
+					cSkelAnim.IterateSkinClusters();
+					MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
 						if (skel)
 							cSkelAnim.setMeshName((string)trans.name().asChar());
 						if (model)
 						{
 							if (attrName != "BBOX")
 							{
-								m_model.setUID((string)trans.name().asChar() + ".model");
-								m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
-								newMesh.GenerateID();
-								m_model.setMeshId(newMesh.getUID());
-							}
+							m_model.setUID((string)trans.name().asChar() + ".model");
+							m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
+							newMesh.GenerateID();
+							m_model.setMeshId(newMesh.getUID());
+						}
 						}
 
 						if (mesh && skel)

@@ -466,9 +466,9 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran, bool custo
 			tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 2];
 			tempVertex.normal.z = (normalsPos[normalIdList[offsetIdList[i]] * 3 + 1] * -1);*/
 
-			tempVertex.tangent.x = tangents[normalIdList[offsetIdList[i]]].x;
-			tempVertex.tangent.y = tangents[normalIdList[offsetIdList[i]]].y;
-			tempVertex.tangent.z = tangents[normalIdList[offsetIdList[i]]].z;
+			tempVertex.tangent.x = tangents[offsetIdList[i]].x;
+			tempVertex.tangent.y = tangents[offsetIdList[i]].y;
+			tempVertex.tangent.z = (tangents[offsetIdList[i]].z * -1);
 
 			tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
 			tempVertex.UV.v = 1.0 - v[uvIds[offsetIdList[i]]];
@@ -577,6 +577,7 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran,bool customO
 		mMesh.getAssignedUVs(uvCount, uvIds);
 		mMesh.getNormalIds(normalCount, normalIdList);
 		mMesh.getTangents(tangents, MSpace::kObject);
+		
 
 		/*getting the data for the vertices*/
 		const float * postitions = mMesh.getRawPoints(NULL);
@@ -601,9 +602,9 @@ void MeshExport::exportStatic(MFnMesh & mMesh, MFnTransform & mTran,bool customO
 			tempVertex.normal.y = normalsPos[normalIdList[offsetIdList[i]] * 3 + 1];
 			tempVertex.normal.z = (normalsPos[normalIdList[offsetIdList[i]] * 3 + 2] * -1);
 
-			tempVertex.tangent.x = tangents[normalIdList[offsetIdList[i]]].x;
-			tempVertex.tangent.y = tangents[normalIdList[offsetIdList[i]]].y;
-			tempVertex.tangent.z = tangents[normalIdList[offsetIdList[i]]].z;
+			tempVertex.tangent.x = tangents[offsetIdList[i]].x;
+			tempVertex.tangent.y = tangents[offsetIdList[i]].y;
+			tempVertex.tangent.z = (tangents[offsetIdList[i]].z * -1);
 
 			tempVertex.UV.u = u[uvIds[offsetIdList[i]]];
 			tempVertex.UV.v = 1.0 - v[uvIds[offsetIdList[i]]];

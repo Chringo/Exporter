@@ -185,8 +185,6 @@ void MeshExport::exportMesh(MObject & mNode,bool customObb)
 						this->exportCustomObb();
 					exportDynamic(mMesh, mTran, customObb);
 					
-						
-					
 				}
 			}
 			else

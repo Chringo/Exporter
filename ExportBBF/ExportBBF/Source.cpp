@@ -84,10 +84,13 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model,bool cu
 							cSkelAnim.setMeshName((string)trans.name().asChar());
 						if (model)
 						{
+							if (attrName != "BBOX")
+							{
 							m_model.setUID((string)trans.name().asChar() + ".model");
 							m_model.changeFilePath(filePath + "/Models/" + (string)trans.name().asChar() + ".model");
 							newMesh.GenerateID();
 							m_model.setMeshId(newMesh.getUID());
+						}
 						}
 
 						if (mesh && skel)

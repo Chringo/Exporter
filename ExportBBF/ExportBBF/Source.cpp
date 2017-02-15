@@ -74,12 +74,12 @@ void exportStart(bool mesh, bool skel, bool mats, bool anims, bool model,bool cu
 				MFnTransform trans = meshIt.currentItem();
 				if (trans.child(0).hasFn(MFn::kMesh))
 				{
-					cSkelAnim.IterateSkinClusters();
-					MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
-					/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
 					string attrName = trans.name().asChar();
 					if (attrName != "BBOX")
 					{
+					/*SAVING THE MESH NAME FOR THE SKELETON, AS AN IDENTIFIER*/
+					cSkelAnim.IterateSkinClusters();
+					MeshExport newMesh((filePath + "/Meshes/" + (string)trans.name().asChar() + ".bbf"), &cSkelAnim.skinList);
 						if (skel)
 							cSkelAnim.setMeshName((string)trans.name().asChar());
 						if (model)

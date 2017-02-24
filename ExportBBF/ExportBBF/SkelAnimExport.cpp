@@ -53,65 +53,65 @@ void SkelAnimExport::IterateJoints()
 
 void SkelAnimExport::IterateAnimations(bool anims)
 {
-    MStatus res;
+	if (anims)
+	{
+		MStatus res;
 
-    MFnIkJoint jointFn;
+		MFnIkJoint jointFn;
 
-	MPlugArray soloArray;
+		MPlugArray soloArray;
 
-	/*Iterates all animation layers and setting their weight value to 0.
-	Later we want this because processing every layer requires all others
-	to be set to 0, otherwise probably we can't get the keyframe values.*/
-    MItDependencyNodes layerWeightIter(MFn::kAnimLayer, &res);
-    if (res == MStatus::kSuccess)
-    {
-        while (!layerWeightIter.isDone())
-        {
-            MFnDependencyNode animLayerFn(layerWeightIter.item(), &res);
-
-            MPlug soloPlug = animLayerFn.findPlug("solo", &res);
-			MPlug mutePlug = animLayerFn.findPlug("mute", &res);
-
-            soloPlug.setBool(false);
-			mutePlug.setBool(false);
-
-			soloArray.append(soloPlug);
-
-            layerWeightIter.next();
-        }
-    }
-
-    int soloCounter = 0;
-	/*Iterates every animation layer for the joints of the skeleton.*/
-    MItDependencyNodes animLayerIter(MFn::kAnimLayer, &res);
-    if (res == MStatus::kSuccess)
-    {
-        while (!animLayerIter.isDone())
-        {
-            MFnDependencyNode animLayerFn(animLayerIter.item(), &res);
-
-			/*Skip the base animation layer, we DON'T EVER use that as a layer for this project.*/
-            if (animLayerFn.name() == "BaseAnimation")
-            {
-                animLayerIter.next();
-				soloArray[soloCounter].setDouble(false);
-				soloCounter++;
-                continue;
-            }
-
-			int jointCounter = 0;
-			nrOfAnimLayers++;
-
-			MainHeader s_Head;
-			string tempAnimId = m_filePath + m_meshName + "_" + string(animLayerFn.name().asChar()) + ".anim";
-			s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
-			s_Head.id = (unsigned int)std::hash<std::string>{}(tempAnimId);
-
-			LayerIdHeader layerId{ s_Head.id };
-			animIdList.push_back(layerId);
-
-			if (anims)
+		/*Iterates all animation layers and setting their weight value to 0.
+		Later we want this because processing every layer requires all others
+		to be set to 0, otherwise probably we can't get the keyframe values.*/
+		MItDependencyNodes layerWeightIter(MFn::kAnimLayer, &res);
+		if (res == MStatus::kSuccess)
+		{
+			while (!layerWeightIter.isDone())
 			{
+				MFnDependencyNode animLayerFn(layerWeightIter.item(), &res);
+
+				MPlug soloPlug = animLayerFn.findPlug("solo", &res);
+				MPlug mutePlug = animLayerFn.findPlug("mute", &res);
+
+				soloPlug.setBool(false);
+				mutePlug.setBool(false);
+
+				soloArray.append(soloPlug);
+
+				layerWeightIter.next();
+			}
+		}
+
+		int soloCounter = 0;
+		/*Iterates every animation layer for the joints of the skeleton.*/
+		MItDependencyNodes animLayerIter(MFn::kAnimLayer, &res);
+		if (res == MStatus::kSuccess)
+		{
+			while (!animLayerIter.isDone())
+			{
+				MFnDependencyNode animLayerFn(animLayerIter.item(), &res);
+
+				/*Skip the base animation layer, we DON'T EVER use that as a layer for this project.*/
+				if (animLayerFn.name() == "BaseAnimation")
+				{
+					animLayerIter.next();
+					soloArray[soloCounter].setDouble(false);
+					soloCounter++;
+					continue;
+				}
+
+				int jointCounter = 0;
+				nrOfAnimLayers++;
+
+				MainHeader s_Head;
+				string tempAnimId = m_filePath + m_meshName + "_" + string(animLayerFn.name().asChar()) + ".anim";
+				s_Head.type = (int)Resources::ResourceType::RES_ANIMATION;
+				s_Head.id = (unsigned int)std::hash<std::string>{}(tempAnimId);
+
+				LayerIdHeader layerId{ s_Head.id };
+				animIdList.push_back(layerId);
+
 				if (animExists(tempAnimId))
 				{
 					string animName = ("Overwrite " + m_meshName + "_" + string(animLayerFn.name().asChar()) + "?");
@@ -225,19 +225,19 @@ void SkelAnimExport::IterateAnimations(bool anims)
 											{
 												double translation[3];
 												transVec.get(translation);
-											
+
 												translation[2] *= -1.0;
 
 												std::copy(translation, translation + 3, keyData.translation);
 											}
-											
+
 											double scale[3];
 											if (jointFn.getScale(scale))
 											{
 												std::copy(scale, scale + 3, keyData.scale);
 											}
 
-											animationFile.write((char*)&keyData, sizeof(KeyframeHeader));	
+											animationFile.write((char*)&keyData, sizeof(KeyframeHeader));
 										}
 
 										jointCounter++;
@@ -337,7 +337,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 
 										/*With the time of the current keyframe, we set where the keyframe is set in timeline.*/
 										MAnimControl::setCurrentTime(keyTime);
-			
+
 										/*Keyframes transformation values are obtained here: quat, trans and scale.*/
 										double rotation[3];
 										MTransformationMatrix::RotationOrder rotOrder;
@@ -360,7 +360,7 @@ void SkelAnimExport::IterateAnimations(bool anims)
 										{
 											double translation[3];
 											transVec.get(translation);
-			
+
 											translation[2] *= -1.0;
 
 											std::copy(translation, translation + 3, keyData.translation);
@@ -384,10 +384,10 @@ void SkelAnimExport::IterateAnimations(bool anims)
 					soloCounter++;
 					animationFile.close();
 				}
+				animLayerIter.next();
 			}
-            animLayerIter.next();
-        }
-    }
+		}
+	}
 }
 
 void SkelAnimExport::LoadSkinData(MObject skinNode)

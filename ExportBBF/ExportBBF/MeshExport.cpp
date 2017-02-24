@@ -422,6 +422,7 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran, bool custo
 		//mel command for bindpose here <---------------------------------------------------------------------------------------
 		//Kan vara så att meshen inte är selectad, då får du selecta meshen
 		//MGlobal::executeCommand("dagPose -restore -global -bindPose;");
+		
 
 
 		/*Declaring variables to be used*/

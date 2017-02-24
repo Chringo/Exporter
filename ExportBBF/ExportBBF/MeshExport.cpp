@@ -403,26 +403,20 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran, bool custo
 
 	if (attrName != "BBOX")
 	{
-		MItDependencyNodes layerWeightIter(MFn::kAnimLayer, &res);
+		/*Execute MEL command to make the mesh and skeleton go to bindpose before exporting vertex information.*/
+		MItDependencyNodes dagPoseIter(MFn::kDagPose, &res);
 		if (res == MStatus::kSuccess)
 		{
-			while (!layerWeightIter.isDone())
+			if (dagPoseIter.item().hasFn(MFn::kDagPose))
 			{
-				MFnDependencyNode animLayerFn(layerWeightIter.item(), &res);
-
-				MPlug soloPlug = animLayerFn.findPlug("solo", &res);
-				MPlug mutePlug = animLayerFn.findPlug("mute", &res);
-
-				mutePlug.setBool(true);
-
-				layerWeightIter.next();
+				MFnDependencyNode dagPoseFn(dagPoseIter.item(), &res);
+				if (res == MStatus::kSuccess)
+				{
+					MString dagPoseName = dagPoseFn.name(&res);
+					MGlobal::executeCommand("dagPose -restore -global " + dagPoseName);
+				}
 			}
 		}
-
-		//mel command for bindpose here <---------------------------------------------------------------------------------------
-		//Kan vara så att meshen inte är selectad, då får du selecta meshen
-		//MGlobal::executeCommand("dagPose -restore -global -bindPose;");
-
 
 		/*Declaring variables to be used*/
 		MIntArray indexList, offsetIdList, normalCount, uvCount, uvIds, normalIdList;

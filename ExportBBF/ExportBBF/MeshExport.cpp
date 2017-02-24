@@ -418,6 +418,7 @@ void MeshExport::exportDynamic(MFnMesh & mMesh, MFnTransform & mTran, bool custo
 			}
 		}
 
+
 		/*Declaring variables to be used*/
 		MIntArray indexList, offsetIdList, normalCount, uvCount, uvIds, normalIdList;
 		MFloatPointArray points;
